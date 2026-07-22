@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { zIanaTimezone } from './common'
+import { zIanaTimezone, zTimeString } from './common'
 
 export const slideshowSettingsSchema = z.object({
   idleMinutes: z.number().min(0.1).max(240),
@@ -31,6 +31,13 @@ export const householdPatchSchema = z.object({
     weekStartsOn: z.union([z.literal(0), z.literal(1)]),
     temperatureUnit: z.enum(['fahrenheit', 'celsius']),
     appearance: appearanceSchema,
+    mealTimes: z.object({
+      breakfast: zTimeString,
+      lunch: zTimeString,
+      dinner: zTimeString,
+      snack: zTimeString,
+    }),
+    defaultCookProfileId: z.string().min(1).nullable(),
     slideshow: slideshowSettingsSchema,
   }).partial().optional(),
 })

@@ -21,6 +21,8 @@ export interface BoardBootstrap {
       accentLight: string
       accentDark: string
     }
+    mealTimes?: { breakfast: string, lunch: string, dinner: string, snack: string }
+    defaultCookProfileId?: string | null
     slideshow: {
       idleMinutes: number
       intervalSec: number

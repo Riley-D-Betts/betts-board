@@ -23,6 +23,9 @@ export default defineEventHandler(async (event) => {
         ...(patch.settings.appearance !== undefined && {
           appearance: { ...hh.settings.appearance, ...patch.settings.appearance },
         }),
+        ...(patch.settings.mealTimes !== undefined && {
+          mealTimes: { ...hh.settings.mealTimes, ...patch.settings.mealTimes },
+        }),
       },
     }),
   }).where(eq(households.id, hh.id)).returning().get()

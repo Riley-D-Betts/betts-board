@@ -1,8 +1,15 @@
 <script setup lang="ts">
+import { DEFAULT_MEAL_TIMES } from '#shared/schemas/meals'
+
 const toast = useToast()
-const { refresh } = useBoardState()
+const { state, refresh } = useBoardState()
 
 const { data: household } = await useFetch('/api/household')
+
+const cookItems = computed(() => [
+  { label: 'No default — ask each time', value: '' },
+  ...(state.value?.profiles ?? []).map(p => ({ label: p.name, value: p.id })),
+])
 
 const form = reactive({
   name: household.value?.name ?? '',
@@ -10,7 +17,16 @@ const form = reactive({
   locationName: household.value?.locationName ?? '',
   weekStartsOn: (household.value?.settings?.weekStartsOn ?? 0) as 0 | 1,
   temperatureUnit: (household.value?.settings?.temperatureUnit ?? 'fahrenheit') as 'fahrenheit' | 'celsius',
+  mealTimes: { ...DEFAULT_MEAL_TIMES, ...(household.value?.settings?.mealTimes ?? {}) },
+  defaultCookProfileId: household.value?.settings?.defaultCookProfileId ?? '',
 })
+
+const mealTimeFields = [
+  { key: 'breakfast', label: 'Breakfast' },
+  { key: 'lunch', label: 'Lunch' },
+  { key: 'dinner', label: 'Dinner' },
+  { key: 'snack', label: 'Snack' },
+] as const
 
 // Open-Meteo geocoder for changing the weather location.
 const locationQuery = ref('')
@@ -57,7 +73,12 @@ async function save() {
         timezone: form.timezone,
         locationName: form.locationName || null,
         ...(pendingLocation.value ?? {}),
-        settings: { weekStartsOn: form.weekStartsOn, temperatureUnit: form.temperatureUnit },
+        settings: {
+          weekStartsOn: form.weekStartsOn,
+          temperatureUnit: form.temperatureUnit,
+          mealTimes: { ...form.mealTimes },
+          defaultCookProfileId: form.defaultCookProfileId || null,
+        },
       },
     })
     await refresh()
@@ -117,6 +138,22 @@ async function save() {
           ]"
           class="w-48"
         />
+      </UFormField>
+      <UFormField label="Meal times" help="When each meal is eaten — cooking blocks on the calendar end at these times.">
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <label v-for="field in mealTimeFields" :key="field.key" class="block">
+            <span class="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">{{ field.label }}</span>
+            <input
+              v-model="form.mealTimes[field.key]"
+              type="time"
+              :aria-label="`${field.label} time`"
+              class="w-full min-h-11 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 text-sm tabular-nums focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+          </label>
+        </div>
+      </UFormField>
+      <UFormField label="Default cook" help="Pre-filled when planning a meal; change it per meal anytime.">
+        <USelect v-model="form.defaultCookProfileId" :items="cookItems" class="w-64" />
       </UFormField>
       <UButton :loading="busy" @click="save">Save</UButton>
     </div>

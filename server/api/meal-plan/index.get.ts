@@ -1,7 +1,7 @@
 import { and, asc, eq, gte, inArray, lt, sql } from 'drizzle-orm'
 import { mealPlanQuerySchema } from '#shared/schemas/meals'
 import { useDb } from '../../db/client'
-import { mealPlanEntries, recipeRatings, recipes } from '../../db/schema'
+import { mealPlanEntries, profiles, recipeRatings, recipes } from '../../db/schema'
 import { requireHousehold, requireUnlocked } from '../../utils/session'
 
 export default defineEventHandler(async (event) => {
@@ -31,8 +31,20 @@ export default defineEventHandler(async (event) => {
       : [],
   )
 
+  const cookIds = [...new Set(entries.map(e => e.cookProfileId).filter((id): id is string => id != null))]
+  const cookById = new Map(
+    cookIds.length
+      ? useDb().select({
+          id: profiles.id,
+          name: profiles.name,
+          color: profiles.color,
+        }).from(profiles).where(inArray(profiles.id, cookIds)).all().map(p => [p.id, p] as const)
+      : [],
+  )
+
   return entries.map(e => ({
     ...e,
     recipe: e.recipeId ? recipeById.get(e.recipeId) ?? null : null,
+    cook: e.cookProfileId ? cookById.get(e.cookProfileId) ?? null : null,
   }))
 })

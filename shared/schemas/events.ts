@@ -71,7 +71,7 @@ export type EventPatch = z.infer<typeof eventPatchSchema>
 export interface CalendarOccurrence {
   occurrenceId: string // `${eventId}:${originalStartMs}` — stable edit key
   eventId: string
-  kind: 'event' | 'feed' | 'chore'
+  kind: 'event' | 'feed' | 'chore' | 'meal'
   title: string
   description?: string | null
   location?: string | null
@@ -88,4 +88,6 @@ export interface CalendarOccurrence {
   feedId?: string | null
   choreId?: string | null
   dueDate?: string // chores only
+  mealEntryId?: string | null // cooking blocks only
+  recipeId?: string | null // cooking blocks only
 }

@@ -81,11 +81,13 @@ async function onSelect(occ: CalendarOccurrence) {
     detailOcc.value = occ
     detailFeedName.value = null
     detailOpen.value = true
-    try {
-      const master = await $fetch<EventMaster>(`/api/events/${occ.eventId}`)
-      detailFeedName.value = master.feedName
+    if (occ.kind !== 'meal') { // cooking blocks have no event master to fetch
+      try {
+        const master = await $fetch<EventMaster>(`/api/events/${occ.eventId}`)
+        detailFeedName.value = master.feedName
+      }
+      catch { /* hint stays generic */ }
     }
-    catch { /* hint stays generic */ }
     return
   }
   if (occ.hasRecurrence) {
@@ -124,6 +126,13 @@ function openCreate() {
 function gotoDay(date: string) {
   router.replace({ query: { ...route.query, view: 'day', date } })
 }
+
+const detailTitle = computed(() => {
+  const occ = detailOcc.value
+  if (!occ) return ''
+  if (occ.kind === 'meal') return `Cooking — ${occ.title.replace(/^Cook: /, '')}`
+  return occ.title
+})
 
 const detailTimeLabel = computed(() => {
   const occ = detailOcc.value
@@ -249,8 +258,8 @@ const detailTimeLabel = computed(() => {
 
     <ScopeDialog v-model:open="scopeOpen" @select="onScopePicked" />
 
-    <!-- read-only feed occurrence detail -->
-    <UModal v-model:open="detailOpen" :title="detailOcc?.title ?? ''">
+    <!-- read-only occurrence detail (feed imports + cooking blocks) -->
+    <UModal v-model:open="detailOpen" :title="detailTitle">
       <template #body>
         <div v-if="detailOcc" class="space-y-3 text-sm">
           <p class="flex items-center gap-2">
@@ -264,7 +273,21 @@ const detailTimeLabel = computed(() => {
           <p v-if="detailOcc.description" class="whitespace-pre-line text-slate-600 dark:text-slate-300">
             {{ detailOcc.description }}
           </p>
-          <p class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+          <template v-if="detailOcc.kind === 'meal'">
+            <p class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+              <UIcon name="i-lucide-chef-hat" class="size-3.5" />
+              Cooking block from the meal planner — change the cook or meal there.
+            </p>
+            <UButton
+              :to="detailOcc.recipeId ? `/recipes/${detailOcc.recipeId}` : '/meals'"
+              :icon="detailOcc.recipeId ? 'i-lucide-book-open' : 'i-lucide-utensils'"
+              variant="soft"
+              @click="detailOpen = false"
+            >
+              {{ detailOcc.recipeId ? 'View recipe' : 'Open meal planner' }}
+            </UButton>
+          </template>
+          <p v-else class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
             <UIcon name="i-lucide-rss" class="size-3.5" />
             {{ detailFeedName ? `From ${detailFeedName} — imported events can't be edited here.` : `Imported from a calendar subscription — read-only.` }}
           </p>
