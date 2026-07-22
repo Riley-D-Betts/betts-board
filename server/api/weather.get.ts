@@ -1,11 +1,11 @@
-import { fetchForecast } from '../services/weather/forecast'
-import { getHousehold, requireHousehold, requireUnlocked } from '../utils/session'
+import { fetchForecastCached } from '../services/weather/forecast'
+import { requireHousehold, requireUnlocked } from '../utils/session'
 
-// Cached: open-meteo asks integrations not to hammer their free API, and the
-// forecast doesn't change minute-to-minute. Errors (including the 404 for an
-// unconfigured location) are never cached. The key varies with location and
-// unit so changing either in settings takes effect immediately.
-export default cachedEventHandler(async (event) => {
+// The 15-minute cache lives in the service (keyed by location + unit) so
+// open-meteo isn't hammered. The response itself is marked no-store: browsers
+// must not reuse it, or a unit/location change in settings looks like it did
+// nothing until their HTTP cache expires.
+export default defineEventHandler(async (event) => {
   await requireUnlocked(event)
   const hh = requireHousehold()
 
@@ -17,11 +17,6 @@ export default cachedEventHandler(async (event) => {
     })
   }
 
-  return fetchForecast(hh.latitude, hh.longitude, hh.settings.temperatureUnit ?? 'fahrenheit')
-}, {
-  maxAge: 900,
-  getKey: () => {
-    const hh = getHousehold()
-    return `weather:${hh?.latitude},${hh?.longitude},${hh?.settings.temperatureUnit ?? 'fahrenheit'}`
-  },
+  setHeader(event, 'Cache-Control', 'no-store')
+  return fetchForecastCached(hh.latitude, hh.longitude, hh.settings.temperatureUnit ?? 'fahrenheit')
 })

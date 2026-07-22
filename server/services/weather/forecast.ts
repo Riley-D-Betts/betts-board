@@ -1,6 +1,7 @@
 import { createError } from 'h3'
 
-const OPEN_METEO_URL = 'https://api.open-meteo.com/v1/forecast'
+// Overridable for tests and for self-hosters routing through an egress proxy.
+const OPEN_METEO_URL = process.env.BETTS_OPEN_METEO_URL || 'https://api.open-meteo.com/v1/forecast'
 const FETCH_TIMEOUT_MS = 10_000
 
 export interface WeatherCondition {
@@ -60,6 +61,24 @@ interface OpenMeteoResponse {
     temperature_2m_min: number[]
     precipitation_probability_max: (number | null)[]
   }
+}
+
+/** Server-side memo: shields open-meteo from repeated hits without letting
+ * browsers cache responses (a settings change must show up immediately). */
+const memo = new Map<string, { report: WeatherReport, at: number }>()
+const MEMO_TTL_MS = 15 * 60_000
+
+export async function fetchForecastCached(
+  latitude: number,
+  longitude: number,
+  unit: TemperatureUnit = 'fahrenheit',
+): Promise<WeatherReport> {
+  const key = `${latitude},${longitude},${unit}`
+  const hit = memo.get(key)
+  if (hit && Date.now() - hit.at < MEMO_TTL_MS) return hit.report
+  const report = await fetchForecast(latitude, longitude, unit)
+  memo.set(key, { report, at: Date.now() })
+  return report
 }
 
 /** 5-day forecast from open-meteo (no API key). Throws 502 when unreachable. */

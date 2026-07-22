@@ -15,6 +15,7 @@ async function load() {
 
 onMounted(load)
 useIntervalFn(load, 15 * 60_000)
+watch(useWeatherTick(), load) // settings changed (unit/location) → refetch now
 </script>
 
 <template>
