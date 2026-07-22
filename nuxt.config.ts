@@ -60,6 +60,9 @@ export default defineNuxtConfig({
     },
     injectManifest: {
       globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+      // The Scalar docs bundle is ~3.7 MB and loads on demand behind auth —
+      // keep it out of every phone's offline precache.
+      globIgnores: ['**/docs-assets/**'],
     },
     devOptions: { enabled: false },
   },

@@ -80,7 +80,8 @@ function timeAgo(epochMs: number) {
     <div class="space-y-4">
       <p class="text-sm text-slate-500 dark:text-slate-400">
         Let other apps — Home Assistant, scripts — read and update the board.
-        Endpoint reference: <code class="font-mono text-xs">docs/API.md</code> in the repository.
+        Endpoint reference: <a href="/docs" target="_blank" class="text-primary hover:underline">interactive API docs</a>
+        (served by this board at <code class="font-mono text-xs">/docs</code>).
       </p>
 
       <div
