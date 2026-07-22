@@ -11,6 +11,7 @@ const { isAdmin } = useBoardState()
     <SlideshowSettings />
     <FeedSettings v-if="isAdmin" />
     <PushSettings />
+    <ApiKeySettings v-if="isAdmin" />
     <SettingsDevice />
   </div>
 </template>

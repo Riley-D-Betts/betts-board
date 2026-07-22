@@ -102,6 +102,12 @@ async function removeEntry(entry: PlanEntry) {
 }
 
 const generateOpen = ref(false)
+
+const ingredientsModal = reactive({ open: false, entryId: null as string | null })
+function openIngredients(entry: PlanEntry) {
+  ingredientsModal.entryId = entry.id
+  ingredientsModal.open = true
+}
 </script>
 
 <template>
@@ -150,12 +156,12 @@ const generateOpen = ref(false)
               <div
                 v-for="entry in cellEntries(date, slot.key)"
                 :key="entry.id"
-                class="group relative rounded-lg bg-slate-50 dark:bg-slate-800 p-1.5 pr-7"
+                class="group relative flex items-stretch rounded-lg bg-slate-50 dark:bg-slate-800 p-1.5 pr-7"
               >
                 <NuxtLink
                   v-if="entry.recipe"
                   :to="`/recipes/${entry.recipe.id}`"
-                  class="flex items-center gap-2"
+                  class="flex min-w-0 flex-1 items-center gap-2"
                 >
                   <img
                     v-if="imgSrc(entry.recipe)"
@@ -174,9 +180,17 @@ const generateOpen = ref(false)
                     </p>
                   </div>
                 </NuxtLink>
-                <p v-else class="text-xs italic text-slate-600 dark:text-slate-300">
+                <p v-else class="min-w-0 flex-1 self-center text-xs italic text-slate-600 dark:text-slate-300">
                   {{ entry.freeText }}
                 </p>
+                <button
+                  v-if="entry.recipe"
+                  class="ml-1 flex min-h-11 w-11 shrink-0 items-center justify-center rounded-md text-slate-400 hover:bg-slate-200 hover:text-primary dark:hover:bg-slate-700 md:w-8"
+                  :aria-label="`Add ${entry.recipe.title} ingredients to a shopping list`"
+                  @click="openIngredients(entry)"
+                >
+                  <UIcon name="i-lucide-shopping-basket" class="size-4" />
+                </button>
                 <button
                   class="absolute right-0.5 top-0.5 rounded p-1 text-slate-400 hover:text-red-500"
                   :aria-label="`Remove ${entry.recipe?.title ?? entry.freeText}`"
@@ -206,5 +220,6 @@ const generateOpen = ref(false)
       @pick="addEntry"
     />
     <GenerateDialog v-model:open="generateOpen" :start="weekStart" :end="weekEnd" />
+    <MealIngredientsModal v-model:open="ingredientsModal.open" :entry-id="ingredientsModal.entryId" />
   </div>
 </template>

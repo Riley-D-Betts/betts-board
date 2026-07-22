@@ -1,3 +1,5 @@
+import { useDb } from '../db/client'
+import { verifyBearerToken } from '../services/apiKeys/keys'
 import { getBoardSession } from '../utils/session'
 
 // Session gate for /api/** and /uploads/**. Public: health, bootstrap,
@@ -17,6 +19,16 @@ export default defineEventHandler(async (event) => {
   if (!guarded || PUBLIC_API.has(path)) return
   // @nuxt/icon serves bundled icon data here; needed on the unlock screen too.
   if (path.startsWith('/api/_nuxt_icon/')) return
+
+  // Public API: "Authorization: Bearer bb_…" authenticates instead of the
+  // session cookie. The resolved session rides the event context.
+  const authHeader = getHeader(event, 'authorization')
+  if (authHeader?.startsWith('Bearer ')) {
+    const apiSession = verifyBearerToken(useDb(), authHeader.slice(7).trim())
+    if (!apiSession) throw createError({ statusCode: 401, statusMessage: 'Invalid API key' })
+    event.context.boardApiSession = apiSession
+    return
+  }
 
   const session = await getBoardSession(event)
   if (!session) throw createError({ statusCode: 401, statusMessage: 'Locked' })
