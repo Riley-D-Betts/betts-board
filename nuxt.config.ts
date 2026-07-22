@@ -5,6 +5,10 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  // Components register by bare filename (feature folders are organization,
+  // not namespacing) — the whole codebase references them without prefixes.
+  components: [{ path: '~/components', pathPrefix: false }],
+
   devtools: { enabled: false },
 
   nitro: {
