@@ -36,6 +36,8 @@ Shared infrastructure (do NOT modify): `nuxt.config.ts`, `package.json`, `server
   strings and must NEVER pass through a timezone conversion. Helpers in `shared/utils/dates.ts`.
 - Files on disk: `dataDir()` / `uploadsDir(...)` from `server/utils/dataDir.ts`; serve
   through `/uploads/**` (session-gated route), never expose absolute paths.
+- New API routes must be registered in `server/services/apiDocs/registry.ts` — the
+  OpenAPI coverage test (`tests/unit/openapi.spec.ts`) fails otherwise.
 
 ## Recurrence
 

@@ -159,6 +159,11 @@ modified version as a service for others, you share your changes too.
 Every screen in the app talks to these same endpoints — anything the board can
 do, an API client can do too.
 
+Every board also serves its own interactive docs at `/docs` (works fully
+offline), backed by a live OpenAPI 3.1 document at `/api/openapi.json` that is
+generated from the same validation schemas the server enforces — so it can
+never drift from reality.
+
 ### Authentication
 
 Create a key in **Settings → API access** (admin only). The token (`bb_…`) is
