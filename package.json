@@ -1,0 +1,55 @@
+{
+  "name": "betts-board",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "typecheck": "nuxt typecheck",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:generate": "drizzle-kit generate",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@node-rs/argon2": "^2.0.2",
+    "@nuxt/ui": "^4.10.0",
+    "@vite-pwa/nuxt": "^1.1.1",
+    "@vueuse/nuxt": "^14.3.0",
+    "barcode-detector": "^3.2.1",
+    "better-sqlite3": "^13.0.1",
+    "cheerio": "^1.2.0",
+    "croner": "^10.0.1",
+    "date-fns": "^4.4.0",
+    "drizzle-orm": "^0.45.2",
+    "ical-generator": "^11.0.0",
+    "luxon": "^3.7.2",
+    "node-ical": "^0.27.1",
+    "nuxt": "^4.5.0",
+    "nuxt-auth-utils": "^0.5.29",
+    "rrule": "2.8.1",
+    "sharp": "^0.35.3",
+    "uuid": "^14.0.1",
+    "web-push": "^3.6.7",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "^1.16.0",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/luxon": "^3.7.1",
+    "@types/web-push": "^3.6.4",
+    "drizzle-kit": "^0.31.10",
+    "eslint": "^10.7.0",
+    "happy-dom": "^20.11.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.10",
+    "vue-tsc": "^3.3.7"
+  }
+}
