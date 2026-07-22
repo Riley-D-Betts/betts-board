@@ -12,6 +12,7 @@ const nav = [
 
 const moreNav = [
   { to: '/recipes', label: 'Recipes', icon: 'i-lucide-chef-hat' },
+  { to: '/rewards', label: 'Rewards', icon: 'i-lucide-gift' },
   { to: '/pantry', label: 'Pantry', icon: 'i-lucide-package' },
   { to: '/photos', label: 'Photos', icon: 'i-lucide-image' },
   { to: '/tv', label: 'TV mode', icon: 'i-lucide-tv' },

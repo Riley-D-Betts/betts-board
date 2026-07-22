@@ -5,6 +5,21 @@ export interface HouseholdSettings {
   weekStartsOn: 0 | 1
   /** Missing on rows created before the setting existed → treat as fahrenheit. */
   temperatureUnit?: 'fahrenheit' | 'celsius'
+  /** Pre-filled cook for newly planned meals; null = ask every time. */
+  defaultCookProfileId?: string | null
+  /** Wall-clock meal times (HH:MM); cooking blocks end at these. Missing → defaults. */
+  mealTimes?: {
+    breakfast: string
+    lunch: string
+    dinner: string
+    snack: string
+  }
+  /** Missing on older rows → defaults (rounded font, green accent both modes). */
+  appearance?: {
+    font: 'rounded' | 'system' | 'serif' | 'mono' | 'playful'
+    accentLight: string // Tailwind palette name, e.g. 'green', 'violet'
+    accentDark: string
+  }
   slideshow: {
     idleMinutes: number
     intervalSec: number
@@ -18,6 +33,8 @@ export interface HouseholdSettings {
 export const defaultHouseholdSettings: HouseholdSettings = {
   weekStartsOn: 0,
   temperatureUnit: 'fahrenheit',
+  appearance: { font: 'rounded', accentLight: 'green', accentDark: 'green' },
+  mealTimes: { breakfast: '07:30', lunch: '12:00', dinner: '18:00', snack: '15:00' },
   slideshow: {
     idleMinutes: 10,
     intervalSec: 12,

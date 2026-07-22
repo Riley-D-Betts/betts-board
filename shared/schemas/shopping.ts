@@ -29,12 +29,27 @@ export const generateFromMealPlanSchema = z.object({
   ignorePantry: z.boolean().default(false),
 })
 
+export const addFromRecipeSchema = z.object({
+  recipeId: zId,
+  ingredientIds: z.array(zId).min(1),
+  /** Multiply parsed quantities (servingsOverride / recipe servings). */
+  scale: z.number().positive().max(1000).default(1),
+})
+
 export const clearCheckedSchema = z.object({
   /** Move checked items into the pantry before clearing ("put away groceries"). */
   toPantry: z.boolean().default(false),
 })
 
 export type GenerateFromMealPlan = z.infer<typeof generateFromMealPlanSchema>
+export type AddFromRecipe = z.infer<typeof addFromRecipeSchema>
+
+/** Response of the from-recipe endpoint — feeds the confirmation toast. */
+export interface AddRecipeItemsResult {
+  created: number
+  merged: number
+  listId: string
+}
 
 /** Response of the generate endpoint — feeds the confirmation toast/dialog. */
 export interface GenerateResult {

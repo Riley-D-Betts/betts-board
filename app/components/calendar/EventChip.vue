@@ -30,6 +30,7 @@ const timeLabel = computed(() => {
   >
     <span class="size-2 shrink-0 rounded-full" :style="{ backgroundColor: occurrence.color }" />
     <span v-if="showTime && !occurrence.isAllDay" class="shrink-0 tabular-nums text-slate-500 dark:text-slate-400">{{ timeLabel }}</span>
+    <UIcon v-if="occurrence.kind === 'meal'" name="i-lucide-chef-hat" class="size-3 shrink-0 text-slate-500 dark:text-slate-400" />
     <span class="truncate font-medium">{{ occurrence.title }}</span>
   </button>
 
@@ -42,9 +43,10 @@ const timeLabel = computed(() => {
     <span class="w-1.5 self-stretch shrink-0 rounded-full" :style="{ backgroundColor: occurrence.color }" />
     <div class="min-w-0 flex-1">
       <p class="truncate text-sm font-medium">
+        <UIcon v-if="occurrence.kind === 'meal'" name="i-lucide-chef-hat" class="inline size-3.5 text-slate-500 dark:text-slate-400 align-middle" />
         {{ occurrence.title }}
         <UIcon v-if="occurrence.hasRecurrence" name="i-lucide-repeat" class="inline size-3 text-slate-400 align-middle" />
-        <UIcon v-if="occurrence.readonly" name="i-lucide-rss" class="inline size-3 text-slate-400 align-middle" />
+        <UIcon v-if="occurrence.readonly && occurrence.kind !== 'meal'" name="i-lucide-rss" class="inline size-3 text-slate-400 align-middle" />
       </p>
       <p class="text-xs text-slate-500 dark:text-slate-400">
         {{ timeLabel }}<span v-if="occurrence.location" class="truncate"> · {{ occurrence.location }}</span>

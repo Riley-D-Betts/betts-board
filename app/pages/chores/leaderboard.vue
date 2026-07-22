@@ -30,6 +30,9 @@ const podium = computed(() => {
     <div class="flex items-center gap-2">
       <UButton to="/chores" icon="i-lucide-arrow-left" variant="ghost" color="neutral" aria-label="Back to chores" />
       <h1 class="text-2xl md:text-3xl font-bold flex-1">Leaderboard</h1>
+      <UButton to="/rewards" icon="i-lucide-gift" variant="soft" color="warning">
+        Rewards store
+      </UButton>
       <UIcon name="i-lucide-trophy" class="size-7 text-amber-500" />
     </div>
 

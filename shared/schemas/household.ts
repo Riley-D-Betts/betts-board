@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { zIanaTimezone } from './common'
+import { zIanaTimezone, zTimeString } from './common'
 
 export const slideshowSettingsSchema = z.object({
   idleMinutes: z.number().min(0.1).max(240),
@@ -8,6 +8,17 @@ export const slideshowSettingsSchema = z.object({
   showWeather: z.boolean(),
   showAgenda: z.boolean(),
   showClock: z.boolean(),
+})
+
+/** Accents users can pick — Tailwind palette names Nuxt UI resolves at runtime. */
+export const ACCENT_COLORS = [
+  'green', 'blue', 'indigo', 'violet', 'fuchsia', 'rose', 'orange', 'amber', 'teal', 'cyan',
+] as const
+
+export const appearanceSchema = z.object({
+  font: z.enum(['rounded', 'system', 'serif', 'mono', 'playful']),
+  accentLight: z.enum(ACCENT_COLORS),
+  accentDark: z.enum(ACCENT_COLORS),
 })
 
 export const householdPatchSchema = z.object({
@@ -19,6 +30,14 @@ export const householdPatchSchema = z.object({
   settings: z.object({
     weekStartsOn: z.union([z.literal(0), z.literal(1)]),
     temperatureUnit: z.enum(['fahrenheit', 'celsius']),
+    appearance: appearanceSchema,
+    mealTimes: z.object({
+      breakfast: zTimeString,
+      lunch: zTimeString,
+      dinner: zTimeString,
+      snack: zTimeString,
+    }),
+    defaultCookProfileId: z.string().min(1).nullable(),
     slideshow: slideshowSettingsSchema,
   }).partial().optional(),
 })

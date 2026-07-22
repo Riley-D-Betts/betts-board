@@ -1,0 +1,1 @@
+ALTER TABLE `meal_plan_entries` ADD `cook_profile_id` text REFERENCES profiles(id);

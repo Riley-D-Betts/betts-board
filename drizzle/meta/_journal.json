@@ -8,6 +8,20 @@
       "when": 1784691349885,
       "tag": "0000_init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1784754281149,
+      "tag": "0001_rewards-and-api-keys",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1784755805070,
+      "tag": "0002_meal-cook",
+      "breakpoints": true
     }
   ]
 }

@@ -30,6 +30,18 @@ async function createList() {
     creating.value = false
   }
 }
+
+async function deleteList(list: ListRow) {
+  const items = `${list.uncheckedCount} unchecked item${list.uncheckedCount === 1 ? '' : 's'}`
+  if (!confirm(`Delete "${list.name}"? Its ${items} (and any checked ones) are deleted with it.`)) return
+  try {
+    await $fetch(`/api/shopping-lists/${list.id}`, { method: 'DELETE' })
+    await refresh()
+  }
+  catch {
+    toast.add({ title: 'Could not delete the list', color: 'error' })
+  }
+}
 </script>
 
 <template>
@@ -52,20 +64,31 @@ async function createList() {
     </div>
 
     <div v-else class="space-y-2">
-      <NuxtLink
+      <div
         v-for="list in lists"
         :key="list.id"
-        :to="`/shopping/${list.id}`"
-        class="flex min-h-14 items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3 hover:border-primary/60"
+        class="flex min-h-14 items-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 pr-2 hover:border-primary/60"
       >
-        <UIcon name="i-lucide-list" class="size-5 shrink-0 text-primary" />
-        <span class="min-w-0 flex-1 truncate font-medium">{{ list.name }}</span>
-        <UBadge v-if="list.isDefault" variant="soft" size="sm">default</UBadge>
-        <span class="text-sm text-slate-500 dark:text-slate-400">
-          {{ list.uncheckedCount }} to buy
-        </span>
-        <UIcon name="i-lucide-chevron-right" class="size-4 shrink-0 text-slate-400" />
-      </NuxtLink>
+        <NuxtLink
+          :to="`/shopping/${list.id}`"
+          class="flex min-h-14 min-w-0 flex-1 items-center gap-3 py-3 pl-4 pr-1"
+        >
+          <UIcon name="i-lucide-list" class="size-5 shrink-0 text-primary" />
+          <span class="min-w-0 flex-1 truncate font-medium">{{ list.name }}</span>
+          <UBadge v-if="list.isDefault" variant="soft" size="sm">default</UBadge>
+          <span class="text-sm text-slate-500 dark:text-slate-400">
+            {{ list.uncheckedCount }} to buy
+          </span>
+          <UIcon name="i-lucide-chevron-right" class="size-4 shrink-0 text-slate-400" />
+        </NuxtLink>
+        <button
+          class="flex size-11 shrink-0 items-center justify-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950/40"
+          :aria-label="`Delete ${list.name}`"
+          @click="deleteList(list)"
+        >
+          <UIcon name="i-lucide-trash-2" class="size-4" />
+        </button>
+      </div>
     </div>
   </div>
 </template>

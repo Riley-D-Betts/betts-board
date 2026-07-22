@@ -15,18 +15,27 @@ const props = defineProps<{
 
 const open = defineModel<boolean>('open', { required: true })
 const emit = defineEmits<{
-  pick: [payload: { recipeId?: string, freeText?: string, servingsOverride?: number | null }]
+  pick: [payload: { recipeId?: string, freeText?: string, servingsOverride?: number | null, cookProfileId?: string | null }]
 }>()
+
+const { state } = useBoardState()
+const cookItems = computed(() => [
+  { label: 'No cook', value: '' },
+  ...(state.value?.profiles ?? []).map(p => ({ label: p.name, value: p.id })),
+])
 
 const q = ref('')
 const freeText = ref('')
 const servings = ref<number | ''>('')
+const cookId = ref('')
 
 watch(open, (isOpen) => {
   if (!isOpen) return
   q.value = ''
   freeText.value = ''
   servings.value = ''
+  // Pre-fill the household's default cook (Settings → Household); overridable.
+  cookId.value = state.value?.settings?.defaultCookProfileId ?? ''
 })
 
 const { data: recipes } = await useFetch<PickerRecipe[]>('/api/recipes', {
@@ -47,14 +56,18 @@ function servingsValue(): number | null {
   return typeof servings.value === 'number' && servings.value > 0 ? servings.value : null
 }
 
+function cookValue(): string | null {
+  return cookId.value || null
+}
+
 function pickRecipe(recipe: PickerRecipe) {
-  emit('pick', { recipeId: recipe.id, servingsOverride: servingsValue() })
+  emit('pick', { recipeId: recipe.id, servingsOverride: servingsValue(), cookProfileId: cookValue() })
 }
 
 function addFreeText() {
   const text = freeText.value.trim()
   if (!text) return
-  emit('pick', { freeText: text })
+  emit('pick', { freeText: text, cookProfileId: cookValue() })
 }
 
 function imgSrc(recipe: PickerRecipe) {
@@ -78,6 +91,16 @@ function imgSrc(recipe: PickerRecipe) {
             aria-label="Servings override"
           />
         </div>
+
+        <UFormField label="Who's cooking?">
+          <USelect
+            v-model="cookId"
+            :items="cookItems"
+            icon="i-lucide-chef-hat"
+            class="w-full"
+            aria-label="Cook"
+          />
+        </UFormField>
 
         <div
           v-if="recipeList.length"

@@ -8,9 +8,11 @@ const { isAdmin } = useBoardState()
     <h1 class="text-2xl md:text-3xl font-bold">Settings</h1>
     <SettingsHousehold v-if="isAdmin" />
     <SettingsProfiles v-if="isAdmin" />
+    <SettingsAppearance />
     <SlideshowSettings />
     <FeedSettings v-if="isAdmin" />
     <PushSettings />
+    <ApiKeySettings v-if="isAdmin" />
     <SettingsDevice />
   </div>
 </template>

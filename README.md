@@ -18,13 +18,17 @@ your own server.
   "edit this / this and future / all" handling
 - ✅ **Chores** — assign to family members, recurring schedules, points,
   streaks, and a leaderboard the kids will actually check
+- ⭐ **Rewards store** — kids spend earned chore stars on parent-defined
+  rewards; balances and history are tracked automatically
 - 🍳 **Recipes** — paste a link and the recipe is parsed and saved locally
   (ingredients, steps, photo); rate it, note tweaks ("double the sauce next
   time"), and edit freely
 - 🗓️ **Meal planning** — plan the week's meals from your recipe box, sorted by
-  what the family rated best
+  what the family rated best; assign who's cooking and a prep block sized to
+  the recipe (+15 min padding) lands on their calendar, ending at mealtime
 - 🛒 **Shopping lists** — generated from the meal plan with smart quantity
-  merging, aisle grouping, and fast in-store check-off
+  merging, aisle grouping, and fast in-store check-off; or cherry-pick
+  ingredients from any planned meal straight onto a list
 - 🥫 **Pantry** — track what you have (scan barcodes with your phone camera);
   shopping generation skips what's already in the pantry
 - 🖼️ **Photo slideshow** — upload family photos; idle wall displays become a
@@ -34,6 +38,10 @@ your own server.
 - 🌤️ **Weather** — Open-Meteo, no API key, °F or °C
 - 🔔 **Push notifications** — event reminders and chore nudges (requires HTTPS)
 - 📺 **TV mode** — big-type dashboard and slideshow for any TV browser
+- 🎨 **Appearance** — household-wide font choice and accent colors, set
+  separately for light and dark mode
+- 🔌 **Public API** — token-authenticated REST API for Home Assistant, scripts,
+  and anything else ([docs/API.md](docs/API.md)); keys managed in Settings
 
 ## Quick start
 
@@ -105,8 +113,9 @@ and the unlock screen lets you set a new one.
 | `BETTS_RESET_PASSWORD` | unset | Set to `1` for one boot to reset the household password |
 | `PORT` | `3000` | HTTP port inside the container |
 
-Everything else — weather location, temperature unit, week start, slideshow
-behavior, feeds, notifications — is configured in the app under **Settings**.
+Everything else — weather location, temperature unit, week start, meal times,
+default cook, appearance, slideshow behavior, feeds, notifications, API keys —
+is configured in the app under **Settings**.
 
 ## Tech stack
 

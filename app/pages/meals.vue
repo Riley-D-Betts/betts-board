@@ -17,7 +17,9 @@ interface PlanEntry {
   recipeId: string | null
   freeText: string | null
   servingsOverride: number | null
+  cookProfileId: string | null
   recipe: PlanRecipe | null
+  cook: { id: string, name: string, color: string } | null
 }
 
 const SLOTS: { key: MealSlot, label: string }[] = [
@@ -77,7 +79,7 @@ function openPicker(date: string, slot: MealSlot) {
   picker.open = true
 }
 
-async function addEntry(payload: { recipeId?: string, freeText?: string, servingsOverride?: number | null }) {
+async function addEntry(payload: { recipeId?: string, freeText?: string, servingsOverride?: number | null, cookProfileId?: string | null }) {
   try {
     await $fetch('/api/meal-plan/entries', {
       method: 'POST',
@@ -101,7 +103,37 @@ async function removeEntry(entry: PlanEntry) {
   }
 }
 
+function cookInitials(name: string) {
+  return name.split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase()
+}
+
+const cookPicker = reactive({ open: false, entry: null as PlanEntry | null })
+function openCookPicker(entry: PlanEntry) {
+  cookPicker.entry = entry
+  cookPicker.open = true
+}
+
+async function setCook(cookProfileId: string | null) {
+  if (!cookPicker.entry) return
+  try {
+    await $fetch(`/api/meal-plan/entries/${cookPicker.entry.id}`, {
+      method: 'PATCH',
+      body: { cookProfileId },
+    })
+    await refresh()
+  }
+  catch {
+    toast.add({ title: 'Could not set the cook', color: 'error' })
+  }
+}
+
 const generateOpen = ref(false)
+
+const ingredientsModal = reactive({ open: false, entryId: null as string | null })
+function openIngredients(entry: PlanEntry) {
+  ingredientsModal.entryId = entry.id
+  ingredientsModal.open = true
+}
 </script>
 
 <template>
@@ -150,12 +182,12 @@ const generateOpen = ref(false)
               <div
                 v-for="entry in cellEntries(date, slot.key)"
                 :key="entry.id"
-                class="group relative rounded-lg bg-slate-50 dark:bg-slate-800 p-1.5 pr-7"
+                class="group relative flex items-stretch rounded-lg bg-slate-50 dark:bg-slate-800 p-1.5 pr-7"
               >
                 <NuxtLink
                   v-if="entry.recipe"
                   :to="`/recipes/${entry.recipe.id}`"
-                  class="flex items-center gap-2"
+                  class="flex min-w-0 flex-1 items-center gap-2"
                 >
                   <img
                     v-if="imgSrc(entry.recipe)"
@@ -174,9 +206,34 @@ const generateOpen = ref(false)
                     </p>
                   </div>
                 </NuxtLink>
-                <p v-else class="text-xs italic text-slate-600 dark:text-slate-300">
+                <p v-else class="min-w-0 flex-1 self-center text-xs italic text-slate-600 dark:text-slate-300">
                   {{ entry.freeText }}
                 </p>
+                <button
+                  class="ml-1 flex min-h-11 w-11 shrink-0 items-center justify-center rounded-md text-slate-400 hover:bg-slate-200 hover:text-primary dark:hover:bg-slate-700 md:w-8"
+                  :aria-label="entry.cook
+                    ? `${entry.cook.name} is cooking ${entry.recipe?.title ?? entry.freeText} — change cook`
+                    : `Assign a cook for ${entry.recipe?.title ?? entry.freeText}`"
+                  :title="entry.cook ? `Cook: ${entry.cook.name}` : 'Assign a cook'"
+                  @click="openCookPicker(entry)"
+                >
+                  <span
+                    v-if="entry.cook"
+                    class="grid size-5 place-items-center rounded-full text-[9px] font-bold text-white"
+                    :style="{ backgroundColor: entry.cook.color }"
+                  >
+                    {{ cookInitials(entry.cook.name) }}
+                  </span>
+                  <UIcon v-else name="i-lucide-chef-hat" class="size-4" />
+                </button>
+                <button
+                  v-if="entry.recipe"
+                  class="ml-1 flex min-h-11 w-11 shrink-0 items-center justify-center rounded-md text-slate-400 hover:bg-slate-200 hover:text-primary dark:hover:bg-slate-700 md:w-8"
+                  :aria-label="`Add ${entry.recipe.title} ingredients to a shopping list`"
+                  @click="openIngredients(entry)"
+                >
+                  <UIcon name="i-lucide-shopping-basket" class="size-4" />
+                </button>
                 <button
                   class="absolute right-0.5 top-0.5 rounded p-1 text-slate-400 hover:text-red-500"
                   :aria-label="`Remove ${entry.recipe?.title ?? entry.freeText}`"
@@ -205,6 +262,13 @@ const generateOpen = ref(false)
       :meal-slot="picker.slot"
       @pick="addEntry"
     />
+    <CookPickerModal
+      v-model:open="cookPicker.open"
+      :cook-profile-id="cookPicker.entry?.cookProfileId"
+      :meal-label="cookPicker.entry?.recipe?.title ?? cookPicker.entry?.freeText"
+      @pick="setCook"
+    />
     <GenerateDialog v-model:open="generateOpen" :start="weekStart" :end="weekEnd" />
+    <MealIngredientsModal v-model:open="ingredientsModal.open" :entry-id="ingredientsModal.entryId" />
   </div>
 </template>

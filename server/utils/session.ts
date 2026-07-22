@@ -22,6 +22,11 @@ export function requireHousehold() {
 }
 
 export async function getBoardSession(event: H3Event): Promise<BoardSession | null> {
+  // API-key requests: the auth middleware verified the bearer token and
+  // stashed the resolved session on the event context.
+  const apiSession = event.context.boardApiSession as BoardSession | undefined
+  if (apiSession) return apiSession
+
   const session = await getUserSession(event)
   const data = session?.user as BoardSession | undefined
   return data?.unlocked ? data : null
