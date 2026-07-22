@@ -6,7 +6,15 @@ let _dataDir: string | null = null
 /** Absolute path of the persistent data directory (db + uploads). Created on first use. */
 export function dataDir(): string {
   if (!_dataDir) {
-    const configured = process.env.BETTS_DATA_DIR || useRuntimeConfig().dataDir || '.data'
+    // useRuntimeConfig only exists inside Nitro; fall back cleanly under vitest.
+    let fromConfig: string | undefined
+    try {
+      fromConfig = useRuntimeConfig().dataDir
+    }
+    catch {
+      fromConfig = undefined
+    }
+    const configured = process.env.BETTS_DATA_DIR || fromConfig || '.data'
     _dataDir = isAbsolute(configured) ? configured : join(process.cwd(), configured)
     mkdirSync(_dataDir, { recursive: true })
   }
