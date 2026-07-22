@@ -15,6 +15,8 @@ export default defineEventHandler(async (event) => {
   const path = event.path.split('?')[0]!
   const guarded = path.startsWith('/api/') || path.startsWith('/uploads/')
   if (!guarded || PUBLIC_API.has(path)) return
+  // @nuxt/icon serves bundled icon data here; needed on the unlock screen too.
+  if (path.startsWith('/api/_nuxt_icon/')) return
 
   const session = await getBoardSession(event)
   if (!session) throw createError({ statusCode: 401, statusMessage: 'Locked' })
