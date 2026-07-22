@@ -9,6 +9,7 @@ export interface BoardProfile {
 export interface BoardBootstrap {
   needsSetup: boolean
   householdName?: string
+  needsPasswordReset?: boolean
   unlocked?: boolean
   activeProfileId?: string | null
   profiles?: BoardProfile[]

@@ -8,6 +8,7 @@ const PUBLIC_API = new Set([
   '/api/bootstrap',
   '/api/setup',
   '/api/auth/unlock',
+  '/api/auth/reset-password', // self-guards: only usable while the hash is cleared
 ])
 
 export default defineEventHandler(async (event) => {

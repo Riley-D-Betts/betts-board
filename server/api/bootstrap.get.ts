@@ -26,6 +26,7 @@ export default defineEventHandler(async (event) => {
   return {
     needsSetup: false as const,
     householdName: household.name,
+    needsPasswordReset: household.passwordHash === '',
     unlocked: !!session,
     activeProfileId: session?.profileId ?? null,
     profiles: roster,
