@@ -15,6 +15,7 @@ export interface BoardBootstrap {
   profiles?: BoardProfile[]
   settings?: {
     weekStartsOn: 0 | 1
+    temperatureUnit?: 'fahrenheit' | 'celsius'
     slideshow: {
       idleMinutes: number
       intervalSec: number

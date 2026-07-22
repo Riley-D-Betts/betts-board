@@ -18,6 +18,7 @@ export const householdPatchSchema = z.object({
   locationName: z.string().trim().max(200).nullable().optional(),
   settings: z.object({
     weekStartsOn: z.union([z.literal(0), z.literal(1)]),
+    temperatureUnit: z.enum(['fahrenheit', 'celsius']),
     slideshow: slideshowSettingsSchema,
   }).partial().optional(),
 })

@@ -21,8 +21,11 @@ export function describeWeatherCode(code: number): WeatherCondition {
   return { icon: 'i-lucide-cloud', label: 'Cloudy' }
 }
 
+export type TemperatureUnit = 'fahrenheit' | 'celsius'
+
 export interface WeatherReport {
   configured: true
+  unit: TemperatureUnit
   current: {
     temperature: number
     windspeed: number
@@ -60,7 +63,11 @@ interface OpenMeteoResponse {
 }
 
 /** 5-day forecast from open-meteo (no API key). Throws 502 when unreachable. */
-export async function fetchForecast(latitude: number, longitude: number): Promise<WeatherReport> {
+export async function fetchForecast(
+  latitude: number,
+  longitude: number,
+  unit: TemperatureUnit = 'fahrenheit',
+): Promise<WeatherReport> {
   const url = new URL(OPEN_METEO_URL)
   url.searchParams.set('latitude', String(latitude))
   url.searchParams.set('longitude', String(longitude))
@@ -68,6 +75,8 @@ export async function fetchForecast(latitude: number, longitude: number): Promis
   url.searchParams.set('daily', 'weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max')
   url.searchParams.set('timezone', 'auto')
   url.searchParams.set('forecast_days', '5')
+  // open-meteo defaults to celsius; only the override needs sending.
+  if (unit === 'fahrenheit') url.searchParams.set('temperature_unit', 'fahrenheit')
 
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
@@ -91,6 +100,7 @@ export async function fetchForecast(latitude: number, longitude: number): Promis
 
   return {
     configured: true,
+    unit,
     current: {
       temperature: current.temperature,
       windspeed: current.windspeed,

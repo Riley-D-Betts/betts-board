@@ -4,9 +4,10 @@
  * The globally-mounted SlideshowOverlay renders whenever `active` is true.
  * Idle detection promotes `active` on wall-display devices (useDeviceMode)
  * and on /tv routes after `idleMinutes` (household slideshow settings) of no
- * input; any activity dismisses. /setup and /unlock never idle into the
- * slideshow. `start()` is the manual entry for the TV slideshow page and the
- * settings preview.
+ * input. Dismissal is deliberate only — the overlay handles tap/keypress —
+ * so a grazed mouse or remote doesn't end the show; it loops until touched.
+ * /setup and /unlock never idle into the slideshow. `start()` is the manual
+ * entry for the TV slideshow page and the settings preview.
  *
  * The listeners are installed once, in a detached effect scope, so they
  * survive whichever component happened to call this composable first.
@@ -46,13 +47,9 @@ export function useIdleSlideshow() {
         if (Date.now() - lastActive.value >= idleMs.value) active.value = true
       }, 10_000)
 
-      // Any activity dismisses a running slideshow. Small grace period so the
-      // click/tap that started a manual preview doesn't instantly end it.
-      let activatedAt = 0
-      watch(active, (on) => { if (on) activatedAt = Date.now() })
-      watch(lastActive, () => {
-        if (active.value && Date.now() - activatedAt > 1500) active.value = false
-      })
+      // Dismissal is handled by the overlay itself (pointerdown/keydown) —
+      // mere mouse movement must NOT end the show, or a desktop preview dies
+      // the moment the mouse twitches and a wall display stops when bumped.
 
       // Losing eligibility (e.g. the board locks → /unlock) dismisses too.
       watch(eligible, (ok) => { if (!ok) active.value = false })

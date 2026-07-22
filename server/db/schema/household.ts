@@ -3,6 +3,8 @@ import { id, createdAt } from './_helpers'
 
 export interface HouseholdSettings {
   weekStartsOn: 0 | 1
+  /** Missing on rows created before the setting existed → treat as fahrenheit. */
+  temperatureUnit?: 'fahrenheit' | 'celsius'
   slideshow: {
     idleMinutes: number
     intervalSec: number
@@ -15,6 +17,7 @@ export interface HouseholdSettings {
 
 export const defaultHouseholdSettings: HouseholdSettings = {
   weekStartsOn: 0,
+  temperatureUnit: 'fahrenheit',
   slideshow: {
     idleMinutes: 10,
     intervalSec: 12,

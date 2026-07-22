@@ -9,6 +9,7 @@ const form = reactive({
   timezone: household.value?.timezone ?? 'UTC',
   locationName: household.value?.locationName ?? '',
   weekStartsOn: (household.value?.settings?.weekStartsOn ?? 0) as 0 | 1,
+  temperatureUnit: (household.value?.settings?.temperatureUnit ?? 'fahrenheit') as 'fahrenheit' | 'celsius',
 })
 
 // Open-Meteo geocoder for changing the weather location.
@@ -56,7 +57,7 @@ async function save() {
         timezone: form.timezone,
         locationName: form.locationName || null,
         ...(pendingLocation.value ?? {}),
-        settings: { weekStartsOn: form.weekStartsOn },
+        settings: { weekStartsOn: form.weekStartsOn, temperatureUnit: form.temperatureUnit },
       },
     })
     await refresh()
@@ -104,6 +105,16 @@ async function save() {
           v-model="form.weekStartsOn"
           :items="[{ label: 'Sunday', value: 0 }, { label: 'Monday', value: 1 }]"
           class="w-40"
+        />
+      </UFormField>
+      <UFormField label="Temperature" help="How the weather is shown everywhere on the board.">
+        <USelect
+          v-model="form.temperatureUnit"
+          :items="[
+            { label: 'Fahrenheit (°F)', value: 'fahrenheit' },
+            { label: 'Celsius (°C)', value: 'celsius' },
+          ]"
+          class="w-48"
         />
       </UFormField>
       <UButton :loading="busy" @click="save">Save</UButton>

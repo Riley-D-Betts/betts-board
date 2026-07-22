@@ -152,6 +152,7 @@ useEventListener(document, 'visibilitychange', () => {
     <div
       v-if="active"
       class="fixed inset-0 z-50 cursor-none select-none overflow-hidden bg-black text-white"
+      :style="{ '--ken-duration': `${Math.max(3, settings.intervalSec) + 1.5}s` }"
       @pointerdown="dismiss"
     >
       <img
@@ -194,15 +195,16 @@ useEventListener(document, 'visibilitychange', () => {
   text-shadow: 0 1px 4px rgb(0 0 0 / 0.8);
 }
 
-/* Slow Ken Burns drift — pure transform, alternating origins per slide. */
+/* Slow Ken Burns drift — pure transform, alternating origins per slide.
+   Duration tracks the slide interval (+ crossfade) so motion never freezes. */
 .ken-a {
   transform-origin: 25% 30%;
-  animation: ken-burns-a 9s ease-in-out forwards;
+  animation: ken-burns-a var(--ken-duration, 10s) ease-in-out forwards;
 }
 
 .ken-b {
   transform-origin: 75% 70%;
-  animation: ken-burns-b 9s ease-in-out forwards;
+  animation: ken-burns-b var(--ken-duration, 10s) ease-in-out forwards;
 }
 
 @keyframes ken-burns-a {
