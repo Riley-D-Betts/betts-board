@@ -1,0 +1,11 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+@theme static {
+  --font-sans: ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
+}
+
+/* 10-foot UI: the tv layout scales the root so every rem-based size doubles. */
+html.tv-mode {
+  font-size: 175%;
+}

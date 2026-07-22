@@ -1,0 +1,30 @@
+services:
+  betts-board:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      TZ: America/Boise
+      # NUXT_SESSION_PASSWORD: optional — auto-generated and persisted in the
+      # data volume if unset, so sessions survive container recreation.
+      # BETTS_RESET_PASSWORD: "1"  # uncomment for one boot to reset the household password
+    volumes:
+      # Everything lives here: /data/betts.db + /data/uploads/…
+      # Backup = copy this volume (or `docker cp` betts.db out).
+      - betts-data:/data
+
+  # --- HTTPS (required for push notifications, PWA install, and camera
+  # --- barcode scanning). Uncomment and set your domain, or point your
+  # --- existing reverse proxy (Traefik/NPM/Caddy) at port 3000 instead.
+  # caddy:
+  #   image: caddy:2
+  #   restart: unless-stopped
+  #   ports: ["80:80", "443:443"]
+  #   command: caddy reverse-proxy --from board.example.com --to betts-board:3000
+  #   volumes:
+  #     - caddy-data:/data
+
+volumes:
+  betts-data:
+  # caddy-data:
