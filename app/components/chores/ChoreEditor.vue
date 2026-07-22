@@ -8,6 +8,7 @@ export interface ChoreDef {
   rrule: string | null
   startDate: string
   dueTime: string | null
+  stacking: boolean
   assigneeProfileIds: string[]
 }
 
@@ -40,6 +41,7 @@ const form = reactive({
   startDate: todayString(),
   dueTime: '',
   rrule: null as string | null,
+  stacking: false,
 })
 
 watch(open, (isOpen) => {
@@ -52,6 +54,7 @@ watch(open, (isOpen) => {
   form.startDate = props.chore?.startDate ?? todayString()
   form.dueTime = props.chore?.dueTime ?? ''
   form.rrule = props.chore?.rrule ?? null
+  form.stacking = props.chore?.stacking ?? false
 })
 
 function toggleAssignee(id: string) {
@@ -78,6 +81,7 @@ async function save() {
     rrule: form.rrule,
     startDate: form.startDate,
     dueTime: form.dueTime || null,
+    stacking: form.stacking,
     assigneeProfileIds: form.assigneeProfileIds,
   }
   try {
@@ -183,6 +187,15 @@ async function save() {
             :start-date="form.startDate"
             :week-starts-on="weekStartsOn"
           />
+        </UFormField>
+
+        <UFormField
+          label="Stacking"
+          :help="form.stacking
+            ? 'Missed days pile up — two skipped days means two chores'
+            : 'Missed days merge into one'"
+        >
+          <USwitch v-model="form.stacking" />
         </UFormField>
       </div>
     </template>

@@ -156,6 +156,27 @@ async function clearChecked(toPantry: boolean) {
     clearing.value = false
   }
 }
+
+// -- clear entire list ----------------------------------------------------
+const clearAllOpen = ref(false)
+const clearingAll = ref(false)
+async function clearAll() {
+  clearingAll.value = true
+  try {
+    const res = await $fetch<{ removed: number }>(`/api/shopping-lists/${listId}/clear`, { method: 'POST' })
+    clearAllOpen.value = false
+    toast.add({ title: `Cleared ${res.removed} item${res.removed === 1 ? '' : 's'}`, color: 'success' })
+    await refresh()
+  }
+  catch {
+    toast.add({ title: 'Could not clear the list', color: 'error' })
+  }
+  finally {
+    clearingAll.value = false
+  }
+}
+
+const totalItems = computed(() => (list.value?.items ?? []).length)
 </script>
 
 <template>
@@ -164,7 +185,33 @@ async function clearChecked(toPantry: boolean) {
       <UButton to="/shopping" icon="i-lucide-arrow-left" variant="ghost" color="neutral" aria-label="All lists" />
       <h1 class="min-w-0 flex-1 truncate text-2xl font-bold">{{ list?.name ?? 'List' }}</h1>
       <UBadge v-if="list?.isDefault" variant="soft" size="sm">default</UBadge>
+      <UButton
+        v-if="totalItems"
+        variant="soft"
+        color="neutral"
+        size="sm"
+        icon="i-lucide-eraser"
+        @click="clearAllOpen = true"
+      >
+        Clear
+      </UButton>
     </div>
+
+    <!-- Clear entire list confirm -->
+    <UModal v-model:open="clearAllOpen" title="Clear this list">
+      <template #body>
+        <div class="space-y-4">
+          <p class="text-sm text-slate-600 dark:text-slate-300">
+            Remove all {{ totalItems }} item{{ totalItems === 1 ? '' : 's' }} from
+            “{{ list?.name }}” — checked and unchecked? The list itself stays.
+          </p>
+          <div class="flex gap-2">
+            <UButton color="error" :loading="clearingAll" @click="clearAll">Clear everything</UButton>
+            <UButton variant="soft" color="neutral" @click="clearAllOpen = false">Cancel</UButton>
+          </div>
+        </div>
+      </template>
+    </UModal>
 
     <!-- Quick add, pinned -->
     <form

@@ -32,6 +32,7 @@ export function createChore(db: Db, householdId: string, input: ChoreCreate, cre
     rrule: input.rrule ?? null,
     startDate: input.startDate,
     dueTime: input.dueTime ?? null,
+    stacking: input.stacking,
     recurrenceEnd: input.rrule ? computeDateRecurrenceEnd(input.rrule, input.startDate) : null,
     createdByProfileId: createdByProfileId ?? null,
   }).returning().get()
@@ -66,6 +67,7 @@ export function updateChore(db: Db, householdId: string, choreId: string, patch:
     ...(patch.emoji !== undefined && { emoji: patch.emoji ?? null }),
     ...(patch.points !== undefined && { points: patch.points }),
     ...(patch.dueTime !== undefined && { dueTime: patch.dueTime ?? null }),
+    ...(patch.stacking !== undefined && { stacking: patch.stacking }),
     rrule,
     startDate,
     recurrenceEnd: rrule ? computeDateRecurrenceEnd(rrule, startDate) : null,

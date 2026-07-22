@@ -1,0 +1,1 @@
+ALTER TABLE `chores` ADD `stacking` integer DEFAULT false NOT NULL;

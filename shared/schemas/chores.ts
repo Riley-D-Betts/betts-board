@@ -10,6 +10,8 @@ export const choreCreateSchema = z.object({
   startDate: zDateString,
   dueTime: zTimeString.nullish(),
   recurrenceEnd: zDateString.nullish(),
+  /** Missed occurrences pile up per day (true) or merge into one (false). */
+  stacking: z.boolean().default(false),
   assigneeProfileIds: z.array(zId).min(1),
 })
 
@@ -47,6 +49,9 @@ export interface ChoreInstance {
   completed: boolean
   completedAt?: number | null
   hasRecurrence: boolean
+  /** Rolled over from a missed earlier day; dueDate is the original date. */
+  overdue?: boolean
+  daysLate?: number
 }
 
 export interface LeaderboardRow {

@@ -32,14 +32,15 @@ const { data: board, refresh } = await useFetch('/api/chores/board', {
   query: { start: weekStart, end: weekEnd },
 })
 
+/** Today's scheduled instances plus rolled-over misses (overdue, past dueDate). */
 const todayInstances = computed(() =>
-  (board.value ?? []).filter(i => i.dueDate === today))
+  (board.value ?? []).filter(i => i.dueDate === today || i.overdue))
 
-/** Rest of the visible week, grouped by date (today excluded — it has its own section). */
+/** Rest of the visible week, grouped by date (today and rollovers excluded — they have their own section). */
 const dayGroups = computed(() => {
   const groups = new Map<string, ChoreInstance[]>()
   for (const i of board.value ?? []) {
-    if (i.dueDate === today) continue
+    if (i.dueDate === today || i.overdue) continue
     const list = groups.get(i.dueDate) ?? []
     list.push(i)
     groups.set(i.dueDate, list)

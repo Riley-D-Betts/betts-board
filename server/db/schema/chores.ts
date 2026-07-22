@@ -15,6 +15,10 @@ export const chores = sqliteTable('chores', {
   rrule: text('rrule'), // null = one-off on startDate
   startDate: text('start_date').notNull(), // YYYY-MM-DD
   dueTime: text('due_time'), // "17:00", optional
+  // Missed occurrences roll to today. Stacking on: each missed day piles up
+  // (laundry). Off: missed days merge into a single outstanding instance
+  // (mow the lawn — you don't mow twice).
+  stacking: integer('stacking', { mode: 'boolean' }).notNull().default(false),
   recurrenceEnd: text('recurrence_end'), // YYYY-MM-DD, null = forever
   archivedAt: integer('archived_at', { mode: 'timestamp_ms' }),
   createdByProfileId: text('created_by_profile_id').references(() => profiles.id),
