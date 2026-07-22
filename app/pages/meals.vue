@@ -103,37 +103,7 @@ async function removeEntry(entry: PlanEntry) {
   }
 }
 
-function cookInitials(name: string) {
-  return name.split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase()
-}
-
-const cookPicker = reactive({ open: false, entry: null as PlanEntry | null })
-function openCookPicker(entry: PlanEntry) {
-  cookPicker.entry = entry
-  cookPicker.open = true
-}
-
-async function setCook(cookProfileId: string | null) {
-  if (!cookPicker.entry) return
-  try {
-    await $fetch(`/api/meal-plan/entries/${cookPicker.entry.id}`, {
-      method: 'PATCH',
-      body: { cookProfileId },
-    })
-    await refresh()
-  }
-  catch {
-    toast.add({ title: 'Could not set the cook', color: 'error' })
-  }
-}
-
 const generateOpen = ref(false)
-
-const ingredientsModal = reactive({ open: false, entryId: null as string | null })
-function openIngredients(entry: PlanEntry) {
-  ingredientsModal.entryId = entry.id
-  ingredientsModal.open = true
-}
 </script>
 
 <template>
@@ -210,31 +180,6 @@ function openIngredients(entry: PlanEntry) {
                   {{ entry.freeText }}
                 </p>
                 <button
-                  class="ml-1 flex min-h-11 w-11 shrink-0 items-center justify-center rounded-md text-slate-400 hover:bg-slate-200 hover:text-primary dark:hover:bg-slate-700 md:w-8"
-                  :aria-label="entry.cook
-                    ? `${entry.cook.name} is cooking ${entry.recipe?.title ?? entry.freeText} — change cook`
-                    : `Assign a cook for ${entry.recipe?.title ?? entry.freeText}`"
-                  :title="entry.cook ? `Cook: ${entry.cook.name}` : 'Assign a cook'"
-                  @click="openCookPicker(entry)"
-                >
-                  <span
-                    v-if="entry.cook"
-                    class="grid size-5 place-items-center rounded-full text-[9px] font-bold text-white"
-                    :style="{ backgroundColor: entry.cook.color }"
-                  >
-                    {{ cookInitials(entry.cook.name) }}
-                  </span>
-                  <UIcon v-else name="i-lucide-chef-hat" class="size-4" />
-                </button>
-                <button
-                  v-if="entry.recipe"
-                  class="ml-1 flex min-h-11 w-11 shrink-0 items-center justify-center rounded-md text-slate-400 hover:bg-slate-200 hover:text-primary dark:hover:bg-slate-700 md:w-8"
-                  :aria-label="`Add ${entry.recipe.title} ingredients to a shopping list`"
-                  @click="openIngredients(entry)"
-                >
-                  <UIcon name="i-lucide-shopping-basket" class="size-4" />
-                </button>
-                <button
                   class="absolute right-0.5 top-0.5 rounded p-1 text-slate-400 hover:text-red-500"
                   :aria-label="`Remove ${entry.recipe?.title ?? entry.freeText}`"
                   @click="removeEntry(entry)"
@@ -262,13 +207,6 @@ function openIngredients(entry: PlanEntry) {
       :meal-slot="picker.slot"
       @pick="addEntry"
     />
-    <CookPickerModal
-      v-model:open="cookPicker.open"
-      :cook-profile-id="cookPicker.entry?.cookProfileId"
-      :meal-label="cookPicker.entry?.recipe?.title ?? cookPicker.entry?.freeText"
-      @pick="setCook"
-    />
     <GenerateDialog v-model:open="generateOpen" :start="weekStart" :end="weekEnd" />
-    <MealIngredientsModal v-model:open="ingredientsModal.open" :entry-id="ingredientsModal.entryId" />
   </div>
 </template>
