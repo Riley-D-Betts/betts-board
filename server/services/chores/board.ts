@@ -1,28 +1,45 @@
 import { and, eq, gte, inArray, isNull, lt } from 'drizzle-orm'
 import { createError } from 'h3'
 import type { ChoreInstance } from '#shared/schemas/chores'
+import { addDaysToDateString, dateStringDiffDays } from '#shared/utils/dates'
 import type { Db } from '../../db/client'
 import { choreAssignees, choreCompletions, choreExceptions, chores, profiles } from '../../db/schema'
 import { expandDateRule } from '../calendar/recurrence'
+
+/** Missed occurrences older than this never roll forward. */
+export const ROLLOVER_LOOKBACK_DAYS = 30
 
 export interface ChoreBoardArgs {
   householdId: string
   startDate: string // inclusive, YYYY-MM-DD
   endDate: string // exclusive, YYYY-MM-DD
+  /** Today in the household timezone (YYYY-MM-DD). When it falls inside the
+   * window, missed past occurrences roll forward and attach to today as
+   * overdue instances: stacking chores emit one per missed day, non-stacking
+   * chores merge into a single instance for the most recent miss. */
+  today?: string
 }
 
-/** Expand every active chore into per-assignee instances inside [startDate, endDate). */
+/**
+ * Expand every active chore into per-assignee instances inside
+ * [startDate, endDate), plus rollover instances under `today` when given.
+ */
 export function getChoreBoard(db: Db, args: ChoreBoardArgs): ChoreInstance[] {
   const { householdId, startDate, endDate } = args
+  const today = args.today && args.today >= startDate && args.today < endDate ? args.today : null
+  const lookbackStart = today ? addDaysToDateString(today, -ROLLOVER_LOOKBACK_DAYS) : null
 
   const candidates = db.select().from(chores).where(and(
     eq(chores.householdId, householdId),
     isNull(chores.archivedAt),
     lt(chores.startDate, endDate), // series can't occur before it starts
-  )).all().filter(c =>
+  )).all().filter((c) => {
     // recurring: series not over before the window; one-off: startDate in window
-    c.rrule ? (c.recurrenceEnd == null || c.recurrenceEnd >= startDate) : c.startDate >= startDate,
-  )
+    if (c.rrule ? (c.recurrenceEnd == null || c.recurrenceEnd >= startDate) : c.startDate >= startDate) return true
+    // rollover can resurrect a chore whose last occurrence is inside the lookback
+    return lookbackStart != null
+      && (c.rrule ? c.recurrenceEnd! >= lookbackStart : c.startDate >= lookbackStart)
+  })
   if (candidates.length === 0) return []
   const ids = candidates.map(c => c.id)
 
@@ -49,15 +66,23 @@ export function getChoreBoard(db: Db, args: ChoreBoardArgs): ChoreInstance[] {
     assigneesByChore.set(row.choreId, list)
   }
 
+  const completionRows = db.select().from(choreCompletions)
+    .where(and(
+      inArray(choreCompletions.choreId, ids),
+      // rollover needs completion state back to the lookback start
+      gte(choreCompletions.dueDate, lookbackStart && lookbackStart < startDate ? lookbackStart : startDate),
+      lt(choreCompletions.dueDate, endDate),
+    )).all()
   const completionByKey = new Map(
-    db.select().from(choreCompletions)
-      .where(and(
-        inArray(choreCompletions.choreId, ids),
-        gte(choreCompletions.dueDate, startDate),
-        lt(choreCompletions.dueDate, endDate),
-      )).all()
-      .map(c => [`${c.choreId}:${c.profileId}:${c.dueDate}`, c] as const),
+    completionRows.map(c => [`${c.choreId}:${c.profileId}:${c.dueDate}`, c] as const),
   )
+  // Latest completion per (chore, assignee) — suppresses non-stacking rollovers.
+  const latestCompletion = new Map<string, string>()
+  for (const c of completionRows) {
+    const key = `${c.choreId}:${c.profileId}`
+    const prev = latestCompletion.get(key)
+    if (!prev || c.dueDate > prev) latestCompletion.set(key, c.dueDate)
+  }
 
   const out: ChoreInstance[] = []
   for (const chore of candidates) {
@@ -68,7 +93,7 @@ export function getChoreBoard(db: Db, args: ChoreBoardArgs): ChoreInstance[] {
           windowStart: startDate,
           windowEnd: endDate,
         })
-      : [chore.startDate]
+      : [chore.startDate].filter(d => d >= startDate && d < endDate)
     ).filter(d => !skipped.has(`${chore.id}:${d}`))
 
     const assignees = (assigneesByChore.get(chore.id) ?? [])
@@ -93,10 +118,66 @@ export function getChoreBoard(db: Db, args: ChoreBoardArgs): ChoreInstance[] {
         })
       }
     }
+
+    if (today) {
+      // Occurrences over the lookback, today included so a run scheduled
+      // today counts as the "latest" when merging non-stacking misses.
+      const occ = (chore.rrule
+        ? expandDateRule({
+            rruleBody: chore.rrule,
+            startDate: chore.startDate,
+            windowStart: lookbackStart!,
+            windowEnd: addDaysToDateString(today, 1),
+          })
+        : [chore.startDate].filter(d => d >= lookbackStart! && d <= today)
+      ).filter(d => !skipped.has(`${chore.id}:${d}`))
+
+      for (const a of assignees) {
+        let rolled: string[]
+        if (chore.stacking) {
+          // Every missed past day is its own outstanding instance.
+          rolled = occ.filter(d =>
+            d < today && !completionByKey.has(`${chore.id}:${a.profileId}:${d}`))
+        }
+        else {
+          // At most one: the latest occurrence <= today, unless it IS today
+          // (the normal instance covers it) or a completion on/after it
+          // already cleared the backlog.
+          const latest = occ[occ.length - 1]
+          const lastDone = latestCompletion.get(`${chore.id}:${a.profileId}`)
+          rolled = latest != null && latest < today && (lastDone == null || lastDone < latest)
+            ? [latest]
+            : []
+        }
+        for (const dueDate of rolled) {
+          out.push({
+            choreId: chore.id,
+            title: chore.title,
+            emoji: chore.emoji,
+            points: chore.points,
+            dueDate,
+            dueTime: chore.dueTime,
+            profileId: a.profileId,
+            profileName: a.profileName,
+            profileColor: a.profileColor,
+            completed: false,
+            completedAt: null,
+            hasRecurrence: !!chore.rrule,
+            overdue: true,
+            daysLate: dateStringDiffDays(today, dueDate),
+          })
+        }
+      }
+    }
   }
 
+  // Rollovers sort as if due today: after the historical rows, oldest first,
+  // ahead of today's scheduled instances.
+  const effectiveDate = (i: ChoreInstance) => (i.overdue && today ? today : i.dueDate)
   return out.sort((a, b) =>
-    a.dueDate.localeCompare(b.dueDate)
+    effectiveDate(a).localeCompare(effectiveDate(b))
+    || Number(!!b.overdue) - Number(!!a.overdue)
+    || (a.overdue ? a.dueDate.localeCompare(b.dueDate) : 0)
     || (a.dueTime ?? '99:99').localeCompare(b.dueTime ?? '99:99')
     || a.title.localeCompare(b.title))
 }

@@ -22,7 +22,10 @@ function formatTime(t: string) {
 <template>
   <div
     class="flex items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 transition-opacity"
-    :class="instance.completed ? 'opacity-60' : ''"
+    :class="[
+      instance.completed ? 'opacity-60' : '',
+      instance.overdue && !instance.completed ? 'border-l-4 border-l-amber-500 dark:border-l-amber-400' : '',
+    ]"
   >
     <button
       type="button"
@@ -52,6 +55,11 @@ function formatTime(t: string) {
         <template v-if="!compact">{{ instance.profileName }}</template>
       </p>
     </div>
+
+    <UBadge v-if="instance.overdue" variant="soft" color="error" class="shrink-0">
+      <UIcon name="i-lucide-alarm-clock" class="size-3.5" />
+      {{ instance.daysLate === 1 ? '1 day late' : `${instance.daysLate} days late` }}
+    </UBadge>
 
     <UBadge v-if="instance.points > 0" variant="soft" color="warning" class="shrink-0">
       <UIcon name="i-lucide-star" class="size-3.5" />
