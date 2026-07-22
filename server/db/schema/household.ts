@@ -5,6 +5,12 @@ export interface HouseholdSettings {
   weekStartsOn: 0 | 1
   /** Missing on rows created before the setting existed → treat as fahrenheit. */
   temperatureUnit?: 'fahrenheit' | 'celsius'
+  /** Missing on older rows → defaults (rounded font, green accent both modes). */
+  appearance?: {
+    font: 'rounded' | 'system' | 'serif' | 'mono' | 'playful'
+    accentLight: string // Tailwind palette name, e.g. 'green', 'violet'
+    accentDark: string
+  }
   slideshow: {
     idleMinutes: number
     intervalSec: number
@@ -18,6 +24,7 @@ export interface HouseholdSettings {
 export const defaultHouseholdSettings: HouseholdSettings = {
   weekStartsOn: 0,
   temperatureUnit: 'fahrenheit',
+  appearance: { font: 'rounded', accentLight: 'green', accentDark: 'green' },
   slideshow: {
     idleMinutes: 10,
     intervalSec: 12,

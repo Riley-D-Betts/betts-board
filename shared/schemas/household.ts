@@ -10,6 +10,17 @@ export const slideshowSettingsSchema = z.object({
   showClock: z.boolean(),
 })
 
+/** Accents users can pick — Tailwind palette names Nuxt UI resolves at runtime. */
+export const ACCENT_COLORS = [
+  'green', 'blue', 'indigo', 'violet', 'fuchsia', 'rose', 'orange', 'amber', 'teal', 'cyan',
+] as const
+
+export const appearanceSchema = z.object({
+  font: z.enum(['rounded', 'system', 'serif', 'mono', 'playful']),
+  accentLight: z.enum(ACCENT_COLORS),
+  accentDark: z.enum(ACCENT_COLORS),
+})
+
 export const householdPatchSchema = z.object({
   name: z.string().trim().min(1).max(100).optional(),
   timezone: zIanaTimezone.optional(),
@@ -19,6 +30,7 @@ export const householdPatchSchema = z.object({
   settings: z.object({
     weekStartsOn: z.union([z.literal(0), z.literal(1)]),
     temperatureUnit: z.enum(['fahrenheit', 'celsius']),
+    appearance: appearanceSchema,
     slideshow: slideshowSettingsSchema,
   }).partial().optional(),
 })

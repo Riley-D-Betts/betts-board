@@ -20,6 +20,9 @@ export default defineEventHandler(async (event) => {
         ...hh.settings,
         ...patch.settings,
         slideshow: { ...hh.settings.slideshow, ...patch.settings.slideshow },
+        ...(patch.settings.appearance !== undefined && {
+          appearance: { ...hh.settings.appearance, ...patch.settings.appearance },
+        }),
       },
     }),
   }).where(eq(households.id, hh.id)).returning().get()

@@ -16,6 +16,11 @@ export interface BoardBootstrap {
   settings?: {
     weekStartsOn: 0 | 1
     temperatureUnit?: 'fahrenheit' | 'celsius'
+    appearance?: {
+      font: 'rounded' | 'system' | 'serif' | 'mono' | 'playful'
+      accentLight: string
+      accentDark: string
+    }
     slideshow: {
       idleMinutes: number
       intervalSec: number
