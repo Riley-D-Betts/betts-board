@@ -141,4 +141,5 @@ keep changes inside their feature slice (see [CLAUDE.md](./CLAUDE.md)).
 
 ## License
 
-[MIT](./LICENSE)
+[AGPL-3.0](./LICENSE) — free to use, modify, and self-host; if you run a
+modified version as a service for others, you share your changes too.
