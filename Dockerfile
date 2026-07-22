@@ -24,7 +24,10 @@ COPY --from=build /app/.output ./.output
 # Migrations ship with the image and run on boot (server plugin).
 COPY --from=build /app/drizzle ./drizzle
 COPY docker/entrypoint.sh /entrypoint.sh
-RUN useradd -r -m betts && mkdir -p /data && chown -R betts /data && chmod +x /entrypoint.sh
+# Strip CRs in case the script was checked out with Windows line endings —
+# a CRLF shebang makes exec fail with "no such file or directory".
+RUN sed -i 's/\r$//' /entrypoint.sh \
+  && useradd -r -m betts && mkdir -p /data && chown -R betts /data && chmod +x /entrypoint.sh
 USER betts
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s \

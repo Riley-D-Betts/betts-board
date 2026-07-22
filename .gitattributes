@@ -1,0 +1,6 @@
+# Shell scripts must keep LF endings — a CRLF shebang breaks exec inside the
+# Linux container ("exec /entrypoint.sh: no such file or directory").
+* text=auto
+*.sh text eol=lf
+Dockerfile text eol=lf
+.npmrc text eol=lf
