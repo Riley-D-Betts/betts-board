@@ -29,6 +29,13 @@
       "when": 1784757422295,
       "tag": "0003_chore-stacking",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1784762599029,
+      "tag": "0004_feedback-github",
+      "breakpoints": true
     }
   ]
 }

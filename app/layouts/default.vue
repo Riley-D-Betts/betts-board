@@ -16,6 +16,7 @@ const moreNav = [
   { to: '/pantry', label: 'Pantry', icon: 'i-lucide-package' },
   { to: '/photos', label: 'Photos', icon: 'i-lucide-image' },
   { to: '/tv', label: 'TV mode', icon: 'i-lucide-tv' },
+  { to: '/feedback', label: 'Feedback', icon: 'i-lucide-megaphone' },
   { to: '/settings', label: 'Settings', icon: 'i-lucide-settings' },
 ]
 

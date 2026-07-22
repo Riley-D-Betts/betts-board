@@ -1,0 +1,19 @@
+name: Feature request
+description: An idea to make the board better.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: What's the idea?
+      description: What should the board do, and who in the family would use it?
+      placeholder: e.g. Birthday countdowns on the dashboard so the kids stop asking.
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else?
+      description: How you work around it today, sketches, examples from other apps.
+    validations:
+      required: false

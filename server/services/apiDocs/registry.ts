@@ -10,6 +10,7 @@ import {
   calendarQuerySchema, eventCreateSchema, eventDeleteSchema, eventPatchSchema,
   feedCreateSchema, feedPatchSchema,
 } from '#shared/schemas/events'
+import { feedbackCreateSchema, feedbackSettingsSchema } from '#shared/schemas/feedback'
 import { householdPatchSchema } from '#shared/schemas/household'
 import { mealEntryCreateSchema, mealEntryPatchSchema, mealPlanQuerySchema } from '#shared/schemas/meals'
 import { barcodeManualSchema, pantryItemCreateSchema, pantryItemPatchSchema, pantryQuerySchema } from '#shared/schemas/pantry'
@@ -52,6 +53,7 @@ export const TAGS = {
   Weather: 'Cached forecast for the household location.',
   Push: 'Web-push subscriptions and test notifications.',
   ApiKeys: 'Bearer API keys for external clients (Home Assistant, scripts).',
+  Feedback: 'In-app bug reports and feature requests, filed as GitHub issues.',
   System: 'Health, bootstrap, first-boot setup, and this documentation.',
 } as const
 
@@ -890,5 +892,41 @@ export const routeRegistry: RouteDoc[] = [
     auth: 'admin',
     pathParams: ['id'],
     responseDescription: 'Confirmation; anything using the key gets `401` from then on.',
+  },
+
+  // ── Feedback ──────────────────────────────────────────────────────────
+  {
+    method: 'post',
+    path: '/api/feedback',
+    summary: 'File a bug report or feature request as a GitHub issue.',
+    tags: ['Feedback'],
+    auth: 'profile',
+    requestSchema: feedbackCreateSchema,
+    responseDescription: '`{ ok, issueNumber, issueUrl }` for the created issue, attributed to the acting profile in the body. `409` until GitHub is connected in Settings; `429` after 5 quick submissions per profile; `502` when GitHub rejects the request.',
+  },
+  {
+    method: 'get',
+    path: '/api/feedback/status',
+    summary: 'Whether feedback is connected to GitHub, and to which repo.',
+    tags: ['Feedback'],
+    auth: 'unlocked',
+    responseDescription: '`{ configured, repo }` — never the token.',
+  },
+  {
+    method: 'put',
+    path: '/api/feedback/settings',
+    summary: 'Connect or disconnect the GitHub repo that receives feedback issues.',
+    tags: ['Feedback'],
+    auth: 'admin',
+    requestSchema: feedbackSettingsSchema,
+    responseDescription: 'The updated `{ configured, repo }` status. `repo: null` disconnects and clears the stored token; omitting `token` keeps the existing one.',
+  },
+  {
+    method: 'post',
+    path: '/api/feedback/test',
+    summary: 'Verify the stored repo + token by fetching the repo from GitHub.',
+    tags: ['Feedback'],
+    auth: 'admin',
+    responseDescription: '`{ ok, repoFullName }` when the token can see the repo; a mapped `502` explaining what\'s wrong otherwise.',
   },
 ]
