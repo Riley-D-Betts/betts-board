@@ -1,6 +1,11 @@
 # Same base image in both stages: better-sqlite3/sharp native binaries must
 # match the runtime ABI. Debian-slim (glibc) gets prebuilds; Alpine would not.
 FROM node:22-bookworm-slim AS build
+# better-sqlite3 ships a binding.gyp, so npm compiles it from source on
+# install — the build stage needs a toolchain. The runner stage stays slim.
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends python3 make g++ \
+  && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 # .npmrc must ride along: the lockfile was generated with legacy-peer-deps
 # (see .npmrc), and npm ci rejects it when validating in strict peer mode.
