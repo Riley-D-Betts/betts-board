@@ -23,6 +23,7 @@ useIntervalFn(load, 15 * 60_000)
 watch(hasLocation, (v) => {
   if (v && !weather.value) void load()
 })
+watch(useWeatherTick(), load) // settings changed (unit/location) → refetch now
 </script>
 
 <template>

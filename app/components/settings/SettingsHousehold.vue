@@ -61,6 +61,7 @@ async function save() {
       },
     })
     await refresh()
+    useWeatherTick().value++ // weather widgets refetch with the new unit/location
     toast.add({ title: 'Settings saved', color: 'success' })
   }
   catch {
