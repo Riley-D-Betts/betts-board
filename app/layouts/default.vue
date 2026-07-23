@@ -23,6 +23,14 @@ const moreNav = [
 function isActive(to: string) {
   return to === '/' ? route.path === '/' : route.path.startsWith(to)
 }
+
+// Phone-only "More" bottom sheet: the tab bar fits 5 destinations, everything
+// else lives in here. Closes itself after navigation.
+const moreOpen = ref(false)
+const moreActive = computed(() => moreNav.some(item => route.path.startsWith(item.to)))
+watch(() => route.path, () => {
+  moreOpen.value = false
+})
 </script>
 
 <template>
@@ -80,15 +88,56 @@ function isActive(to: string) {
           <UIcon :name="item.icon" class="size-6" />
           {{ item.label }}
         </NuxtLink>
-        <NuxtLink
-          to="/settings"
+        <button
           class="flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium"
-          :class="route.path.startsWith('/settings') || route.path.startsWith('/recipes') || route.path.startsWith('/pantry') || route.path.startsWith('/photos') ? 'text-primary' : 'text-slate-500'"
+          :class="moreActive || moreOpen ? 'text-primary' : 'text-slate-500'"
+          @click="moreOpen = !moreOpen"
         >
           <UIcon name="i-lucide-menu" class="size-6" />
           More
-        </NuxtLink>
+        </button>
       </div>
     </nav>
+
+    <!-- "More" bottom sheet (phone) -->
+    <Transition
+      enter-active-class="transition-opacity duration-150"
+      leave-active-class="transition-opacity duration-150"
+      enter-from-class="opacity-0"
+      leave-to-class="opacity-0"
+    >
+      <div
+        v-if="moreOpen"
+        class="md:hidden fixed inset-0 z-40 bg-black/40"
+        @click="moreOpen = false"
+      />
+    </Transition>
+    <Transition
+      enter-active-class="transition-transform duration-200 ease-out"
+      leave-active-class="transition-transform duration-150 ease-in"
+      enter-from-class="translate-y-full"
+      leave-to-class="translate-y-full"
+    >
+      <div
+        v-if="moreOpen"
+        class="md:hidden fixed inset-x-0 bottom-0 z-50 rounded-t-2xl border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]"
+      >
+        <div class="mx-auto mb-3 h-1 w-10 rounded-full bg-slate-300 dark:bg-slate-700" />
+        <div class="grid grid-cols-4 gap-2">
+          <NuxtLink
+            v-for="item in moreNav"
+            :key="item.to"
+            :to="item.to"
+            class="flex min-h-16 flex-col items-center justify-center gap-1 rounded-xl py-2 text-xs font-medium"
+            :class="isActive(item.to)
+              ? 'bg-primary/10 text-primary'
+              : 'text-slate-600 dark:text-slate-300 active:bg-slate-100 dark:active:bg-slate-800'"
+          >
+            <UIcon :name="item.icon" class="size-6" />
+            {{ item.label }}
+          </NuxtLink>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
