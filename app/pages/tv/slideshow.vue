@@ -15,5 +15,5 @@ onBeforeUnmount(() => stop())
 </script>
 
 <template>
-  <div class="min-h-dvh bg-black" />
+  <div class="min-h-screen bg-black" />
 </template>

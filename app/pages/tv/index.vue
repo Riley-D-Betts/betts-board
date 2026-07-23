@@ -55,7 +55,10 @@ function weekdayLabel(date: string) {
 </script>
 
 <template>
-  <div class="flex min-h-dvh flex-col gap-5 p-6">
+  <!-- Exactly viewport-sized (h-screen, not min-h): the grid must shrink to
+       fit the display rather than push the footer off-screen — TVs can't
+       scroll. Sections clip their own overflow. -->
+  <div class="flex h-screen flex-col gap-5 overflow-hidden p-6">
     <div class="grid min-h-0 flex-1 grid-cols-2 grid-rows-2 gap-5">
       <!-- Clock -->
       <section class="flex flex-col justify-center rounded-2xl border border-slate-800 bg-slate-900 p-6">
