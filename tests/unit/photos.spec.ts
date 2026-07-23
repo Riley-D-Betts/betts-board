@@ -1,4 +1,4 @@
-import { existsSync, rmSync } from 'node:fs'
+import { existsSync, readFileSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { afterAll, beforeEach, describe, expect, it } from 'vitest'
@@ -7,8 +7,8 @@ import sharp from 'sharp'
 import { createDb, type Db } from '../../server/db/client'
 import { defaultHouseholdSettings, households } from '../../server/db/schema'
 import {
-  deletePhoto, getPhoto, listPhotos, listSlideshowPhotos, parseExifTakenAt,
-  savePhoto, setInSlideshow, shuffle, toPhotoDto,
+  deletePhoto, getPhoto, isHeifContainer, listPhotos, listSlideshowPhotos,
+  parseExifTakenAt, savePhoto, setInSlideshow, shuffle, toPhotoDto,
 } from '../../server/services/photos/store'
 import { describeWeatherCode } from '../../server/services/weather/forecast'
 
@@ -103,6 +103,57 @@ describe('savePhoto', () => {
       buffer: Buffer.from('definitely not an image'),
       originalName: 'nope.jpg',
     })).rejects.toMatchObject({ statusCode: 415 })
+  })
+
+  // Generous timeout: the first decode instantiates the libheif WASM bundle,
+  // which takes several seconds on a cold cache (always the case in CI).
+  it('decodes HEVC-coded HEIF (phone HEIC) via the wasm fallback', { timeout: 30_000 }, async () => {
+    const buf = readFileSync(join(__dirname, '../fixtures/sample.heic'))
+    // Guard: prebuilt sharp must NOT decode this directly, or the fallback
+    // path silently stops being exercised.
+    await expect(sharp(buf).jpeg().toBuffer()).rejects.toThrow()
+
+    const row = await savePhoto(db, {
+      householdId,
+      profileId: null,
+      buffer: buf,
+      originalName: 'autumn.heic',
+    })
+    expect(row.width).toBe(1440)
+    expect(row.height).toBe(960)
+    const main = await sharp(join(TEST_DATA_DIR, 'uploads', row.path)).metadata()
+    expect(main.format).toBe('jpeg')
+    expect(main.width).toBe(1440)
+  })
+
+  it('throws 415 for a HEIF container with garbage payload', async () => {
+    const fake = Buffer.concat([
+      Buffer.from([0, 0, 0, 24]),
+      Buffer.from('ftypheic', 'latin1'),
+      Buffer.alloc(64, 7),
+    ])
+    await expect(savePhoto(db, {
+      householdId,
+      profileId: null,
+      buffer: fake,
+      originalName: 'broken.heic',
+    })).rejects.toMatchObject({ statusCode: 415 })
+  })
+})
+
+describe('isHeifContainer', () => {
+  it('recognizes ftyp brands of the HEIF family', () => {
+    for (const brand of ['heic', 'heix', 'mif1', 'avif']) {
+      const buf = Buffer.concat([Buffer.from([0, 0, 0, 24]), Buffer.from(`ftyp${brand}rest`, 'latin1')])
+      expect(isHeifContainer(buf)).toBe(true)
+    }
+  })
+
+  it('rejects other files', () => {
+    expect(isHeifContainer(Buffer.from('GIF89a and then some content'))).toBe(false)
+    expect(isHeifContainer(Buffer.concat([Buffer.from([0, 0, 0, 24]), Buffer.from('ftypisom....', 'latin1')]))).toBe(false)
+    expect(isHeifContainer(Buffer.from([0xFF, 0xD8, 0xFF]))).toBe(false)
+    expect(isHeifContainer(Buffer.alloc(0))).toBe(false)
   })
 })
 

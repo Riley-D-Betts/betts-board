@@ -5,6 +5,10 @@ import { requireHousehold, requireProfile } from '../../utils/session'
 
 const MAX_FILE_BYTES = 25 * 1024 * 1024
 
+// Some OS/browser combos send no MIME type for HEIC files — fall back to the
+// extension. savePhoto still 415s anything that doesn't actually decode.
+const IMAGE_EXT = /\.(jpe?g|png|webp|gif|avif|heic|heif)$/i
+
 export default defineEventHandler(async (event): Promise<PhotoDto[]> => {
   const { profile } = await requireProfile(event)
   const hh = requireHousehold()
@@ -20,7 +24,7 @@ export default defineEventHandler(async (event): Promise<PhotoDto[]> => {
     if (f.data.length > MAX_FILE_BYTES) {
       throw createError({ statusCode: 413, statusMessage: `${f.filename} is larger than 25 MB` })
     }
-    if (!f.type?.startsWith('image/')) {
+    if (!f.type?.startsWith('image/') && !IMAGE_EXT.test(f.filename ?? '')) {
       throw createError({ statusCode: 415, statusMessage: `${f.filename} is not an image` })
     }
   }

@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto'
 import { rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import sharp from 'sharp'
+import type { OutputInfo, Sharp } from 'sharp'
 import { createError } from 'h3'
 import { and, desc, eq, lt } from 'drizzle-orm'
 import type { PhotoDto } from '#shared/schemas/photos'
@@ -39,34 +40,74 @@ export interface SavePhotoArgs {
   originalName?: string
 }
 
+const HEIF_BRANDS = new Set([
+  'heic', 'heix', 'hevc', 'hevx', 'heim', 'heis', 'hevm', 'hevs', // HEVC-coded
+  'mif1', 'msf1', // generic HEIF
+  'avif', 'avis',
+])
+
+/** ISO-BMFF ftyp major-brand sniff: HEIF-family container (iPhone/Samsung HEIC, AVIF). */
+export function isHeifContainer(buffer: Buffer | Uint8Array): boolean {
+  const buf = Buffer.isBuffer(buffer) ? buffer : Buffer.from(buffer)
+  return buf.length >= 12
+    && buf.toString('latin1', 4, 8) === 'ftyp'
+    && HEIF_BRANDS.has(buf.toString('latin1', 8, 12))
+}
+
+function unreadableError(originalName?: string) {
+  return createError({
+    statusCode: 415,
+    statusMessage: `${originalName ?? 'That file'} doesn't look like an image we can read`,
+  })
+}
+
+async function encodeVariants(make: () => Sharp) {
+  const main = await make()
+    .rotate() // bake in EXIF orientation
+    .resize({ width: MAIN_MAX_PX, height: MAIN_MAX_PX, fit: 'inside', withoutEnlargement: true })
+    .jpeg({ quality: MAIN_QUALITY })
+    .toBuffer({ resolveWithObject: true })
+  const thumb = await make()
+    .rotate()
+    .resize({ width: THUMB_MAX_PX, height: THUMB_MAX_PX, fit: 'inside', withoutEnlargement: true })
+    .jpeg({ quality: THUMB_QUALITY })
+    .toBuffer()
+  return { main, thumb }
+}
+
 /**
  * sharp pipeline: honor EXIF orientation, re-encode a bounded main jpeg and a
  * thumbnail, then insert the photos row. Throws 415 when the buffer isn't a
  * decodable image.
  */
 export async function savePhoto(db: Db, args: SavePhotoArgs) {
-  let main: { data: Buffer, info: sharp.OutputInfo }
+  let main: { data: Buffer, info: OutputInfo }
   let thumb: Buffer
   let takenAt: Date | null
   try {
     const meta = await sharp(args.buffer).metadata()
     takenAt = parseExifTakenAt(meta.exif)
-    main = await sharp(args.buffer)
-      .rotate() // bake in EXIF orientation
-      .resize({ width: MAIN_MAX_PX, height: MAIN_MAX_PX, fit: 'inside', withoutEnlargement: true })
-      .jpeg({ quality: MAIN_QUALITY })
-      .toBuffer({ resolveWithObject: true })
-    thumb = await sharp(args.buffer)
-      .rotate()
-      .resize({ width: THUMB_MAX_PX, height: THUMB_MAX_PX, fit: 'inside', withoutEnlargement: true })
-      .jpeg({ quality: THUMB_QUALITY })
-      .toBuffer()
+    ;({ main, thumb } = await encodeVariants(() => sharp(args.buffer)))
   }
   catch {
-    throw createError({
-      statusCode: 415,
-      statusMessage: `${args.originalName ?? 'That file'} doesn't look like an image we can read`,
-    })
+    // Prebuilt sharp parses HEIF containers but ships no HEVC codec, so phone
+    // HEIC photos fail only at decode time. Decode those in WASM and feed the
+    // raw pixels back through the same pipeline. libheif applies the
+    // container's orientation transforms during decode.
+    if (!isHeifContainer(args.buffer)) throw unreadableError(args.originalName)
+    try {
+      const { default: decodeHeic } = await import('heic-decode')
+      const { width, height, data } = await decodeHeic({ buffer: args.buffer })
+      const raw = Buffer.from(data)
+      ;({ main, thumb } = await encodeVariants(() =>
+        sharp(raw, { raw: { width, height, channels: 4 } })))
+      // No sharp metadata on raw pixels; the EXIF datetime scan works on the
+      // whole container just as well.
+      takenAt = parseExifTakenAt(args.buffer)
+    }
+    catch {
+      throw unreadableError(args.originalName)
+    }
   }
 
   const filename = `${randomUUID()}.jpg`

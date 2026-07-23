@@ -74,9 +74,13 @@ function onDrop(e: DragEvent) {
   if (files.length) void upload(files)
 }
 
+// Some OS/browser combos report no MIME type for HEIC — match the extension
+// too. The server re-checks and rejects anything that doesn't decode.
+const IMAGE_EXT = /\.(jpe?g|png|webp|gif|avif|heic|heif)$/i
+
 async function upload(files: File[]) {
   if (uploading.value) return
-  const images = files.filter(f => f.type.startsWith('image/'))
+  const images = files.filter(f => f.type.startsWith('image/') || IMAGE_EXT.test(f.name))
   if (!images.length) {
     toast.add({ title: 'Only image files can be uploaded', color: 'error' })
     return
