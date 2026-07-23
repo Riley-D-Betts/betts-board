@@ -1,0 +1,3 @@
+# The in-app feedback feature files plain (blank-format) issues through the
+# REST API, and admins may too — so keep blank issues allowed.
+blank_issues_enabled: true

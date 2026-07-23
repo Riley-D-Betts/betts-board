@@ -58,6 +58,10 @@ export const households = sqliteTable('households', {
   icsToken: text('ics_token').notNull(),
   vapidPublicKey: text('vapid_public_key'),
   vapidPrivateKey: text('vapid_private_key'),
+  // In-app feedback → GitHub issues. Repo "owner/name"; token is a
+  // fine-grained PAT with issues:write, entered by the admin in Settings.
+  githubRepo: text('github_repo'),
+  githubToken: text('github_token'),
   settings: text('settings', { mode: 'json' }).$type<HouseholdSettings>().notNull(),
   createdAt: createdAt(),
 })

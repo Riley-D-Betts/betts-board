@@ -131,7 +131,7 @@ describe('rollover — non-stacking (merge)', () => {
     // Sundays 03-01 and 03-08 both missed; nothing scheduled Wednesday.
     const chore = makeChore({ rrule: 'FREQ=WEEKLY;BYDAY=SU', startDate: '2026-03-01', stacking: false, title: 'Mow the lawn' })
 
-    let out = todayBoard()
+    const out = todayBoard()
     expect(out).toHaveLength(1) // older miss (03-01) merged away
     expect(out[0]).toMatchObject({ dueDate: '2026-03-08', overdue: true, daysLate: 3, completed: false })
 
@@ -150,7 +150,7 @@ describe('rollover — non-stacking (merge)', () => {
   it('a missed one-off keeps rolling until done', () => {
     const chore = makeChore({ rrule: null, startDate: '2026-03-09', stacking: false })
 
-    let out = todayBoard()
+    const out = todayBoard()
     expect(out).toHaveLength(1)
     expect(out[0]).toMatchObject({ dueDate: '2026-03-09', overdue: true, daysLate: 2, hasRecurrence: false })
 

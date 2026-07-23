@@ -1,9 +1,12 @@
 <script setup lang="ts">
+import type { RecipeDetail } from '~~/server/services/recipes/recipes'
+
 const route = useRoute()
 const toast = useToast()
 const recipeId = route.params.id as string
 
-const { data: recipe, refresh } = await useFetch(`/api/recipes/${recipeId}`)
+// Dynamic URL defeats Nuxt's route-based response inference — type it by hand.
+const { data: recipe, refresh } = await useFetch<RecipeDetail>(`/api/recipes/${recipeId}`)
 
 if (!recipe.value) {
   throw createError({ statusCode: 404, statusMessage: 'Recipe not found', fatal: true })

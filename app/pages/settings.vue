@@ -13,6 +13,7 @@ const { isAdmin } = useBoardState()
     <FeedSettings v-if="isAdmin" />
     <PushSettings />
     <ApiKeySettings v-if="isAdmin" />
+    <FeedbackSettings v-if="isAdmin" />
     <SettingsDevice />
   </div>
 </template>
