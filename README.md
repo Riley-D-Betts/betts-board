@@ -112,6 +112,7 @@ and the unlock screen lets you set a new one.
 | `BETTS_DATA_DIR` | `/data` | Where the database and uploads live |
 | `NUXT_SESSION_PASSWORD` | auto-generated | Cookie-sealing secret; created and persisted in the data volume automatically |
 | `BETTS_RESET_PASSWORD` | unset | Set to `1` for one boot to reset the household password |
+| `NUXT_SESSION_COOKIE_SECURE` | `false` | Session cookies work over plain HTTP by default (LAN deployments). Set to `true` when serving behind HTTPS so the cookie is only ever sent encrypted |
 | `PORT` | `3000` | HTTP port inside the container |
 
 Everything else — weather location, temperature unit, week start, meal times,

@@ -25,9 +25,21 @@ async function unlock() {
   }
   catch (err: unknown) {
     const status = (err as { statusCode?: number })?.statusCode
-    error.value = status === 429
-      ? 'Too many attempts — wait a minute.'
-      : resetMode.value ? 'Could not set the password (6+ characters).' : 'Wrong password.'
+    if (status === 429) {
+      error.value = 'Too many attempts — wait a minute.'
+    }
+    else if (status === 401) {
+      error.value = 'Wrong password.'
+    }
+    else if (status === 400) {
+      error.value = resetMode.value
+        ? 'Could not set the password (6+ characters).'
+        : 'Wrong password.'
+    }
+    else {
+      // Don't blame the user's typing for server/network failures.
+      error.value = `Something went wrong on the server (error ${status ?? 'network'}) — check the container logs.`
+    }
   }
   finally {
     busy.value = false

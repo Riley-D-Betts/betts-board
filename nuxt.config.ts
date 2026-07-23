@@ -27,6 +27,12 @@ export default defineNuxtConfig({
     session: {
       // Long TTL: the kitchen wall tablet should stay unlocked for months.
       maxAge: 60 * 60 * 24 * 90,
+      cookie: {
+        // Browsers drop Secure cookies on plain-HTTP origins, which silently
+        // breaks unlock on LAN deployments (http://host:3000). HTTPS setups
+        // should set NUXT_SESSION_COOKIE_SECURE=true.
+        secure: false,
+      },
     },
   },
 
@@ -36,6 +42,16 @@ export default defineNuxtConfig({
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
         { name: 'theme-color', content: '#0f172a' },
+        // iOS ignores the PWA manifest when adding to the home screen and reads
+        // these instead — without them the "app" keeps Safari's toolbar. They
+        // also work over plain HTTP, unlike manifest install.
+        { name: 'mobile-web-app-capable', content: 'yes' },
+        { name: 'apple-mobile-web-app-capable', content: 'yes' },
+        { name: 'apple-mobile-web-app-title', content: 'Betts Board' },
+        { name: 'apple-mobile-web-app-status-bar-style', content: 'default' },
+      ],
+      link: [
+        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
       ],
     },
   },
