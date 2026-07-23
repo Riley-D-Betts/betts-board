@@ -1,4 +1,4 @@
-import { asc, eq, isNull } from 'drizzle-orm'
+import { asc, isNull } from 'drizzle-orm'
 import { useDb } from '../db/client'
 import { profiles } from '../db/schema'
 import { getBoardSession, getHousehold } from '../utils/session'

@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any --
+   these tests drill assertions into a generated OpenAPI document whose exact
+   shape is the thing under test; a full OpenAPI type would just restate it. */
 import { readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
