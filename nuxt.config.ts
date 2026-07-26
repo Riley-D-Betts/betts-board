@@ -75,7 +75,10 @@ export default defineNuxtConfig({
       ],
     },
     injectManifest: {
-      globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+      // woff2 so a bundled household font still renders offline. Downloaded
+      // Google fonts live in the data volume, outside the build, so they rely
+      // on their immutable cache headers instead.
+      globPatterns: ['**/*.{js,css,html,png,svg,ico,woff2}'],
       // The Scalar docs bundle is ~3.7 MB and loads on demand behind auth —
       // keep it out of every phone's offline precache.
       globIgnores: ['**/docs-assets/**'],

@@ -11,6 +11,10 @@ import {
   feedCreateSchema, feedPatchSchema,
 } from '#shared/schemas/events'
 import { feedbackCreateSchema, feedbackSettingsSchema } from '#shared/schemas/feedback'
+import { householdFontSchema } from '#shared/schemas/fonts'
+import {
+  wishlistCreateSchema, wishlistItemCreateSchema, wishlistItemPatchSchema, wishlistPatchSchema,
+} from '#shared/schemas/wishlists'
 import { householdPatchSchema } from '#shared/schemas/household'
 import { mealEntryCreateSchema, mealEntryPatchSchema, mealPlanQuerySchema } from '#shared/schemas/meals'
 import { barcodeManualSchema, pantryItemCreateSchema, pantryItemPatchSchema, pantryQuerySchema } from '#shared/schemas/pantry'
@@ -51,6 +55,8 @@ export const TAGS = {
   Pantry: 'Pantry inventory and barcode lookups.',
   Photos: 'Photo library, uploads, and the slideshow manifest.',
   Weather: 'Cached forecast for the household location.',
+  Tv: 'Wall-display behaviour.',
+  Wishlists: 'Birthday and holiday wish lists, shared across the household.',
   Push: 'Web-push subscriptions and test notifications.',
   ApiKeys: 'Bearer API keys for external clients (Home Assistant, scripts).',
   Feedback: 'In-app bug reports and feature requests, filed as GitHub issues.',
@@ -188,6 +194,32 @@ export const routeRegistry: RouteDoc[] = [
     auth: 'admin',
     requestSchema: householdPatchSchema,
     responseDescription: 'The updated household.',
+  },
+  {
+    method: 'post',
+    path: '/api/household/font',
+    summary: 'Download a Google Font and self-host it.',
+    tags: ['Household'],
+    auth: 'admin',
+    requestSchema: householdFontSchema,
+    responseDescription: 'The stored `{ family, slug, version }`. Files are fetched once and served from this server thereafter, so pages never call out to Google.',
+  },
+  {
+    method: 'delete',
+    path: '/api/household/font',
+    summary: 'Remove the downloaded Google Font.',
+    tags: ['Household'],
+    auth: 'admin',
+    responseDescription: 'Confirmation; the font falls back to the default stack.',
+  },
+  {
+    method: 'get',
+    path: '/fonts/{path}',
+    summary: 'Serves a downloaded font file or its generated stylesheet.',
+    tags: ['Household'],
+    auth: 'public',
+    pathParams: ['path'],
+    responseDescription: 'woff2 or CSS. Public on purpose — the household font has to render on the lock screen.',
   },
 
   // ── Profiles ──────────────────────────────────────────────────────────
@@ -828,6 +860,92 @@ export const routeRegistry: RouteDoc[] = [
     tags: ['Weather'],
     auth: 'unlocked',
     responseDescription: 'Current conditions and forecast. `404` until a location is configured in Settings.',
+  },
+
+  // ── Wish lists ────────────────────────────────────────────────────────
+  {
+    method: 'get',
+    path: '/api/wishlists',
+    summary: 'Every wish list in the household.',
+    tags: ['Wishlists'],
+    auth: 'unlocked',
+    responseDescription: 'Lists with their owner and item count. Everyone sees everyone\'s.',
+  },
+  {
+    method: 'post',
+    path: '/api/wishlists',
+    summary: 'Start a wish list.',
+    tags: ['Wishlists'],
+    auth: 'profile',
+    requestSchema: wishlistCreateSchema,
+    responseDescription: 'The created list. `profileId` defaults to the acting profile; kids may only create their own.',
+  },
+  {
+    method: 'get',
+    path: '/api/wishlists/{id}',
+    summary: 'One wish list, with its items.',
+    tags: ['Wishlists'],
+    auth: 'unlocked',
+    pathParams: ['id'],
+    responseDescription: 'The list and its items, ordered.',
+  },
+  {
+    method: 'patch',
+    path: '/api/wishlists/{id}',
+    summary: 'Rename a list, or change its occasion or date.',
+    tags: ['Wishlists'],
+    auth: 'profile',
+    requestSchema: wishlistPatchSchema,
+    pathParams: ['id'],
+    responseDescription: 'The updated list. The owner and any adult may edit.',
+  },
+  {
+    method: 'delete',
+    path: '/api/wishlists/{id}',
+    summary: 'Archive a wish list.',
+    tags: ['Wishlists'],
+    auth: 'profile',
+    pathParams: ['id'],
+    responseDescription: 'Confirmation; the list is archived rather than deleted.',
+  },
+  {
+    method: 'post',
+    path: '/api/wishlists/{id}/items',
+    summary: 'Add something to a wish list.',
+    tags: ['Wishlists'],
+    auth: 'profile',
+    requestSchema: wishlistItemCreateSchema,
+    pathParams: ['id'],
+    responseDescription: 'The created item.',
+  },
+  {
+    method: 'patch',
+    path: '/api/wishlists/{id}/items/{itemId}',
+    summary: 'Edit an item.',
+    tags: ['Wishlists'],
+    auth: 'profile',
+    requestSchema: wishlistItemPatchSchema,
+    pathParams: ['id', 'itemId'],
+    responseDescription: 'The updated item.',
+  },
+  {
+    method: 'delete',
+    path: '/api/wishlists/{id}/items/{itemId}',
+    summary: 'Remove an item.',
+    tags: ['Wishlists'],
+    auth: 'profile',
+    pathParams: ['id', 'itemId'],
+    responseDescription: 'Confirmation.',
+  },
+
+  // ── TV ────────────────────────────────────────────────────────────────
+  {
+    method: 'get',
+    path: '/api/tv/theme',
+    summary: 'Light or dark for the wall display, plus when it next changes.',
+    tags: ['Tv'],
+    auth: 'unlocked',
+    responseDescription: '`{ theme, nextChangeAt, source }`. On `auto`, computed from sunrise/sunset at the household location; without a location, a 07:00–19:00 wall-clock window.',
   },
 
   // ── Push ──────────────────────────────────────────────────────────────

@@ -70,3 +70,6 @@ export type CustomFont = z.infer<typeof customFontSchema>
  */
 export const googleFontNameSchema = z.string().trim()
   .regex(/^[A-Za-z0-9][A-Za-z0-9 ]{0,59}$/, 'Use a Google Font family name, e.g. "Roboto Slab"')
+
+/** Body of POST /api/household/font. */
+export const householdFontSchema = z.object({ family: googleFontNameSchema })
