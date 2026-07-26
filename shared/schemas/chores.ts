@@ -1,10 +1,10 @@
 import { z } from 'zod'
-import { zDateString, zId, zRRule, zTimeString } from './common'
+import { zDateString, zEmoji, zId, zRRule, zTimeString } from './common'
 
 export const choreCreateSchema = z.object({
   title: z.string().trim().min(1).max(200),
   description: z.string().max(2000).nullish(),
-  emoji: z.string().max(8).nullish(),
+  emoji: zEmoji.nullish(),
   points: z.number().int().min(0).max(1000).default(1),
   rrule: zRRule.nullish(), // null = one-off on startDate
   startDate: zDateString,

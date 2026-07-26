@@ -1,9 +1,9 @@
 import { z } from 'zod'
-import { zId } from './common'
+import { zEmoji, zId } from './common'
 
 export const rewardCreateSchema = z.object({
   title: z.string().trim().min(1).max(200),
-  emoji: z.string().max(8).nullish(),
+  emoji: zEmoji.nullish(),
   description: z.string().max(1000).nullish(),
   cost: z.number().int().min(1).max(100000),
   sortOrder: z.number().int().optional(),

@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm'
 import { householdPatchSchema } from '#shared/schemas/household'
 import { useDb } from '../../db/client'
 import { households } from '../../db/schema'
+import { mergeSettings } from '../../services/household/settings'
 import { requireAdmin, requireHousehold } from '../../utils/session'
 
 export default defineEventHandler(async (event) => {
@@ -15,18 +16,10 @@ export default defineEventHandler(async (event) => {
     ...(patch.latitude !== undefined && { latitude: patch.latitude }),
     ...(patch.longitude !== undefined && { longitude: patch.longitude }),
     ...(patch.locationName !== undefined && { locationName: patch.locationName }),
+    // Recursive merge: a partial patch of any nested object leaves its
+    // siblings alone, with no per-object merge line to forget.
     ...(patch.settings !== undefined && {
-      settings: {
-        ...hh.settings,
-        ...patch.settings,
-        slideshow: { ...hh.settings.slideshow, ...patch.settings.slideshow },
-        ...(patch.settings.appearance !== undefined && {
-          appearance: { ...hh.settings.appearance, ...patch.settings.appearance },
-        }),
-        ...(patch.settings.mealTimes !== undefined && {
-          mealTimes: { ...hh.settings.mealTimes, ...patch.settings.mealTimes },
-        }),
-      },
+      settings: mergeSettings(hh.settings, patch.settings),
     }),
   }).where(eq(households.id, hh.id)).returning().get()
 

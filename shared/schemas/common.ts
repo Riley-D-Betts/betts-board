@@ -16,6 +16,23 @@ export const zId = z.string().min(1)
 /** Bare RRULE body, e.g. "FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,WE" (no DTSTART line). */
 export const zRRule = z.string().regex(/^FREQ=/, 'expected an RRULE body starting with FREQ=')
 
+/**
+ * A single typed-or-picked emoji.
+ *
+ * The length cap is only a cheap size guard — the real rule is the grapheme
+ * count. A `.max(8)` character cap (the old rule) rejected 👨‍👩‍👧‍👦, which is 11
+ * UTF-16 units, and 🏴󠁧󠁢󠁳󠁣󠁴󠁿, which is 14. `Intl.Segmenter` counts any ZWJ or
+ * skin-tone sequence as the one character a user actually sees.
+ */
+export const zEmoji = z.string().min(1).max(32).refine((s) => {
+  const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' })
+  let count = 0
+  for (const _ of segmenter.segment(s)) {
+    if (++count > 1) return false
+  }
+  return count === 1
+}, 'expected a single emoji')
+
 export const zIanaTimezone = z.string().refine((tz) => {
   try {
     new Intl.DateTimeFormat('en-US', { timeZone: tz })
