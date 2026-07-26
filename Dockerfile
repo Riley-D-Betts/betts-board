@@ -3,8 +3,11 @@
 FROM node:22-bookworm-slim AS build
 # better-sqlite3 ships a binding.gyp, so npm compiles it from source on
 # install — the build stage needs a toolchain. The runner stage stays slim.
+# git is here so the build can stamp the image with its commit (see buildInfo()
+# in nuxt.config.ts) — .dockerignore deliberately keeps .git for this. Without
+# it the stamp silently degrades to "unknown". The runner stage stays slim.
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends python3 make g++ \
+  && apt-get install -y --no-install-recommends python3 make g++ git \
   && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 # .npmrc must ride along: the lockfile was generated with legacy-peer-deps

@@ -6,8 +6,13 @@ const { state, refresh } = useBoardState()
 
 const { data: household } = await useFetch('/api/household')
 
+// Reka's SelectItem rejects value: '' (an empty value is what clears a
+// Select), which threw and broke the whole Settings page. Use a sentinel and
+// map it back to null on save.
+const NO_COOK = 'none'
+
 const cookItems = computed(() => [
-  { label: 'No default — ask each time', value: '' },
+  { label: 'No default — ask each time', value: NO_COOK },
   ...(state.value?.profiles ?? []).map(p => ({ label: p.name, value: p.id })),
 ])
 
@@ -18,7 +23,7 @@ const form = reactive({
   weekStartsOn: (household.value?.settings?.weekStartsOn ?? 0) as 0 | 1,
   temperatureUnit: (household.value?.settings?.temperatureUnit ?? 'fahrenheit') as 'fahrenheit' | 'celsius',
   mealTimes: { ...DEFAULT_MEAL_TIMES, ...(household.value?.settings?.mealTimes ?? {}) },
-  defaultCookProfileId: household.value?.settings?.defaultCookProfileId ?? '',
+  defaultCookProfileId: household.value?.settings?.defaultCookProfileId ?? NO_COOK,
 })
 
 const mealTimeFields = [
@@ -77,7 +82,7 @@ async function save() {
           weekStartsOn: form.weekStartsOn,
           temperatureUnit: form.temperatureUnit,
           mealTimes: { ...form.mealTimes },
-          defaultCookProfileId: form.defaultCookProfileId || null,
+          defaultCookProfileId: form.defaultCookProfileId === NO_COOK ? null : form.defaultCookProfileId,
         },
       },
     })

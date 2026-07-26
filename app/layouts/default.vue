@@ -1,38 +1,21 @@
 <script setup lang="ts">
 const { activeProfile, lock } = useBoardState()
 const route = useRoute()
+const { tabs, sidebarItems, isTabActive } = useNavItems()
 
-const { t } = useI18n()
-
-const nav = computed(() => [
-  { to: '/', label: t('common.nav.home'), icon: 'i-lucide-house' },
-  { to: '/calendar', label: t('common.nav.calendar'), icon: 'i-lucide-calendar-days' },
-  { to: '/chores', label: t('common.nav.chores'), icon: 'i-lucide-list-checks' },
-  { to: '/meals', label: t('common.nav.meals'), icon: 'i-lucide-utensils' },
-  { to: '/shopping', label: t('common.nav.shopping'), icon: 'i-lucide-shopping-cart' },
-])
-
-const moreNav = computed(() => [
-  { to: '/recipes', label: t('common.nav.recipes'), icon: 'i-lucide-chef-hat' },
-  { to: '/rewards', label: t('common.nav.rewards'), icon: 'i-lucide-star' },
-  { to: '/wishlists', label: t('common.nav.wishlists'), icon: 'i-lucide-gift' },
-  { to: '/pantry', label: t('common.nav.pantry'), icon: 'i-lucide-package' },
-  { to: '/photos', label: t('common.nav.photos'), icon: 'i-lucide-image' },
-  { to: '/tv', label: t('common.nav.tvMode'), icon: 'i-lucide-tv' },
-  { to: '/feedback', label: t('common.nav.feedback'), icon: 'i-lucide-megaphone' },
-  { to: '/settings', label: t('common.nav.settings'), icon: 'i-lucide-settings' },
-])
-
-function isActive(to: string) {
-  return to === '/' ? route.path === '/' : route.path.startsWith(to)
-}
-
-// Phone-only "More" bottom sheet: the tab bar fits 5 destinations, everything
-// else lives in here. Closes itself after navigation.
-const moreOpen = ref(false)
-const moreActive = computed(() => moreNav.value.some(item => route.path.startsWith(item.to)))
+// Phone-only full-screen menu. The tab bar holds four destinations; the raised
+// centre button opens the complete map of the board.
+const menuOpen = ref(false)
 watch(() => route.path, () => {
-  moreOpen.value = false
+  menuOpen.value = false
+})
+
+// Resizing to desktop with the menu open would strand a focus-trapped dialog
+// over the sidebar UI. Closing it in JS rather than hiding it with md:hidden —
+// display:none on trapped content leaves focus somewhere invisible.
+const isDesktop = useMediaQuery('(min-width: 768px)')
+watch(isDesktop, (desktop) => {
+  if (desktop) menuOpen.value = false
 })
 </script>
 
@@ -45,11 +28,11 @@ watch(() => route.path, () => {
         Betts Board
       </NuxtLink>
       <NuxtLink
-        v-for="item in [...nav, ...moreNav]"
+        v-for="item in sidebarItems"
         :key="item.to"
         :to="item.to"
         class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
-        :class="isActive(item.to)
+        :class="isTabActive(item)
           ? 'bg-primary/10 text-primary'
           : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300'"
       >
@@ -71,97 +54,57 @@ watch(() => route.path, () => {
       </div>
     </aside>
 
-    <!-- Main content -->
-    <main class="md:pl-56 pb-20 md:pb-6">
+    <!-- Main content. Bottom padding clears the bar *and* the raised centre
+         button, plus the home indicator on gesture-nav phones. -->
+    <main class="md:pl-56 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-6">
       <div class="mx-auto max-w-6xl px-4 pt-4 md:px-8 md:pt-8">
         <slot />
       </div>
     </main>
 
-    <!-- Bottom tab bar (phone) -->
+    <!-- Bottom tab bar (phone): 4 tabs around a raised centre button -->
     <nav class="md:hidden fixed bottom-0 inset-x-0 z-30 border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur pb-[env(safe-area-inset-bottom)]">
-      <div class="grid grid-cols-6">
+      <div class="grid grid-cols-5">
         <NuxtLink
-          v-for="item in nav"
+          v-for="item in tabs.slice(0, 2)"
           :key="item.to"
           :to="item.to"
-          class="flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium"
-          :class="isActive(item.to) ? 'text-primary' : 'text-slate-500'"
+          class="flex min-h-14 flex-col items-center justify-center gap-0.5 text-[10px] font-medium"
+          :class="isTabActive(item) ? 'text-primary' : 'text-slate-500'"
         >
           <UIcon :name="item.icon" class="size-6" />
           {{ item.label }}
         </NuxtLink>
+
+        <!-- Centre: opens the full-screen menu. A grid icon, not a house —
+             Home is a tab of its own, and the same glyph doing two different
+             things reads as broken. -->
         <button
-          class="flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium"
-          :class="moreActive || moreOpen ? 'text-primary' : 'text-slate-500'"
-          @click="moreOpen = !moreOpen"
+          class="relative flex min-h-14 flex-col items-center justify-end pb-1 text-[10px] font-medium text-slate-500"
+          :aria-label="$t('common.nav.openMenu')"
+          aria-haspopup="dialog"
+          :aria-expanded="menuOpen"
+          @click="menuOpen = true"
         >
-          <UIcon name="i-lucide-menu" class="size-6" />
-          {{ $t('common.nav.more') }}
+          <span class="absolute -top-5 flex size-14 items-center justify-center rounded-full bg-primary text-white shadow-lg active:scale-95 transition-transform">
+            <UIcon name="i-lucide-layout-grid" class="size-7" />
+          </span>
+          {{ $t('common.nav.all') }}
         </button>
+
+        <NuxtLink
+          v-for="item in tabs.slice(2)"
+          :key="item.to"
+          :to="item.to"
+          class="flex min-h-14 flex-col items-center justify-center gap-0.5 text-[10px] font-medium"
+          :class="isTabActive(item) ? 'text-primary' : 'text-slate-500'"
+        >
+          <UIcon :name="item.icon" class="size-6" />
+          {{ item.label }}
+        </NuxtLink>
       </div>
     </nav>
 
-    <!-- "More" bottom sheet (phone) -->
-    <Transition
-      enter-active-class="transition-opacity duration-150"
-      leave-active-class="transition-opacity duration-150"
-      enter-from-class="opacity-0"
-      leave-to-class="opacity-0"
-    >
-      <div
-        v-if="moreOpen"
-        class="md:hidden fixed inset-0 z-40 bg-black/40"
-        @click="moreOpen = false"
-      />
-    </Transition>
-    <Transition
-      enter-active-class="transition-transform duration-200 ease-out"
-      leave-active-class="transition-transform duration-150 ease-in"
-      enter-from-class="translate-y-full"
-      leave-to-class="translate-y-full"
-    >
-      <div
-        v-if="moreOpen"
-        class="md:hidden fixed inset-x-0 bottom-0 z-50 rounded-t-2xl border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]"
-      >
-        <div class="mx-auto mb-3 h-1 w-10 rounded-full bg-slate-300 dark:bg-slate-700" />
-        <div class="grid grid-cols-4 gap-2">
-          <NuxtLink
-            v-for="item in moreNav"
-            :key="item.to"
-            :to="item.to"
-            class="flex min-h-16 flex-col items-center justify-center gap-1 rounded-xl py-2 text-xs font-medium"
-            :class="isActive(item.to)
-              ? 'bg-primary/10 text-primary'
-              : 'text-slate-600 dark:text-slate-300 active:bg-slate-100 dark:active:bg-slate-800'"
-          >
-            <UIcon :name="item.icon" class="size-6" />
-            {{ item.label }}
-          </NuxtLink>
-        </div>
-
-        <!-- Who am I / lock. Both used to exist only in the desktop sidebar,
-             so on a phone there was no way to switch profile or lock at all. -->
-        <div class="mt-3 flex items-center gap-2 border-t border-slate-200 dark:border-slate-800 pt-3">
-          <NuxtLink
-            to="/profiles"
-            class="flex min-h-12 flex-1 items-center gap-3 rounded-xl px-3 text-sm font-medium text-slate-700 dark:text-slate-200 active:bg-slate-100 dark:active:bg-slate-800"
-          >
-            <ProfileAvatar v-if="activeProfile" :profile="activeProfile" size="sm" />
-            <UIcon v-else name="i-lucide-user" class="size-6" />
-            <span class="truncate">{{ activeProfile?.name ?? $t('common.nav.chooseProfile') }}</span>
-            <UIcon name="i-lucide-chevron-right" class="ml-auto size-4 shrink-0 text-slate-400" />
-          </NuxtLink>
-          <button
-            class="flex min-h-12 items-center gap-2 rounded-xl px-4 text-sm font-medium text-slate-500 active:bg-slate-100 dark:active:bg-slate-800"
-            @click="lock()"
-          >
-            <UIcon name="i-lucide-lock" class="size-5" />
-            {{ $t('common.nav.lock') }}
-          </button>
-        </div>
-      </div>
-    </Transition>
+    <NavMenuSheet v-model:open="menuOpen" />
   </div>
 </template>

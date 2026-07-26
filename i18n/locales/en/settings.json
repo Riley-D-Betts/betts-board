@@ -18,5 +18,13 @@
     "tvLight": "Always light",
     "tvDark": "Always dark",
     "adminOnly": "Ask an admin to change the household font and colors."
+  },
+  "about": {
+    "title": "About this board",
+    "version": "Version",
+    "commit": "Build",
+    "built": "Built",
+    "daysAgo": "{n} day ago | {n} days ago",
+    "help": "If a change you expected isn't here, check this build date — it tells you whether the server was actually rebuilt. The same details are at /api/health."
   }
 }

@@ -1,5 +1,8 @@
 <!-- Pick a recipe (search, rating-sorted) or free-type a meal for one planner cell. -->
 <script setup lang="ts">
+/** Sentinel, not '': Reka's SelectItem throws on an empty-string value. */
+const NO_COOK = 'none'
+
 interface PickerRecipe {
   id: string
   title: string
@@ -20,14 +23,14 @@ const emit = defineEmits<{
 
 const { state } = useBoardState()
 const cookItems = computed(() => [
-  { label: 'No cook', value: '' },
+  { label: 'No cook', value: NO_COOK },
   ...(state.value?.profiles ?? []).map(p => ({ label: p.name, value: p.id })),
 ])
 
 const q = ref('')
 const freeText = ref('')
 const servings = ref<number | ''>('')
-const cookId = ref('')
+const cookId = ref(NO_COOK)
 
 watch(open, (isOpen) => {
   if (!isOpen) return
@@ -35,7 +38,7 @@ watch(open, (isOpen) => {
   freeText.value = ''
   servings.value = ''
   // Pre-fill the household's default cook (Settings → Household); overridable.
-  cookId.value = state.value?.settings?.defaultCookProfileId ?? ''
+  cookId.value = state.value?.settings?.defaultCookProfileId ?? NO_COOK
 })
 
 const debouncedQ = refDebounced(q, 250)
@@ -58,7 +61,7 @@ function servingsValue(): number | null {
 }
 
 function cookValue(): string | null {
-  return cookId.value || null
+  return cookId.value === NO_COOK ? null : cookId.value
 }
 
 function pickRecipe(recipe: PickerRecipe) {
