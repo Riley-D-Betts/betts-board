@@ -35,7 +35,8 @@
    only fits one of them. Scale with the viewport instead, anchored at
    28px @ 1920×1080; min() keeps non-16:9 viewports from overflowing on the
    short axis. The plain 175% line is the fallback for TV browsers too old
-   for min()/max(). */
+   for min()/max().
+
    Guarded by a min-width: on a phone that opened TV mode from the More menu,
    scaling the root 175% inside a non-scrolling h-screen page clipped the grid
    and pushed the exit button off-screen. Phones get the normal scale. */
