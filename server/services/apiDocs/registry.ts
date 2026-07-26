@@ -104,7 +104,7 @@ export const routeRegistry: RouteDoc[] = [
     summary: 'Liveness check — verifies the database file is openable.',
     tags: ['System'],
     auth: 'public',
-    responseDescription: '`{ ok: true }` when the process and database are healthy.',
+    responseDescription: '`{ ok: true, version, commit, builtAt }` when the process and database are healthy. The build fields identify exactly which image is running.',
   },
   {
     method: 'get',

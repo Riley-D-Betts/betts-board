@@ -1,0 +1,28 @@
+# Keep the build context small and predictable. `COPY . .` runs *after*
+# `npm ci`, so without this the host's node_modules would overwrite the
+# freshly-installed ones — an ABI mismatch waiting to happen for
+# better-sqlite3 and sharp — and a stale local .output would ride into the
+# image.
+#
+# .git is deliberately NOT ignored: the build reads the commit SHA from it to
+# stamp the image (see buildInfo() in nuxt.config.ts).
+node_modules
+.output
+.nuxt
+.data
+dist
+
+# Local artefacts that have no business in an image
+*.log
+.env
+.env.*
+!.env.example
+coverage
+tests
+playwright-report
+test-results
+
+# Editor / OS noise
+.DS_Store
+.vscode
+.idea

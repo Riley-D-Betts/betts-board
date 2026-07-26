@@ -1,3 +1,31 @@
+import { execSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
+
+/**
+ * Build identity, resolved once at build time.
+ *
+ * Without this there is no way to tell which build a running container is —
+ * "did my rebuild actually take?" was previously unanswerable, which cost
+ * several rounds of guessing. Surfaced by /api/health and Settings → About.
+ *
+ * The git SHA is read from the build context (the Docker build stage has .git),
+ * falling back to $BETTS_COMMIT and then 'unknown' so a build from a tarball
+ * still succeeds.
+ */
+function buildInfo() {
+  const version = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')).version
+  let commit = process.env.BETTS_COMMIT ?? ''
+  if (!commit) {
+    try {
+      commit = execSync('git rev-parse --short HEAD', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim()
+    }
+    catch {
+      commit = 'unknown'
+    }
+  }
+  return { version, commit, builtAt: new Date().toISOString() }
+}
+
 export default defineNuxtConfig({
   compatibilityDate: '2026-07-01',
 
@@ -41,6 +69,10 @@ export default defineNuxtConfig({
   runtimeConfig: {
     // Overridable via BETTS_DATA_DIR (compose sets /data)
     dataDir: '.data',
+    public: {
+      // Baked at build time; the answer to "is this server running my change?"
+      build: buildInfo(),
+    },
     session: {
       // Long TTL: the kitchen wall tablet should stay unlocked for months.
       maxAge: 60 * 60 * 24 * 90,

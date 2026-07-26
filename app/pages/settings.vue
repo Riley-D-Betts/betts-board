@@ -5,7 +5,7 @@ const { isAdmin } = useBoardState()
 
 <template>
   <div class="space-y-6 max-w-3xl">
-    <h1 class="text-2xl md:text-3xl font-bold">Settings</h1>
+    <h1 class="text-2xl md:text-3xl font-bold">{{ $t('settings.title') }}</h1>
     <SettingsHousehold v-if="isAdmin" />
     <SettingsProfiles v-if="isAdmin" />
     <SettingsAppearance />
@@ -15,5 +15,6 @@ const { isAdmin } = useBoardState()
     <ApiKeySettings v-if="isAdmin" />
     <FeedbackSettings v-if="isAdmin" />
     <SettingsDevice />
+    <SettingsAbout />
   </div>
 </template>

@@ -6,13 +6,15 @@ const { state } = useBoardState()
 const { data: keys, refresh: reload } = await useFetch<ApiKeyDto[]>('/api/api-keys')
 
 const creating = ref(false)
-const newKey = reactive({ name: '', profileId: '' })
+const NO_PROFILE = 'none'
+const newKey = reactive({ name: '', profileId: NO_PROFILE })
 // The token is returned exactly once, at creation — held here until dismissed.
 const created = ref<ApiKeyCreated | null>(null)
 const copied = ref(false)
 
 const profileItems = computed(() => [
-  { label: 'No acting profile (read-mostly)', value: '' },
+  // Sentinel, not '': Reka's SelectItem throws on an empty-string value.
+  { label: 'No acting profile (read-mostly)', value: NO_PROFILE },
   ...(state.value?.profiles ?? []).map(p => ({ label: `Acts as ${p.name}`, value: p.id })),
 ])
 
@@ -21,11 +23,14 @@ async function createKey() {
   try {
     created.value = await $fetch('/api/api-keys', {
       method: 'POST',
-      body: { name: newKey.name.trim(), profileId: newKey.profileId || undefined },
+      body: {
+        name: newKey.name.trim(),
+        profileId: newKey.profileId === NO_PROFILE ? undefined : newKey.profileId,
+      },
     })
     copied.value = false
     newKey.name = ''
-    newKey.profileId = ''
+    newKey.profileId = NO_PROFILE
     creating.value = false
     await reload()
   }

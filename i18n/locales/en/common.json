@@ -38,8 +38,19 @@
     "tvMode": "TV mode",
     "feedback": "Feedback",
     "settings": "Settings",
-    "more": "More",
     "lock": "Lock",
-    "chooseProfile": "Choose profile"
+    "chooseProfile": "Choose profile",
+    "all": "All",
+    "allSections": "All sections",
+    "closeMenu": "Close menu",
+    "openMenu": "Open menu",
+    "leaderboard": "Leaderboard",
+    "manageChores": "Manage chores",
+    "groups": {
+      "everyday": "Every day",
+      "kitchen": "Kitchen",
+      "family": "Family",
+      "board": "This board"
+    }
   }
 }

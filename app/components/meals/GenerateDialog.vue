@@ -2,6 +2,9 @@
 <script setup lang="ts">
 import type { GenerateResult } from '#shared/schemas/shopping'
 
+/** Sentinel for the household's default list. Reka's SelectItem throws on ''. */
+const DEFAULT_LIST = 'default'
+
 const props = defineProps<{ start: string, end: string }>()
 const open = defineModel<boolean>('open', { required: true })
 
@@ -15,7 +18,7 @@ const { data: lists, refresh: refreshLists } = await useFetch<ListRow[]>('/api/s
 const form = reactive({
   start: props.start,
   end: props.end,
-  listId: '', // '' = default list
+  listId: DEFAULT_LIST,
   checkPantry: true,
 })
 
@@ -26,14 +29,14 @@ watch(open, async (isOpen) => {
   if (!isOpen) return
   form.start = props.start
   form.end = props.end
-  form.listId = ''
+  form.listId = DEFAULT_LIST
   form.checkPantry = true
   result.value = null
   await refreshLists()
 })
 
 const listOptions = computed(() => [
-  { label: 'Default list', value: '' },
+  { label: 'Default list', value: DEFAULT_LIST },
   ...lists.value.map(l => ({ label: l.isDefault ? `${l.name} (default)` : l.name, value: l.id })),
 ])
 
@@ -45,7 +48,7 @@ async function generate() {
       body: {
         start: form.start,
         end: form.end,
-        ...(form.listId ? { listId: form.listId } : {}),
+        ...(form.listId === DEFAULT_LIST ? {} : { listId: form.listId }),
         ignorePantry: !form.checkPantry,
       },
     })
