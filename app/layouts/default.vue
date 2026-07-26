@@ -2,24 +2,26 @@
 const { activeProfile, lock } = useBoardState()
 const route = useRoute()
 
-const nav = [
-  { to: '/', label: 'Home', icon: 'i-lucide-house' },
-  { to: '/calendar', label: 'Calendar', icon: 'i-lucide-calendar-days' },
-  { to: '/chores', label: 'Chores', icon: 'i-lucide-list-checks' },
-  { to: '/meals', label: 'Meals', icon: 'i-lucide-utensils' },
-  { to: '/shopping', label: 'Shopping', icon: 'i-lucide-shopping-cart' },
-]
+const { t } = useI18n()
 
-const moreNav = [
-  { to: '/recipes', label: 'Recipes', icon: 'i-lucide-chef-hat' },
-  { to: '/rewards', label: 'Rewards', icon: 'i-lucide-star' },
-  { to: '/wishlists', label: 'Wish lists', icon: 'i-lucide-gift' },
-  { to: '/pantry', label: 'Pantry', icon: 'i-lucide-package' },
-  { to: '/photos', label: 'Photos', icon: 'i-lucide-image' },
-  { to: '/tv', label: 'TV mode', icon: 'i-lucide-tv' },
-  { to: '/feedback', label: 'Feedback', icon: 'i-lucide-megaphone' },
-  { to: '/settings', label: 'Settings', icon: 'i-lucide-settings' },
-]
+const nav = computed(() => [
+  { to: '/', label: t('common.nav.home'), icon: 'i-lucide-house' },
+  { to: '/calendar', label: t('common.nav.calendar'), icon: 'i-lucide-calendar-days' },
+  { to: '/chores', label: t('common.nav.chores'), icon: 'i-lucide-list-checks' },
+  { to: '/meals', label: t('common.nav.meals'), icon: 'i-lucide-utensils' },
+  { to: '/shopping', label: t('common.nav.shopping'), icon: 'i-lucide-shopping-cart' },
+])
+
+const moreNav = computed(() => [
+  { to: '/recipes', label: t('common.nav.recipes'), icon: 'i-lucide-chef-hat' },
+  { to: '/rewards', label: t('common.nav.rewards'), icon: 'i-lucide-star' },
+  { to: '/wishlists', label: t('common.nav.wishlists'), icon: 'i-lucide-gift' },
+  { to: '/pantry', label: t('common.nav.pantry'), icon: 'i-lucide-package' },
+  { to: '/photos', label: t('common.nav.photos'), icon: 'i-lucide-image' },
+  { to: '/tv', label: t('common.nav.tvMode'), icon: 'i-lucide-tv' },
+  { to: '/feedback', label: t('common.nav.feedback'), icon: 'i-lucide-megaphone' },
+  { to: '/settings', label: t('common.nav.settings'), icon: 'i-lucide-settings' },
+])
 
 function isActive(to: string) {
   return to === '/' ? route.path === '/' : route.path.startsWith(to)
@@ -28,7 +30,7 @@ function isActive(to: string) {
 // Phone-only "More" bottom sheet: the tab bar fits 5 destinations, everything
 // else lives in here. Closes itself after navigation.
 const moreOpen = ref(false)
-const moreActive = computed(() => moreNav.some(item => route.path.startsWith(item.to)))
+const moreActive = computed(() => moreNav.value.some(item => route.path.startsWith(item.to)))
 watch(() => route.path, () => {
   moreOpen.value = false
 })
@@ -57,14 +59,14 @@ watch(() => route.path, () => {
       <div class="mt-auto">
         <NuxtLink to="/profiles" class="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800">
           <ProfileAvatar v-if="activeProfile" :profile="activeProfile" size="sm" />
-          <span class="text-sm font-medium truncate">{{ activeProfile?.name ?? 'Choose profile' }}</span>
+          <span class="text-sm font-medium truncate">{{ activeProfile?.name ?? $t('common.nav.chooseProfile') }}</span>
         </NuxtLink>
         <button
           class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
           @click="lock()"
         >
           <UIcon name="i-lucide-lock" class="size-4" />
-          Lock
+          {{ $t('common.nav.lock') }}
         </button>
       </div>
     </aside>
@@ -95,7 +97,7 @@ watch(() => route.path, () => {
           @click="moreOpen = !moreOpen"
         >
           <UIcon name="i-lucide-menu" class="size-6" />
-          More
+          {{ $t('common.nav.more') }}
         </button>
       </div>
     </nav>
@@ -148,7 +150,7 @@ watch(() => route.path, () => {
           >
             <ProfileAvatar v-if="activeProfile" :profile="activeProfile" size="sm" />
             <UIcon v-else name="i-lucide-user" class="size-6" />
-            <span class="truncate">{{ activeProfile?.name ?? 'Choose profile' }}</span>
+            <span class="truncate">{{ activeProfile?.name ?? $t('common.nav.chooseProfile') }}</span>
             <UIcon name="i-lucide-chevron-right" class="ml-auto size-4 shrink-0 text-slate-400" />
           </NuxtLink>
           <button
@@ -156,7 +158,7 @@ watch(() => route.path, () => {
             @click="lock()"
           >
             <UIcon name="i-lucide-lock" class="size-5" />
-            Lock
+            {{ $t('common.nav.lock') }}
           </button>
         </div>
       </div>

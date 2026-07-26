@@ -4,6 +4,8 @@ import type { CalendarOccurrence } from '#shared/schemas/events'
 import type { ChoreInstance } from '#shared/schemas/chores'
 import type { WeatherReport } from '~~/server/services/weather/forecast'
 
+const { formatTime } = useDateFormat()
+
 definePageMeta({ layout: 'tv' })
 
 const { state } = useBoardState()
@@ -46,7 +48,7 @@ const { data: choreBoard } = await useAsyncData('tv-chores-today', async () => {
 
 function timeLabel(occ: CalendarOccurrence) {
   if (occ.isAllDay) return 'All day'
-  return DateTime.fromMillis(occ.start, { zone: timezone.value }).toFormat('h:mm a')
+  return formatTime(occ.start, timezone.value)
 }
 
 function weekdayLabel(date: string) {

@@ -24,11 +24,13 @@ const ordered = computed(() => [...props.instances].sort((a, b) =>
 
 // This view spans a whole week under one heading, so each row has to say which
 // day it is — otherwise a daily chore looks like seven identical rows.
+const { t } = useI18n()
+const { formatWeekdayLong } = useDateFormat()
 const today = todayString()
 function dateLabel(date: string) {
-  if (date === today) return 'Today'
-  if (date === addDaysToDateString(today, 1)) return 'Tomorrow'
-  return parseDateString(date).toLocaleDateString(undefined, { weekday: 'long' })
+  if (date === today) return t('common.actions.today')
+  if (date === addDaysToDateString(today, 1)) return t('common.actions.tomorrow')
+  return formatWeekdayLong(parseDateString(date))
 }
 </script>
 

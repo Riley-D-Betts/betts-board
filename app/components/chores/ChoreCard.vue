@@ -40,7 +40,9 @@ function formatTime(t: string) {
         disabled ? 'cursor-not-allowed opacity-40' : 'active:scale-95',
       ]"
       :disabled="disabled"
-      :aria-label="instance.completed ? `Mark ${instance.title} not done` : `Mark ${instance.title} done`"
+      :aria-label="instance.completed
+        ? $t('chores.markNotDone', { title: instance.title })
+        : $t('chores.markDone', { title: instance.title })"
       @click="emit('toggle')"
     >
       <UIcon v-if="instance.completed" name="i-lucide-check" class="size-6 chore-check-pop" />
@@ -63,7 +65,7 @@ function formatTime(t: string) {
 
     <UBadge v-if="instance.overdue" variant="soft" color="error" class="shrink-0">
       <UIcon name="i-lucide-alarm-clock" class="size-3.5" />
-      {{ instance.daysLate === 1 ? '1 day late' : `${instance.daysLate} days late` }}
+      {{ $t('chores.daysLate', instance.daysLate ?? 0) }}
     </UBadge>
 
     <UBadge v-if="instance.points > 0" variant="soft" color="warning" class="shrink-0">

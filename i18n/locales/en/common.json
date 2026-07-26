@@ -1,0 +1,45 @@
+{
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "remove": "Remove",
+    "add": "Add",
+    "edit": "Edit",
+    "close": "Close",
+    "confirm": "Confirm",
+    "back": "Back",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "yesterday": "Yesterday"
+  },
+  "state": {
+    "loading": "Loading…",
+    "saved": "Saved",
+    "nothingHere": "Nothing here yet",
+    "optional": "optional"
+  },
+  "errors": {
+    "generic": "Something went wrong",
+    "couldNotSave": "Could not save",
+    "couldNotLoad": "Could not load"
+  },
+  "nav": {
+    "home": "Home",
+    "calendar": "Calendar",
+    "chores": "Chores",
+    "meals": "Meals",
+    "shopping": "Shopping",
+    "recipes": "Recipes",
+    "rewards": "Rewards",
+    "wishlists": "Wish lists",
+    "pantry": "Pantry",
+    "photos": "Photos",
+    "tvMode": "TV mode",
+    "feedback": "Feedback",
+    "settings": "Settings",
+    "more": "More",
+    "lock": "Lock",
+    "chooseProfile": "Choose profile"
+  }
+}

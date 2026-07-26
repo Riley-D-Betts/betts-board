@@ -2,6 +2,8 @@
 <script setup lang="ts">
 import type { WishlistDto } from '#shared/schemas/wishlists'
 
+const { t } = useI18n()
+
 const props = defineProps<{ list: WishlistDto }>()
 
 const today = todayString()
@@ -15,11 +17,11 @@ const daysAway = computed(() =>
 const countdown = computed(() => {
   const days = daysAway.value
   if (days === null) return null
-  if (days === 0) return 'today'
-  if (days === 1) return 'tomorrow'
-  if (days > 1) return `in ${days} days`
-  if (days === -1) return 'yesterday'
-  return `${Math.abs(days)} days ago`
+  if (days === 0) return t('common.actions.today').toLowerCase()
+  if (days === 1) return t('common.actions.tomorrow').toLowerCase()
+  if (days > 1) return t('wishlists.countdown.inDays', { n: days }).toLowerCase()
+  if (days === -1) return t('common.actions.yesterday').toLowerCase()
+  return t('wishlists.countdown.daysAgo', { n: Math.abs(days) })
 })
 
 const soon = computed(() => daysAway.value !== null && daysAway.value >= 0 && daysAway.value <= 30)
@@ -43,7 +45,7 @@ const soon = computed(() => daysAway.value !== null && daysAway.value >= 0 && da
 
     <div class="mt-3 flex flex-wrap items-center gap-2">
       <UBadge variant="soft" color="neutral">
-        {{ list.itemCount }} {{ list.itemCount === 1 ? 'idea' : 'ideas' }}
+        {{ $t('wishlists.ideas', list.itemCount) }}
       </UBadge>
       <UBadge v-if="countdown" variant="soft" :color="soon ? 'primary' : 'neutral'">
         <UIcon name="i-lucide-calendar-heart" class="size-3.5" />

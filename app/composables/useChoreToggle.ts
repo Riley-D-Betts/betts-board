@@ -12,6 +12,7 @@ interface CompleteResponse {
  */
 export function useChoreToggle(refresh: () => unknown) {
   const toast = useToast()
+  const { t } = useI18n()
   const { celebrate } = useCelebration()
 
   async function toggle(instance: ChoreInstance) {
@@ -36,7 +37,7 @@ export function useChoreToggle(refresh: () => unknown) {
       bumpDataTick()
     }
     catch {
-      toast.add({ title: 'Could not update chore', color: 'error' })
+      toast.add({ title: t('chores.couldNotUpdate'), color: 'error' })
     }
   }
 

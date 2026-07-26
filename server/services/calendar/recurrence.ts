@@ -1,5 +1,6 @@
 import { RRule } from 'rrule'
 import { DateTime } from 'luxon'
+import { machineFormat } from '#shared/utils/machineFormat'
 
 /**
  * The ONLY module that touches the `rrule` package.
@@ -169,7 +170,7 @@ export function truncateRuleBefore(rruleBody: string, beforeMs: number): string 
     .replace(/^RRULE:/, '')
     .split(';')
     .filter(p => !/^(UNTIL|COUNT)=/i.test(p))
-  parts.push(`UNTIL=${untilUtc.toFormat("yyyyMMdd'T'HHmmss'Z'")}`)
+  parts.push(`UNTIL=${machineFormat(untilUtc, "yyyyMMdd'T'HHmmss'Z'")}`)
   return parts.join(';')
 }
 
@@ -179,7 +180,7 @@ export function truncateDateRuleBefore(rruleBody: string, beforeDate: string): s
     .replace(/^RRULE:/, '')
     .split(';')
     .filter(p => !/^(UNTIL|COUNT)=/i.test(p))
-  const prevDay = DateTime.fromISO(beforeDate).minus({ days: 1 }).toFormat('yyyyMMdd')
+  const prevDay = machineFormat(DateTime.fromISO(beforeDate).minus({ days: 1 }), 'yyyyMMdd')
   parts.push(`UNTIL=${prevDay}T235959Z`)
   return parts.join(';')
 }

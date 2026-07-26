@@ -21,7 +21,9 @@ const emit = defineEmits<{ toggle: [] }>()
   <button
     class="flex w-full items-center gap-3 px-3 py-2 text-left"
     :class="compact ? 'min-h-11' : 'min-h-12'"
-    :aria-label="item.checked ? `Uncheck ${item.name}` : `Check off ${item.name}`"
+    :aria-label="item.checked
+      ? $t('shopping.uncheck', { name: item.name })
+      : $t('shopping.checkOff', { name: item.name })"
     @click="emit('toggle')"
   >
     <UIcon

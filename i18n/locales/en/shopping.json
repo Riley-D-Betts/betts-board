@@ -1,0 +1,9 @@
+{
+  "title": "Shopping",
+  "checkOff": "Check off {name}",
+  "uncheck": "Uncheck {name}",
+  "checked": "Checked ({n})",
+  "clear": "Clear",
+  "nothingOnList": "Nothing on the list — nice.",
+  "moreOnList": "+{n} more on the list"
+}

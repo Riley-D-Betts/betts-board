@@ -2,6 +2,7 @@
      celebrates identically from the dashboard tile and the chores page. -->
 <script setup lang="ts">
 const { current, dismiss } = useCelebration()
+const { t } = useI18n()
 
 // Respect the OS setting: confetti is skipped entirely, the callout still shows.
 const reducedMotion = usePreferredReducedMotion()
@@ -29,7 +30,7 @@ onBeforeUnmount(() => clearTimeout(hideTimer))
 
 const streakLabel = computed(() => {
   const streak = current.value?.streak ?? 0
-  return streak >= 2 ? `${streak} days in a row` : null
+  return streak >= 2 ? t('chores.celebration.streak', { n: streak }) : null
 })
 </script>
 
@@ -53,9 +54,8 @@ const streakLabel = computed(() => {
           <UIcon v-else name="i-lucide-party-popper" class="size-8 text-primary" />
           <div class="min-w-0">
             <p class="font-semibold truncate">
-              <span v-if="current.points > 0">+{{ current.points }}
-                {{ current.points === 1 ? 'star' : 'stars' }}</span>
-              <span v-else>Nice work</span>
+              <span v-if="current.points > 0">{{ $t('chores.celebration.stars', current.points) }}</span>
+              <span v-else>{{ $t('chores.celebration.niceWork') }}</span>
               <span class="text-slate-500 dark:text-slate-400"> · {{ current.profileName }}</span>
             </p>
             <p class="text-sm text-slate-500 dark:text-slate-400 truncate">

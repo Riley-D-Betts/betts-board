@@ -1,0 +1,22 @@
+{
+  "title": "Settings",
+  "appearance": {
+    "title": "Appearance",
+    "thisDevice": "This device",
+    "thisDeviceHelp": "Light or dark is a per-device choice; Auto follows the device setting.",
+    "font": "Font",
+    "fontHelp": "Applies to the whole board, for everyone.",
+    "addGoogleFont": "Add a Google Font",
+    "addGoogleFontHelp": "Downloaded once and stored on your server — the board never calls out to Google when someone opens a page, and it keeps working offline.",
+    "download": "Download",
+    "accentLight": "Accent color — light mode",
+    "accentDark": "Accent color — dark mode",
+    "tvTheme": "TV mode theme",
+    "tvThemeHelp": "How the /tv wall display looks. This is household-wide, not per device.",
+    "tvThemeNoLocation": "No location set, so this falls back to a 7am–7pm window. Set a weather location for real sunrise and sunset.",
+    "tvAuto": "Sunrise/sunset",
+    "tvLight": "Always light",
+    "tvDark": "Always dark",
+    "adminOnly": "Ask an admin to change the household font and colors."
+  }
+}

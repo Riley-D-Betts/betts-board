@@ -26,15 +26,15 @@ const ordered = computed(() => {
 <template>
   <div class="space-y-6">
     <div class="flex flex-wrap items-center gap-2">
-      <h1 class="text-2xl md:text-3xl font-bold flex-1">Wish lists</h1>
-      <UButton icon="i-lucide-plus" @click="editorOpen = true">New list</UButton>
+      <h1 class="text-2xl md:text-3xl font-bold flex-1">{{ $t('wishlists.title') }}</h1>
+      <UButton icon="i-lucide-plus" @click="editorOpen = true">{{ $t('wishlists.newList') }}</UButton>
     </div>
 
     <div v-if="!ordered.length" class="py-16 text-center text-slate-500 dark:text-slate-400">
       <UIcon name="i-lucide-gift" class="size-10 mb-2" />
-      <p>No wish lists yet. Start one for a birthday or the holidays.</p>
+      <p>{{ $t('wishlists.empty') }}</p>
       <UButton variant="soft" class="mt-3" icon="i-lucide-plus" @click="editorOpen = true">
-        New list
+        {{ $t('wishlists.newList') }}
       </UButton>
     </div>
 

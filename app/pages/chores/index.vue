@@ -17,14 +17,16 @@ const weekStart = computed(() => {
 })
 const weekEnd = computed(() => addDaysToDateString(weekStart.value, 7))
 
+const { t } = useI18n()
+const { formatDayMonth, formatWeekdayDate } = useDateFormat()
+
 const weekLabel = computed(() => {
-  if (weekOffset.value === 0) return 'This week'
-  if (weekOffset.value === 1) return 'Next week'
-  if (weekOffset.value === -1) return 'Last week'
+  if (weekOffset.value === 0) return t('chores.thisWeek')
+  if (weekOffset.value === 1) return t('chores.nextWeek')
+  if (weekOffset.value === -1) return t('chores.lastWeek')
   const start = parseDateString(weekStart.value)
   const end = parseDateString(addDaysToDateString(weekStart.value, 6))
-  const fmt = (d: Date) => d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
-  return `${fmt(start)} – ${fmt(end)}`
+  return `${formatDayMonth(start)} – ${formatDayMonth(end)}`
 })
 
 const { data: board, refresh } = await useFetch('/api/chores/board', {
@@ -50,9 +52,7 @@ const dayGroups = computed(() => {
 })
 
 function dayLabel(date: string) {
-  return parseDateString(date).toLocaleDateString(undefined, {
-    weekday: 'long', month: 'short', day: 'numeric',
-  })
+  return formatWeekdayDate(parseDateString(date))
 }
 
 function canToggle(i: ChoreInstance) {
@@ -92,12 +92,12 @@ const personGroups = computed(() => {
 <template>
   <div class="space-y-6">
     <div class="flex flex-wrap items-center gap-2">
-      <h1 class="text-2xl md:text-3xl font-bold flex-1">Chores</h1>
+      <h1 class="text-2xl md:text-3xl font-bold flex-1">{{ $t('chores.title') }}</h1>
       <UButton to="/chores/leaderboard" icon="i-lucide-trophy" variant="soft" color="warning">
-        Leaderboard
+        {{ $t('chores.leaderboard') }}
       </UButton>
       <UButton v-if="canManage" to="/chores/manage" icon="i-lucide-pencil" variant="soft" color="neutral">
-        Manage
+        {{ $t('chores.manage') }}
       </UButton>
     </div>
 
@@ -106,7 +106,7 @@ const personGroups = computed(() => {
       <UButton icon="i-lucide-chevron-left" variant="ghost" color="neutral" aria-label="Previous week" @click="weekOffset--" />
       <span class="min-w-36 text-center font-medium">{{ weekLabel }}</span>
       <UButton icon="i-lucide-chevron-right" variant="ghost" color="neutral" aria-label="Next week" @click="weekOffset++" />
-      <UButton v-if="weekOffset !== 0" variant="ghost" size="sm" @click="weekOffset = 0">Today</UButton>
+      <UButton v-if="weekOffset !== 0" variant="ghost" size="sm" @click="weekOffset = 0">{{ $t('common.actions.today') }}</UButton>
 
       <div class="ml-auto flex rounded-lg border border-slate-200 dark:border-slate-700 p-0.5">
         <button
@@ -119,16 +119,16 @@ const personGroups = computed(() => {
           @click="groupMode = mode"
         >
           <UIcon :name="mode === 'day' ? 'i-lucide-calendar-days' : 'i-lucide-users'" class="size-4 align-text-bottom" />
-          {{ mode === 'day' ? 'By day' : 'By person' }}
+          {{ mode === 'day' ? $t('chores.byDay') : $t('chores.byPerson') }}
         </button>
       </div>
     </div>
 
     <div v-if="!board?.length" class="text-center py-12 text-slate-500 dark:text-slate-400">
       <UIcon name="i-lucide-list-checks" class="size-10 mb-2" />
-      <p>No chores this week.</p>
+      <p>{{ $t('chores.noneThisWeek') }}</p>
       <UButton v-if="canManage" to="/chores/manage" variant="soft" class="mt-3" icon="i-lucide-plus">
-        Set up chores
+        {{ $t('chores.setUp') }}
       </UButton>
     </div>
 
@@ -148,7 +148,7 @@ const personGroups = computed(() => {
     <template v-else>
       <!-- Today -->
       <section v-if="weekOffset === 0 && todayInstances.length" class="space-y-2">
-        <h2 class="text-sm font-semibold uppercase tracking-wide text-primary">Today</h2>
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-primary">{{ $t('common.actions.today') }}</h2>
         <ChoreCard
           v-for="i in todayInstances"
           :key="`${i.choreId}:${i.profileId}:${i.dueDate}`"
