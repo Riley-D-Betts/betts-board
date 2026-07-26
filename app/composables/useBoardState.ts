@@ -1,3 +1,5 @@
+import type { HouseholdSettings } from '#shared/schemas/household'
+
 export interface BoardProfile {
   id: string
   name: string
@@ -13,25 +15,8 @@ export interface BoardBootstrap {
   unlocked?: boolean
   activeProfileId?: string | null
   profiles?: BoardProfile[]
-  settings?: {
-    weekStartsOn: 0 | 1
-    temperatureUnit?: 'fahrenheit' | 'celsius'
-    appearance?: {
-      font: 'rounded' | 'system' | 'serif' | 'mono' | 'playful'
-      accentLight: string
-      accentDark: string
-    }
-    mealTimes?: { breakfast: string, lunch: string, dinner: string, snack: string }
-    defaultCookProfileId?: string | null
-    slideshow: {
-      idleMinutes: number
-      intervalSec: number
-      transition: 'fade' | 'kenburns'
-      showWeather: boolean
-      showAgenda: boolean
-      showClock: boolean
-    }
-  }
+  /** Same shape the server stores — see #shared/schemas/household. */
+  settings?: HouseholdSettings
   timezone?: string
   hasLocation?: boolean
 }

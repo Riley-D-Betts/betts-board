@@ -50,15 +50,51 @@ date-only. To expand occurrences, call the calendar service — never rrule dire
 - Nuxt UI v4 components (`UCard`, `UButton`, `UInput`, `UFormField`, `USelect`, `UModal`,
   `USwitch`, `UBadge`, `UTextarea`), `useToast()` for feedback, `i-lucide-*` icons.
 - Tailwind utilities; support dark mode (`dark:` variants, slate palette like existing files).
-- Mobile-first: bottom nav is 4 tabs + More; check-off targets ≥ 44px. `/tv/*` pages use
+- Mobile-first: bottom nav is 5 tabs + a More bottom sheet (which also holds the profile
+  switcher and Lock); check-off targets ≥ 44px. `/tv/*` pages use
   `layout: 'tv'` (rem scaling ×1.75, D-pad focus rings — no hover-only UI).
 - App-stage state: `useBoardState()` (bootstrap, activeProfile, isAdmin, switchProfile).
 - Data fetching: `useFetch` for SSR-visible page data, `$fetch` for mutations; refresh
   after mutations rather than hand-syncing local state.
 - Per-device flags: `useDeviceMode()` (wall-display toggle).
+- Views that a wall tablet may sit on all day call `useLiveRefresh(refresh)` — refetch on
+  focus/visibility plus a 10s poll while visible. After a mutation call `bumpDataTick()`
+  so other open views update immediately.
 - The dashboard (`app/pages/index.vue`) composes per-feature tile components — implement
   your feature's tile in your component folder; don't restructure the dashboard.
 - The settings page composes per-feature section components the same way.
+
+## Cross-cutting rules that are easy to get wrong
+
+- **Household settings shape lives in ONE place**: `shared/schemas/household.ts`. The DB
+  column type and the client `BoardBootstrap` derive from it. `PATCH /api/household`
+  merges recursively via `mergeSettings()`, so a new nested object needs no merge line.
+- **Fonts**: `shared/schemas/fonts.ts` is the registry — the enum, the picker, and the
+  applied CSS stack all derive from it. Stacks are applied via the `--betts-font`
+  variable, so never add per-font CSS rules. Bundled woff2 live in `app/assets/fonts/`;
+  households may also download one Google Font, which is cached in the data volume and
+  served from the **ungated** `/fonts/**` route (it must render on the lock screen).
+  Nothing is ever fetched from a font CDN at page load.
+- **Never use `dark:` variants inside `/tv/*`.** Nuxt UI's dark variant matches from an
+  ancestor, so a light TV subtree under a dark `<html>` still picks them up. TV pages use
+  the independent `--tv-*` palette and the `tv-bg` / `tv-panel` / `tv-muted` / `tv-chip`
+  classes; wrap panels in `TvSection`. TV theme is household-wide (sunrise/sunset), so it
+  must not read or write the per-device `useColorMode` preference.
+- **Dates split two ways.** Text for people goes through `useDateFormat()` (locale-aware).
+  Values for machines — RRULE `UNTIL`, iCal `DTSTART`, `datetime-local` inputs — go
+  through `machineFormat()` from `shared/utils/machineFormat.ts`, which pins the locale
+  and numbering system. Getting this wrong emits non-Latin digits under locales like
+  `ar-SA` and produces RRULEs and .ics files nothing can parse. `YYYY-MM-DD` calendar
+  strings must never touch a locale formatter at all.
+- **i18n**: user-facing strings live in `i18n/locales/en/<feature>.json`, merged by
+  `i18n/locales/en.ts`, and are referenced as `<feature>.<key>`. Use ICU plurals
+  (`$t('key', n)`) rather than inline `n === 1 ? … : …`. English is currently the only
+  locale; adding one is a copied folder plus one entry in `nuxt.config.ts`.
+  Still English-only and deliberately deferred: server `statusMessage` strings, the
+  aisle keyword map in `server/services/shopping/aisles.ts` (its matcher bakes in English
+  plural morphology — a per-language lexicon, not a translation), and
+  `shared/utils/recurrenceText.ts` (string concatenation that needs restructuring into
+  full ICU messages before it can be translated).
 
 ## Testing
 

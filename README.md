@@ -17,7 +17,8 @@ your own server.
   recurring events (daily/weekly/monthly/quarterly/yearly/custom) with proper
   "edit this / this and future / all" handling
 - ✅ **Chores** — assign to family members, recurring schedules, points,
-  streaks, and a leaderboard the kids will actually check
+  streaks, and a leaderboard the kids will actually check; view the week by day
+  or by person, and check-offs land with confetti and a streak callout
 - ⭐ **Rewards store** — kids spend earned chore stars on parent-defined
   rewards; balances and history are tracked automatically
 - 🍳 **Recipes** — paste a link and the recipe is parsed and saved locally
@@ -31,15 +32,22 @@ your own server.
   ingredients from any planned meal straight onto a list
 - 🥫 **Pantry** — track what you have (scan barcodes with your phone camera);
   shopping generation skips what's already in the pantry
+- 🎁 **Wish lists** — birthday and holiday lists per person, with links, rough
+  prices, and a countdown to the date; everyone in the house can see them
 - 🖼️ **Photo slideshow** — upload family photos; idle wall displays become a
   photo frame with clock, weather, and today's agenda
 - 📡 **Calendar feeds** — subscribe to school/sports iCal feeds; subscribe your
   phone's calendar app to the family board
 - 🌤️ **Weather** — Open-Meteo, no API key, °F or °C
 - 🔔 **Push notifications** — event reminders and chore nudges (requires HTTPS)
-- 📺 **TV mode** — big-type dashboard and slideshow for any TV browser
-- 🎨 **Appearance** — household-wide font choice and accent colors, set
-  separately for light and dark mode
+- 📺 **TV mode** — big-type dashboard and slideshow for any TV browser, scaled
+  to whatever resolution the set reports, and switching between light and dark
+  automatically at sunrise and sunset
+- 🎨 **Appearance** — household-wide font and accent colors, set separately for
+  light and dark mode. Eight webfonts ship with the app, and you can add any
+  Google Font by name — it's downloaded once and served from your own server
+  afterwards, so no page view is ever reported to Google and it still works
+  offline
 - 🔌 **Public API** — token-authenticated REST API for Home Assistant, scripts,
   and anything else (see the [API reference](#api-reference) below); keys
   managed in Settings
@@ -124,7 +132,13 @@ is configured in the app under **Settings**.
 Nuxt 4 full-stack (one Nitro server, no separate backend) · SQLite via Drizzle
 ORM with migrations applied automatically on boot · Nuxt UI v4 + Tailwind ·
 `rrule` for RFC 5545 recurrence · sharp for image processing · Web Push with
-auto-provisioned VAPID keys · installable PWA.
+auto-provisioned VAPID keys · vue-i18n (English today; the scaffolding is in
+place for more) · installable PWA.
+
+Everything is served from your own server. The app makes no outbound requests
+at page load — fonts, icons, and translations are all local — and the only
+network calls it ever makes are ones you ask for: the weather forecast, recipe
+imports, calendar-feed refreshes, barcode lookups, and a one-time font download.
 
 ## Development
 

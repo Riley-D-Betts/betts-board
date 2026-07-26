@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { DateTime } from 'luxon'
+import { machineFormat } from '#shared/utils/machineFormat'
 import type { BoardProfile } from '~/composables/useBoardState'
 import type { EditPayload } from './calendarTypes'
 
@@ -52,7 +53,8 @@ const scope = computed(() => props.editing?.scope ?? 'all')
 const limitedFields = computed(() => scope.value === 'this')
 
 function msToLocal(ms: number) {
-  return DateTime.fromMillis(ms, { zone: props.timezone }).toFormat("yyyy-MM-dd'T'HH:mm")
+  // Machine format: this is an <input type="datetime-local"> value.
+  return machineFormat(DateTime.fromMillis(ms, { zone: props.timezone }), "yyyy-MM-dd'T'HH:mm")
 }
 function localToMs(local: string) {
   return DateTime.fromISO(local, { zone: props.timezone }).toMillis()

@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
   compatibilityDate: '2026-07-01',
 
-  modules: ['@nuxt/ui', '@nuxt/eslint', '@vueuse/nuxt', 'nuxt-auth-utils', '@vite-pwa/nuxt'],
+  modules: ['@nuxt/ui', '@nuxt/eslint', '@vueuse/nuxt', 'nuxt-auth-utils', '@vite-pwa/nuxt', '@nuxtjs/i18n'],
 
   css: ['~/assets/css/main.css'],
 
@@ -10,6 +10,23 @@ export default defineNuxtConfig({
   components: [{ path: '~/components', pathPrefix: false }],
 
   devtools: { enabled: false },
+
+  // English only for now; the point of the scaffold is that adding a language
+  // is a locale file plus one line here.
+  //
+  // - no_prefix: URLs must not move. The PWA start_url, the /tv routes, and
+  //   the secret ICS feed URL are all already in the wild.
+  // - locale files are compiled into same-origin build chunks (matched by the
+  //   PWA precache globs), so nothing is fetched from the internet and the
+  //   board keeps working offline.
+  // - no browser detection: with a single locale, server and client always
+  //   agree, so there is no hydration mismatch.
+  i18n: {
+    strategy: 'no_prefix',
+    defaultLocale: 'en',
+    locales: [{ code: 'en', language: 'en-US', name: 'English', file: 'en.ts' }],
+    detectBrowserLanguage: false,
+  },
 
   nitro: {
     preset: 'node-server',
@@ -75,7 +92,10 @@ export default defineNuxtConfig({
       ],
     },
     injectManifest: {
-      globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+      // woff2 so a bundled household font still renders offline. Downloaded
+      // Google fonts live in the data volume, outside the build, so they rely
+      // on their immutable cache headers instead.
+      globPatterns: ['**/*.{js,css,html,png,svg,ico,woff2}'],
       // The Scalar docs bundle is ~3.7 MB and loads on demand behind auth —
       // keep it out of every phone's offline precache.
       globIgnores: ['**/docs-assets/**'],

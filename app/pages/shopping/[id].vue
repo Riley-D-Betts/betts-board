@@ -240,19 +240,7 @@ const totalItems = computed(() => (list.value?.items ?? []).length)
       </h2>
       <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
         <div v-for="item in group.items" :key="item.id" class="flex items-center gap-1 pr-1">
-          <button
-            class="flex min-h-12 flex-1 items-center gap-3 px-3 py-2 text-left"
-            :aria-label="`Check off ${item.name}`"
-            @click="toggle(item)"
-          >
-            <UIcon name="i-lucide-circle" class="size-6 shrink-0 text-slate-300 dark:text-slate-600" />
-            <span class="min-w-0 flex-1">
-              <span class="font-medium">{{ item.name }}</span>
-              <span v-if="item.displayQuantity" class="ml-2 text-sm text-slate-500 dark:text-slate-400">
-                {{ item.displayQuantity }}
-              </span>
-            </span>
-          </button>
+          <ShoppingItemRow :item="item" class="flex-1" @toggle="toggle(item)" />
           <UButton
             icon="i-lucide-pencil"
             variant="ghost"
@@ -282,19 +270,12 @@ const totalItems = computed(() => (list.value?.items ?? []).length)
         v-if="showChecked"
         class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800"
       >
-        <button
+        <ShoppingItemRow
           v-for="item in checkedItems"
           :key="item.id"
-          class="flex min-h-12 w-full items-center gap-3 px-3 py-2 text-left"
-          :aria-label="`Uncheck ${item.name}`"
-          @click="toggle(item)"
-        >
-          <UIcon name="i-lucide-circle-check-big" class="size-6 shrink-0 text-primary" />
-          <span class="min-w-0 flex-1 text-slate-400 line-through">
-            {{ item.name }}
-            <span v-if="item.displayQuantity" class="ml-2 text-sm">{{ item.displayQuantity }}</span>
-          </span>
-        </button>
+          :item="item"
+          @toggle="toggle(item)"
+        />
       </div>
     </section>
 

@@ -3,6 +3,8 @@
 import { DateTime } from 'luxon'
 import type { CalendarOccurrence } from '#shared/schemas/events'
 
+const { formatTime } = useDateFormat()
+
 const { state } = useBoardState()
 const timezone = computed(() => state.value?.timezone ?? 'UTC')
 
@@ -33,7 +35,7 @@ const upcoming = computed(() =>
 
 function timeLabel(occ: CalendarOccurrence) {
   if (occ.isAllDay) return 'All day'
-  return DateTime.fromMillis(occ.start, { zone: timezone.value }).toFormat('h:mm a')
+  return formatTime(occ.start, timezone.value)
 }
 
 function dayLabel(occ: CalendarOccurrence) {

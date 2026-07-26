@@ -22,6 +22,8 @@ const { data: list, refresh } = await useAsyncData('shopping-quick-tile', async 
   return await requestFetch<ListDetail>(`/api/shopping-lists/${target.id}`)
 })
 
+useLiveRefresh(refresh)
+
 const unchecked = computed(() => (list.value?.items ?? []).filter(i => !i.checked))
 
 async function check(item: QuickItem) {
@@ -59,19 +61,14 @@ async function check(item: QuickItem) {
       Nothing on the list — nice.
     </p>
     <div v-else class="-my-1 divide-y divide-slate-100 dark:divide-slate-800">
-      <button
+      <ShoppingItemRow
         v-for="item in unchecked.slice(0, 5)"
         :key="item.id"
-        class="flex min-h-11 w-full items-center gap-3 py-1.5 text-left"
-        :aria-label="`Check off ${item.name}`"
-        @click="check(item)"
-      >
-        <UIcon name="i-lucide-circle" class="size-5 shrink-0 text-slate-300 dark:text-slate-600" />
-        <span class="min-w-0 flex-1 truncate text-sm font-medium">{{ item.name }}</span>
-        <span v-if="item.displayQuantity" class="shrink-0 text-xs text-slate-500 dark:text-slate-400">
-          {{ item.displayQuantity }}
-        </span>
-      </button>
+        :item="item"
+        compact
+        class="px-0"
+        @toggle="check(item)"
+      />
       <p v-if="unchecked.length > 5" class="py-1.5 text-xs text-slate-500 dark:text-slate-400">
         +{{ unchecked.length - 5 }} more on the list
       </p>

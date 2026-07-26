@@ -1,6 +1,7 @@
 import ical from 'ical-generator'
 import { and, eq, inArray, isNull } from 'drizzle-orm'
 import { DateTime } from 'luxon'
+import { machineFormat } from '#shared/utils/machineFormat'
 import type { Db } from '../../db/client'
 import { eventExceptions, events, type households } from '../../db/schema'
 import { decodeDateKey } from '../calendar/expand'
@@ -23,7 +24,7 @@ function repeatingLines(ev: EventRow, exceptions: ExceptionRow[]): string {
     }
     else {
       const stamps = touched.map(ms =>
-        DateTime.fromMillis(ms, { zone: ev.timezone }).toFormat('yyyyMMdd\'T\'HHmmss'))
+        machineFormat(DateTime.fromMillis(ms, { zone: ev.timezone }), 'yyyyMMdd\'T\'HHmmss'))
       lines.push(`EXDATE;TZID=${ev.timezone}:${stamps.join(',')}`)
     }
   }

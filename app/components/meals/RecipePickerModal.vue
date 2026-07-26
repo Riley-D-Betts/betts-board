@@ -38,8 +38,9 @@ watch(open, (isOpen) => {
   cookId.value = state.value?.settings?.defaultCookProfileId ?? ''
 })
 
+const debouncedQ = refDebounced(q, 250)
 const { data: recipes } = await useFetch<PickerRecipe[]>('/api/recipes', {
-  query: computed(() => ({ ...(q.value ? { q: q.value } : {}), sort: 'rating' })),
+  query: computed(() => ({ ...(debouncedQ.value ? { q: debouncedQ.value } : {}), sort: 'rating' })),
   default: () => [],
 })
 const recipeList = computed(() => (Array.isArray(recipes.value) ? recipes.value : []))

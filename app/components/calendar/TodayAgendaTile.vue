@@ -3,10 +3,12 @@
 import { DateTime } from 'luxon'
 import type { CalendarOccurrence } from '#shared/schemas/events'
 
+const { formatTime } = useDateFormat()
+
 const { state } = useBoardState()
 const timezone = computed(() => state.value?.timezone ?? 'UTC')
 
-const { data: occurrences } = await useFetch<CalendarOccurrence[]>('/api/calendar', {
+const { data: occurrences, refresh } = await useFetch<CalendarOccurrence[]>('/api/calendar', {
   query: computed(() => {
     const dayStart = DateTime.now().setZone(timezone.value).startOf('day')
     return { start: dayStart.toMillis(), end: dayStart.plus({ days: 1 }).toMillis() }
@@ -14,9 +16,11 @@ const { data: occurrences } = await useFetch<CalendarOccurrence[]>('/api/calenda
   default: () => [],
 })
 
+useLiveRefresh(refresh)
+
 function timeLabel(occ: CalendarOccurrence) {
   if (occ.isAllDay) return 'All day'
-  return DateTime.fromMillis(occ.start, { zone: timezone.value }).toFormat('h:mm a')
+  return formatTime(occ.start, timezone.value)
 }
 </script>
 

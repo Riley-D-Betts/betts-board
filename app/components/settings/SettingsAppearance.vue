@@ -1,27 +1,72 @@
 <!-- Household look & feel: font + accent color per light/dark mode (admin
      saves, applies to everyone) and this device's light/dark preference. -->
 <script setup lang="ts">
+import { FONT_DEFS } from '#shared/schemas/fonts'
 import { ACCENT_COLORS } from '#shared/schemas/household'
 
 const toast = useToast()
 const { state, refresh, isAdmin } = useBoardState()
 const colorMode = useColorMode()
 
-type Font = 'rounded' | 'system' | 'serif' | 'mono' | 'playful'
 const current = state.value?.settings?.appearance
 const form = reactive({
-  font: (current?.font ?? 'rounded') as Font,
+  font: current?.font ?? 'rounded',
   accentLight: current?.accentLight ?? 'green',
   accentDark: current?.accentDark ?? 'green',
 })
 
-const fontItems: { label: string, value: Font, class: string }[] = [
-  { label: 'Rounded', value: 'rounded', class: '[font-family:ui-rounded,\'SF_Pro_Rounded\',system-ui,sans-serif]' },
-  { label: 'Classic', value: 'system', class: '[font-family:system-ui,sans-serif]' },
-  { label: 'Serif', value: 'serif', class: '[font-family:Georgia,serif]' },
-  { label: 'Typewriter', value: 'mono', class: '[font-family:ui-monospace,monospace]' },
-  { label: 'Playful', value: 'playful', class: '[font-family:\'Comic_Sans_MS\',\'Comic_Neue\',cursive]' },
-]
+// One registry drives the enum, the applied stack, and this picker — each
+// button previews itself in its own family via an inline style.
+const fontItems = FONT_DEFS
+
+const customFont = computed(() => state.value?.settings?.appearance?.customFont ?? null)
+const customFamily = ref('')
+const fontBusy = ref(false)
+
+async function downloadFont() {
+  const family = customFamily.value.trim()
+  if (!family) return
+  fontBusy.value = true
+  try {
+    await $fetch('/api/household/font', { method: 'POST', body: { family } })
+    customFamily.value = ''
+    await refresh()
+    form.font = 'custom'
+    toast.add({ title: `${family} downloaded`, icon: 'i-lucide-check', color: 'success' })
+  }
+  catch (err) {
+    const e = err as { data?: { statusMessage?: string } }
+    toast.add({ title: e.data?.statusMessage ?? 'Could not download that font', color: 'error' })
+  }
+  finally {
+    fontBusy.value = false
+  }
+}
+
+async function removeFont() {
+  fontBusy.value = true
+  try {
+    await $fetch('/api/household/font', { method: 'DELETE' })
+    await refresh()
+    form.font = state.value?.settings?.appearance?.font ?? 'rounded'
+    toast.add({ title: 'Custom font removed', color: 'success' })
+  }
+  catch {
+    toast.add({ title: 'Could not remove the font', color: 'error' })
+  }
+  finally {
+    fontBusy.value = false
+  }
+}
+
+// Wall display theme (household-wide, unlike the per-device light/dark above).
+const tvTheme = ref(state.value?.settings?.tv?.theme ?? 'auto')
+const tvItems = [
+  { label: 'Sunrise/sunset', value: 'auto', icon: 'i-lucide-sunrise' },
+  { label: 'Always light', value: 'light', icon: 'i-lucide-sun' },
+  { label: 'Always dark', value: 'dark', icon: 'i-lucide-moon' },
+] as const
+const hasLocation = computed(() => state.value?.hasLocation === true)
 
 // Rendered as fixed swatch classes so Tailwind emits them.
 const SWATCH: Record<string, string> = {
@@ -49,7 +94,7 @@ async function save() {
   try {
     await $fetch('/api/household', {
       method: 'PATCH',
-      body: { settings: { appearance: { ...form } } },
+      body: { settings: { appearance: { ...form }, tv: { theme: tvTheme.value } } },
     })
     await refresh() // useAppearance() re-applies from the fresh state
     toast.add({ title: 'Appearance saved', color: 'success' })
@@ -96,17 +141,84 @@ async function save() {
             v-for="f in fontItems"
             :key="f.value"
             class="min-h-11 rounded-lg border px-4 py-2 text-sm transition-colors"
-            :class="[
-              f.class,
-              form.font === f.value
-                ? 'border-primary bg-primary/10 text-primary font-semibold'
-                : 'border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800',
-            ]"
+            :style="{ fontFamily: f.stack }"
+            :class="form.font === f.value
+              ? 'border-primary bg-primary/10 text-primary font-semibold'
+              : 'border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'"
             :disabled="!isAdmin"
             @click="form.font = f.value"
           >
             {{ f.label }}
           </button>
+          <button
+            v-if="customFont"
+            class="min-h-11 rounded-lg border px-4 py-2 text-sm transition-colors"
+            :style="{ fontFamily: `'${customFont.family}'` }"
+            :class="form.font === 'custom'
+              ? 'border-primary bg-primary/10 text-primary font-semibold'
+              : 'border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'"
+            :disabled="!isAdmin"
+            @click="form.font = 'custom'"
+          >
+            {{ customFont.family }}
+          </button>
+        </div>
+      </UFormField>
+
+      <!-- Any other Google Font, downloaded once and served from this server -->
+      <UFormField
+        v-if="isAdmin"
+        label="Add a Google Font"
+        help="Downloaded once and stored on your server — the board never calls out to Google when someone opens a page, and it keeps working offline."
+      >
+        <div class="flex flex-wrap items-center gap-2">
+          <UInput
+            v-model="customFamily"
+            placeholder="e.g. Roboto Slab"
+            class="flex-1 min-w-48"
+            :disabled="fontBusy"
+            @keydown.enter.prevent="downloadFont"
+          />
+          <UButton
+            icon="i-lucide-download"
+            :loading="fontBusy"
+            :disabled="!customFamily.trim()"
+            @click="downloadFont"
+          >
+            Download
+          </UButton>
+          <UButton
+            v-if="customFont"
+            icon="i-lucide-trash-2"
+            variant="ghost"
+            color="error"
+            :loading="fontBusy"
+            @click="removeFont"
+          >
+            Remove {{ customFont.family }}
+          </UButton>
+        </div>
+      </UFormField>
+
+      <!-- Wall display theme -->
+      <UFormField
+        label="TV mode theme"
+        :help="tvTheme === 'auto' && !hasLocation
+          ? 'No location set, so this falls back to a 7am–7pm window. Set a weather location for real sunrise and sunset.'
+          : 'How the /tv wall display looks. This is household-wide, not per device.'"
+      >
+        <div class="flex flex-wrap gap-2">
+          <UButton
+            v-for="t in tvItems"
+            :key="t.value"
+            :icon="t.icon"
+            :label="t.label"
+            :variant="tvTheme === t.value ? 'solid' : 'soft'"
+            :color="tvTheme === t.value ? 'primary' : 'neutral'"
+            class="min-h-11"
+            :disabled="!isAdmin"
+            @click="tvTheme = t.value"
+          />
         </div>
       </UFormField>
 

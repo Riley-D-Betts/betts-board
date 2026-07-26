@@ -26,3 +26,11 @@ export function uploadsDir(...segments: string[]): string {
   mkdirSync(dir, { recursive: true })
   return dir
 }
+
+/** Downloaded webfonts. Deliberately NOT under uploads/ — that path is
+ *  session-gated, and fonts must load on the lock screen. */
+export function fontsDir(...segments: string[]): string {
+  const dir = join(dataDir(), 'fonts', ...segments)
+  mkdirSync(dir, { recursive: true })
+  return dir
+}

@@ -36,6 +36,13 @@
       "when": 1784762599029,
       "tag": "0004_feedback-github",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1785091611367,
+      "tag": "0005_wishlists",
+      "breakpoints": true
     }
   ]
 }

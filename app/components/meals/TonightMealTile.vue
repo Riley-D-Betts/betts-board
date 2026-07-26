@@ -10,10 +10,12 @@ interface TileEntry {
 }
 
 const today = todayString()
-const { data: entries } = await useFetch<TileEntry[]>('/api/meal-plan', {
+const { data: entries, refresh } = await useFetch<TileEntry[]>('/api/meal-plan', {
   query: { start: today, end: addDaysToDateString(today, 1) },
   default: () => [],
 })
+
+useLiveRefresh(refresh)
 
 const SLOT_PREFERENCE: MealSlot[] = ['dinner', 'snack', 'lunch', 'breakfast']
 const tonight = computed(() => {

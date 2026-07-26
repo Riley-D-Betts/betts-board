@@ -7,7 +7,10 @@ withDefaults(defineProps<{
   disabled?: boolean
   /** Tile mode: hide the assignee avatar (it's always "me"). */
   compact?: boolean
-}>(), { disabled: false, compact: false })
+  /** Shown in the subtitle when the surrounding list isn't grouped by date
+   *  (the by-person view lists a whole week under one heading). */
+  dateLabel?: string | null
+}>(), { disabled: false, compact: false, dateLabel: null })
 
 const emit = defineEmits<{ toggle: [] }>()
 
@@ -37,7 +40,9 @@ function formatTime(t: string) {
         disabled ? 'cursor-not-allowed opacity-40' : 'active:scale-95',
       ]"
       :disabled="disabled"
-      :aria-label="instance.completed ? `Mark ${instance.title} not done` : `Mark ${instance.title} done`"
+      :aria-label="instance.completed
+        ? $t('chores.markNotDone', { title: instance.title })
+        : $t('chores.markDone', { title: instance.title })"
       @click="emit('toggle')"
     >
       <UIcon v-if="instance.completed" name="i-lucide-check" class="size-6 chore-check-pop" />
@@ -50,15 +55,17 @@ function formatTime(t: string) {
         {{ instance.title }}
       </p>
       <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
+        <template v-if="dateLabel">{{ dateLabel }}</template>
+        <template v-if="dateLabel && instance.dueTime"> · </template>
         <template v-if="instance.dueTime">by {{ formatTime(instance.dueTime) }}</template>
-        <template v-if="instance.dueTime && !compact"> · </template>
+        <template v-if="(dateLabel || instance.dueTime) && !compact"> · </template>
         <template v-if="!compact">{{ instance.profileName }}</template>
       </p>
     </div>
 
     <UBadge v-if="instance.overdue" variant="soft" color="error" class="shrink-0">
       <UIcon name="i-lucide-alarm-clock" class="size-3.5" />
-      {{ instance.daysLate === 1 ? '1 day late' : `${instance.daysLate} days late` }}
+      {{ $t('chores.daysLate', instance.daysLate ?? 0) }}
     </UBadge>
 
     <UBadge v-if="instance.points > 0" variant="soft" color="warning" class="shrink-0">

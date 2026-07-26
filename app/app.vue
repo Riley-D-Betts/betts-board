@@ -10,5 +10,6 @@ useAppearance()
       <NuxtPage />
     </NuxtLayout>
     <SlideshowOverlay />
+    <CelebrationLayer />
   </UApp>
 </template>
