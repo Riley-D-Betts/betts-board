@@ -11,9 +11,13 @@ const sortItems = [
   { label: 'A to Z', value: 'title' },
 ]
 
+// Debounced: the query is bound straight to the input, so without this every
+// keystroke fires a request.
+const debouncedQ = refDebounced(q, 250)
+
 const { data: recipeList, pending } = await useFetch('/api/recipes', {
   query: computed(() => ({
-    ...(q.value.trim() && { q: q.value.trim() }),
+    ...(debouncedQ.value.trim() && { q: debouncedQ.value.trim() }),
     ...(tag.value && { tag: tag.value }),
     sort: sort.value,
   })),

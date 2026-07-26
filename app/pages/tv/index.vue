@@ -58,8 +58,10 @@ function weekdayLabel(date: string) {
   <!-- Exactly viewport-sized (h-screen, not min-h): the grid must shrink to
        fit the display rather than push the footer off-screen — TVs can't
        scroll. Sections clip their own overflow. -->
-  <div class="flex h-screen flex-col gap-5 overflow-hidden p-6">
-    <div class="grid min-h-0 flex-1 grid-cols-2 grid-rows-2 gap-5">
+  <!-- Exactly viewport-sized on a real TV (which can't scroll); on a phone
+       that wandered in from the More menu, allow normal scrolling instead. -->
+  <div class="flex min-h-screen flex-col gap-5 p-6 md:h-screen md:min-h-0 md:overflow-hidden">
+    <div class="grid min-h-0 flex-1 grid-cols-1 gap-5 md:grid-cols-2 md:grid-rows-2">
       <!-- Clock -->
       <section class="flex flex-col justify-center rounded-2xl border border-slate-800 bg-slate-900 p-6">
         <OverlayClock large />

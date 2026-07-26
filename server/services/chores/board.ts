@@ -5,6 +5,7 @@ import { addDaysToDateString, dateStringDiffDays } from '#shared/utils/dates'
 import type { Db } from '../../db/client'
 import { choreAssignees, choreCompletions, choreExceptions, chores, profiles } from '../../db/schema'
 import { expandDateRule } from '../calendar/recurrence'
+import { getCurrentStreak } from './scoring'
 
 /** Missed occurrences older than this never roll forward. */
 export const ROLLOVER_LOOKBACK_DAYS = 30
@@ -205,6 +206,32 @@ export function completeChore(db: Db, args: CompleteChoreArgs) {
     target: [choreCompletions.choreId, choreCompletions.profileId, choreCompletions.dueDate],
     set: { completedAt: new Date(), pointsAwarded: chore.points },
   }).returning().get()
+}
+
+/**
+ * completeChore plus what the UI needs to celebrate: the points actually
+ * banked and the resulting streak for this (chore, profile).
+ *
+ * A wrapper rather than a change to completeChore's return shape — that
+ * function has several existing call sites and specs that assert the raw
+ * completion row.
+ */
+export function completeChoreWithSummary(
+  db: Db,
+  args: CompleteChoreArgs,
+  today: string,
+) {
+  const completion = completeChore(db, args)
+  const streak = getCurrentStreak(db, {
+    choreId: args.choreId,
+    profileId: args.profileId,
+    today,
+  })
+  return {
+    ...completion,
+    pointsAwarded: completion.pointsAwarded,
+    streak,
+  }
 }
 
 export function uncompleteChore(db: Db, args: { choreId: string, profileId: string, dueDate: string }) {

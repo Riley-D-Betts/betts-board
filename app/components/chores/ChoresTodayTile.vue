@@ -1,9 +1,7 @@
 <!-- Dashboard tile: my chores due today. -->
 <script setup lang="ts">
-import type { ChoreInstance } from '#shared/schemas/chores'
 
 const { activeProfile } = useBoardState()
-const toast = useToast()
 
 const today = todayString()
 const { data: board, refresh } = await useFetch('/api/chores/board', {
@@ -14,33 +12,8 @@ const mine = computed(() =>
   (board.value ?? []).filter(i => i.profileId === activeProfile.value?.id))
 const doneCount = computed(() => mine.value.filter(i => i.completed).length)
 
-async function toggle(i: ChoreInstance) {
-  try {
-    if (i.completed) {
-      await $fetch(`/api/chores/${i.choreId}/complete`, {
-        method: 'DELETE',
-        body: { dueDate: i.dueDate, profileId: i.profileId },
-      })
-    }
-    else {
-      await $fetch(`/api/chores/${i.choreId}/complete`, {
-        method: 'POST',
-        body: { dueDate: i.dueDate, profileId: i.profileId },
-      })
-      if (i.points > 0) {
-        toast.add({
-          title: `+${i.points} point${i.points === 1 ? '' : 's'}!`,
-          icon: 'i-lucide-sparkles',
-          color: 'success',
-        })
-      }
-    }
-    await refresh()
-  }
-  catch {
-    toast.add({ title: 'Could not update chore', color: 'error' })
-  }
-}
+const { toggle } = useChoreToggle(refresh)
+useLiveRefresh(refresh)
 </script>
 
 <template>

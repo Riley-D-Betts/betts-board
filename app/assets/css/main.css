@@ -20,7 +20,12 @@ html[data-font="playful"] body { font-family: "Comic Sans MS", "Comic Neue", "Ch
    28px @ 1920×1080; min() keeps non-16:9 viewports from overflowing on the
    short axis. The plain 175% line is the fallback for TV browsers too old
    for min()/max(). */
-html.tv-mode {
-  font-size: 175%;
-  font-size: max(14px, min(1.4583vw, 2.5926vh));
+   Guarded by a min-width: on a phone that opened TV mode from the More menu,
+   scaling the root 175% inside a non-scrolling h-screen page clipped the grid
+   and pushed the exit button off-screen. Phones get the normal scale. */
+@media (min-width: 700px) {
+  html.tv-mode {
+    font-size: 175%;
+    font-size: max(14px, min(1.4583vw, 2.5926vh));
+  }
 }

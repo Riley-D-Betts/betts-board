@@ -389,7 +389,7 @@ export const routeRegistry: RouteDoc[] = [
     auth: 'profile',
     requestSchema: choreCompleteSchema,
     pathParams: ['id'],
-    responseDescription: 'The completion. Kids may only complete their own chores.',
+    responseDescription: 'The completion, plus `pointsAwarded` and the resulting `streak` for this chore and person. Kids may only complete their own chores.',
   },
   {
     method: 'delete',

@@ -6,13 +6,15 @@ import type { CalendarOccurrence } from '#shared/schemas/events'
 const { state } = useBoardState()
 const timezone = computed(() => state.value?.timezone ?? 'UTC')
 
-const { data: occurrences } = await useFetch<CalendarOccurrence[]>('/api/calendar', {
+const { data: occurrences, refresh } = await useFetch<CalendarOccurrence[]>('/api/calendar', {
   query: computed(() => {
     const dayStart = DateTime.now().setZone(timezone.value).startOf('day')
     return { start: dayStart.toMillis(), end: dayStart.plus({ days: 1 }).toMillis() }
   }),
   default: () => [],
 })
+
+useLiveRefresh(refresh)
 
 function timeLabel(occ: CalendarOccurrence) {
   if (occ.isAllDay) return 'All day'

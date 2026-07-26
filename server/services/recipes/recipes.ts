@@ -4,6 +4,7 @@ import type { RecipeCreate, RecipePatch } from '#shared/schemas/recipes'
 import type { Db } from '../../db/client'
 import { profiles, recipeIngredients, recipeNotes, recipeRatings, recipes } from '../../db/schema'
 import { parseIngredient } from './ingredientParser'
+import { scoreRecipe, tokenize } from './search'
 
 type RecipeRow = typeof recipes.$inferSelect
 type IngredientRow = typeof recipeIngredients.$inferSelect
@@ -81,6 +82,28 @@ function withRatings<T extends RecipeRow>(row: T, agg?: { sum: number, count: nu
   }
 }
 
+/** Ingredient text per recipe, for search. One query, only when searching. */
+function ingredientTextFor(db: Db, recipeIds: string[]): Map<string, string[]> {
+  const byRecipe = new Map<string, string[]>()
+  if (!recipeIds.length) return byRecipe
+  const rows = db.select({
+    recipeId: recipeIngredients.recipeId,
+    name: recipeIngredients.name,
+    raw: recipeIngredients.raw,
+  }).from(recipeIngredients)
+    .where(inArray(recipeIngredients.recipeId, recipeIds))
+    .all()
+  for (const r of rows) {
+    const list = byRecipe.get(r.recipeId) ?? []
+    // `name` is the parsed noun ("chicken thighs"); `raw` keeps quantities and
+    // notes. Both are searchable — parsing isn't always successful.
+    if (r.name) list.push(r.name)
+    list.push(r.raw)
+    byRecipe.set(r.recipeId, list)
+  }
+  return byRecipe
+}
+
 export function listRecipes(
   db: Db,
   householdId: string,
@@ -91,10 +114,25 @@ export function listRecipes(
     .where(eq(recipes.householdId, householdId))
     .all()
 
-  if (query.q) {
-    const needle = query.q.toLowerCase()
-    rows = rows.filter(r => r.title.toLowerCase().includes(needle))
+  // Household-scale data (hundreds of rows at most), so a linear scan beats
+  // an FTS5 table plus the sync triggers it would need.
+  const tokens = query.q ? tokenize(query.q) : []
+  const scores = new Map<string, number>()
+  if (tokens.length) {
+    const ingredients = ingredientTextFor(db, rows.map(r => r.id))
+    rows = rows.filter((r) => {
+      const score = scoreRecipe(tokens, {
+        title: r.title,
+        description: r.description,
+        tags: r.tags,
+        ingredients: ingredients.get(r.id),
+      })
+      if (score === null) return false
+      scores.set(r.id, score)
+      return true
+    })
   }
+
   if (query.tag) {
     const tag = query.tag.toLowerCase()
     rows = rows.filter(r => (r.tags ?? []).some(t => t.toLowerCase() === tag))
@@ -112,8 +150,11 @@ export function listRecipes(
     case 'title':
       items.sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: 'base' }))
       break
-    default: // recent
-      items.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    default:
+      // Relevance first while searching; plain recency otherwise. Explicit
+      // rating/title sorts above still win, or the sort control would look broken.
+      items.sort((a, b) => (scores.get(b.id) ?? 0) - (scores.get(a.id) ?? 0)
+        || b.createdAt.getTime() - a.createdAt.getTime())
   }
   return items
 }

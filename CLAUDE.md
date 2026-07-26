@@ -50,7 +50,8 @@ date-only. To expand occurrences, call the calendar service — never rrule dire
 - Nuxt UI v4 components (`UCard`, `UButton`, `UInput`, `UFormField`, `USelect`, `UModal`,
   `USwitch`, `UBadge`, `UTextarea`), `useToast()` for feedback, `i-lucide-*` icons.
 - Tailwind utilities; support dark mode (`dark:` variants, slate palette like existing files).
-- Mobile-first: bottom nav is 4 tabs + More; check-off targets ≥ 44px. `/tv/*` pages use
+- Mobile-first: bottom nav is 5 tabs + a More bottom sheet (which also holds the profile
+  switcher and Lock); check-off targets ≥ 44px. `/tv/*` pages use
   `layout: 'tv'` (rem scaling ×1.75, D-pad focus rings — no hover-only UI).
 - App-stage state: `useBoardState()` (bootstrap, activeProfile, isAdmin, switchProfile).
 - Data fetching: `useFetch` for SSR-visible page data, `$fetch` for mutations; refresh

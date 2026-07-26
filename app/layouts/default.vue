@@ -137,6 +137,27 @@ watch(() => route.path, () => {
             {{ item.label }}
           </NuxtLink>
         </div>
+
+        <!-- Who am I / lock. Both used to exist only in the desktop sidebar,
+             so on a phone there was no way to switch profile or lock at all. -->
+        <div class="mt-3 flex items-center gap-2 border-t border-slate-200 dark:border-slate-800 pt-3">
+          <NuxtLink
+            to="/profiles"
+            class="flex min-h-12 flex-1 items-center gap-3 rounded-xl px-3 text-sm font-medium text-slate-700 dark:text-slate-200 active:bg-slate-100 dark:active:bg-slate-800"
+          >
+            <ProfileAvatar v-if="activeProfile" :profile="activeProfile" size="sm" />
+            <UIcon v-else name="i-lucide-user" class="size-6" />
+            <span class="truncate">{{ activeProfile?.name ?? 'Choose profile' }}</span>
+            <UIcon name="i-lucide-chevron-right" class="ml-auto size-4 shrink-0 text-slate-400" />
+          </NuxtLink>
+          <button
+            class="flex min-h-12 items-center gap-2 rounded-xl px-4 text-sm font-medium text-slate-500 active:bg-slate-100 dark:active:bg-slate-800"
+            @click="lock()"
+          >
+            <UIcon name="i-lucide-lock" class="size-5" />
+            Lock
+          </button>
+        </div>
       </div>
     </Transition>
   </div>

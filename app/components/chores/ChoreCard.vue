@@ -7,7 +7,10 @@ withDefaults(defineProps<{
   disabled?: boolean
   /** Tile mode: hide the assignee avatar (it's always "me"). */
   compact?: boolean
-}>(), { disabled: false, compact: false })
+  /** Shown in the subtitle when the surrounding list isn't grouped by date
+   *  (the by-person view lists a whole week under one heading). */
+  dateLabel?: string | null
+}>(), { disabled: false, compact: false, dateLabel: null })
 
 const emit = defineEmits<{ toggle: [] }>()
 
@@ -50,8 +53,10 @@ function formatTime(t: string) {
         {{ instance.title }}
       </p>
       <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
+        <template v-if="dateLabel">{{ dateLabel }}</template>
+        <template v-if="dateLabel && instance.dueTime"> · </template>
         <template v-if="instance.dueTime">by {{ formatTime(instance.dueTime) }}</template>
-        <template v-if="instance.dueTime && !compact"> · </template>
+        <template v-if="(dateLabel || instance.dueTime) && !compact"> · </template>
         <template v-if="!compact">{{ instance.profileName }}</template>
       </p>
     </div>

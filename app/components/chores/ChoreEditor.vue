@@ -111,22 +111,7 @@ async function save() {
           <UInput v-model="form.title" placeholder="Feed the chickens" class="w-full" size="lg" autofocus />
         </UFormField>
 
-        <UFormField label="Emoji">
-          <div class="grid grid-cols-6 gap-1">
-            <button
-              v-for="e in EMOJIS"
-              :key="e"
-              type="button"
-              class="size-11 rounded-lg text-2xl flex items-center justify-center transition-colors"
-              :class="form.emoji === e
-                ? 'bg-primary/15 ring-2 ring-primary'
-                : 'hover:bg-slate-100 dark:hover:bg-slate-800'"
-              @click="form.emoji = form.emoji === e ? null : e"
-            >
-              {{ e }}
-            </button>
-          </div>
-        </UFormField>
+        <EmojiField v-model="form.emoji" :presets="EMOJIS" />
 
         <UFormField label="Description" hint="optional">
           <UTextarea v-model="form.description" :rows="2" class="w-full" />
