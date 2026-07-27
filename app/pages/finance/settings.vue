@@ -46,7 +46,8 @@ const forecastDays = ref(state.value?.settings?.finance?.forecastDays ?? 90)
 
 const CURRENCIES = ['USD', 'CAD', 'GBP', 'EUR', 'AUD', 'NZD', 'JPY', 'CHF', 'SEK', 'NOK', 'DKK', 'MXN', 'INR', 'ZAR']
 const currencyItems = CURRENCIES.map(value => ({ value, label: value }))
-const forecastItems = [30, 60, 90, 180, 365].map(value => ({ value, label: `${value} days` }))
+const forecastItems = computed(() => [30, 60, 90, 180, 365]
+  .map(value => ({ value, label: t('finance.settings.forecastOption', value) })))
 
 
 async function saveSettings() {

@@ -72,12 +72,14 @@ const form = reactive({
 const kindItems = computed(() => (['expense', 'income'] as const)
   .map(value => ({ value, label: t(`finance.bills.kinds.${value}`) })))
 
+// Whole messages, not a translated prefix glued to an English word — the
+// stored RRULE value is what matters, the label is free to be reworded.
 const frequencyItems = computed(() => [
-  { value: 'FREQ=MONTHLY', label: t('finance.bills.repeats') + ': monthly' },
-  { value: 'FREQ=WEEKLY', label: t('finance.bills.repeats') + ': weekly' },
-  { value: 'FREQ=WEEKLY;INTERVAL=2', label: t('finance.bills.repeats') + ': every 2 weeks' },
-  { value: 'FREQ=YEARLY', label: t('finance.bills.repeats') + ': yearly' },
-  { value: 'once', label: t('finance.bills.repeats') + ': once' },
+  { value: 'FREQ=MONTHLY', label: t('finance.bills.frequencies.monthly') },
+  { value: 'FREQ=WEEKLY', label: t('finance.bills.frequencies.weekly') },
+  { value: 'FREQ=WEEKLY;INTERVAL=2', label: t('finance.bills.frequencies.biweekly') },
+  { value: 'FREQ=YEARLY', label: t('finance.bills.frequencies.yearly') },
+  { value: 'once', label: t('finance.bills.frequencies.once') },
 ])
 
 const categoryItems = computed(() => [

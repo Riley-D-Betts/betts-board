@@ -16,6 +16,8 @@ const emit = defineEmits<{
   selectDay: [date: string]
 }>()
 
+const { formatHour, formatTime, formatWeekdayLong, formatWeekdayShort } = useDateFormat()
+
 const HOUR_START = 6
 const HOUR_END = 22
 const HOUR_PX = 48
@@ -23,10 +25,6 @@ const GRID_MIN = (HOUR_END - HOUR_START) * 60
 const gridHeight = (HOUR_END - HOUR_START) * HOUR_PX
 
 const hours = Array.from({ length: HOUR_END - HOUR_START }, (_, i) => HOUR_START + i)
-
-function hourLabel(h: number) {
-  return DateTime.fromObject({ hour: h }).toFormat('h a')
-}
 
 const startDt = computed(() => {
   const dt = DateTime.fromISO(props.anchor, { zone: props.timezone }).startOf('day')
@@ -67,7 +65,7 @@ function pack(items: { occ: CalendarOccurrence, startMin: number, endMin: number
         height: Math.max(18, ((item.endMin - item.startMin) / 60) * HOUR_PX),
         left: (col / colCount) * 100,
         width: (1 / colCount) * 100,
-        startLabel: DateTime.fromMillis(item.occ.start, { zone: props.timezone }).toFormat('h:mm a'),
+        startLabel: formatTime(item.occ.start, props.timezone),
       })
     }
     cluster = []
@@ -123,7 +121,9 @@ const columns = computed<DayCol[]>(() => {
 
     return {
       date,
-      label: props.days === 1 ? dt.toFormat('cccc') : dt.toFormat('ccc'),
+      // `date` (YYYY-MM-DD), not `dt`: a calendar string carries the weekday
+      // without re-interpreting the instant in the device's zone.
+      label: props.days === 1 ? formatWeekdayLong(date) : formatWeekdayShort(date),
       isToday: date === todayStr,
       allDay,
       blocks: pack(timed),
@@ -203,7 +203,7 @@ const nowLine = computed(() => {
           class="absolute right-1 -translate-y-1/2 text-[10px] text-slate-400"
           :style="{ top: `${i * HOUR_PX}px` }"
         >
-          <template v-if="i > 0">{{ hourLabel(h) }}</template>
+          <template v-if="i > 0">{{ formatHour(h) }}</template>
         </div>
       </div>
 

@@ -13,6 +13,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+const { formatDayMonth, formatWeekdayLong } = useDateFormat()
 
 const groups = computed(() => {
   const zone = props.timezone
@@ -32,16 +33,13 @@ const groups = computed(() => {
 
   return [...byDate.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, items]) => {
-      const dt = DateTime.fromISO(date, { zone })
-      return {
-        date,
-        isToday: date === todayStr,
-        label: date === todayStr ? t('common.actions.today') : dt.toFormat('cccc'),
-        sub: dt.toFormat('LLL d'),
-        items,
-      }
-    })
+    .map(([date, items]) => ({
+      date,
+      isToday: date === todayStr,
+      label: date === todayStr ? t('common.actions.today') : formatWeekdayLong(date),
+      sub: formatDayMonth(date),
+      items,
+    }))
 })
 </script>
 

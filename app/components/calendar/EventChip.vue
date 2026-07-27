@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { DateTime } from 'luxon'
 import type { CalendarOccurrence } from '#shared/schemas/events'
 
 const props = withDefaults(defineProps<{
@@ -13,13 +12,13 @@ const props = withDefaults(defineProps<{
 defineEmits<{ select: [occurrence: CalendarOccurrence] }>()
 
 const { t } = useI18n()
+const { formatTime } = useDateFormat()
 
 const timeLabel = computed(() => {
   if (props.occurrence.isAllDay) return t('calendar.allDay')
-  const start = DateTime.fromMillis(props.occurrence.start, { zone: props.timezone })
-  if (props.variant === 'compact') return start.toFormat('h:mm')
-  const end = DateTime.fromMillis(props.occurrence.end, { zone: props.timezone })
-  return `${start.toFormat('h:mm a')} – ${end.toFormat('h:mm a')}`
+  const start = formatTime(props.occurrence.start, props.timezone)
+  if (props.variant === 'compact') return start
+  return `${start} – ${formatTime(props.occurrence.end, props.timezone)}`
 })
 </script>
 

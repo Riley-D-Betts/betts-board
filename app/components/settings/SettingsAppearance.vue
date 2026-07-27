@@ -149,7 +149,7 @@ async function save() {
             :disabled="!isAdmin"
             @click="form.font = f.value"
           >
-            {{ f.label }}
+            {{ f.labelKey ? $t(f.labelKey) : f.label }}
           </button>
           <button
             v-if="customFont"
@@ -231,7 +231,7 @@ async function save() {
             :key="`l-${c}`"
             class="size-11 rounded-full transition-transform"
             :class="[SWATCH[c], form.accentLight === c ? 'ring-4 ring-offset-2 ring-slate-400 dark:ring-slate-500 dark:ring-offset-slate-900 scale-110' : 'hover:scale-105']"
-            :aria-label="$t('settings.appearance.lightAccentSwatch', { color: c })"
+            :aria-label="$t('settings.appearance.lightAccentSwatch', { color: $t(`settings.appearance.colors.${c}`) })"
             :disabled="!isAdmin"
             @click="form.accentLight = c"
           />
@@ -244,7 +244,7 @@ async function save() {
             :key="`d-${c}`"
             class="size-11 rounded-full transition-transform"
             :class="[SWATCH[c], form.accentDark === c ? 'ring-4 ring-offset-2 ring-slate-400 dark:ring-slate-500 dark:ring-offset-slate-900 scale-110' : 'hover:scale-105']"
-            :aria-label="$t('settings.appearance.darkAccentSwatch', { color: c })"
+            :aria-label="$t('settings.appearance.darkAccentSwatch', { color: $t(`settings.appearance.colors.${c}`) })"
             :disabled="!isAdmin"
             @click="form.accentDark = c"
           />

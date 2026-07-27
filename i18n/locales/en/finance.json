@@ -223,6 +223,13 @@
     "amount": "Usual amount",
     "startDate": "First due date",
     "repeats": "Repeats",
+    "frequencies": {
+      "monthly": "Repeats: monthly",
+      "weekly": "Repeats: weekly",
+      "biweekly": "Repeats: every 2 weeks",
+      "yearly": "Repeats: yearly",
+      "once": "Repeats: once"
+    },
     "until": "Until",
     "account": "Paid from",
     "autoPay": "Paid automatically",
@@ -294,6 +301,7 @@
     "currency": "Currency",
     "currencyHelp": "Used for totals and new accounts. Bank accounts keep whatever currency your bank reports.",
     "forecastDays": "Forecast length",
+    "forecastOption": "{n} day | {n} days",
     "notOnDashboard": "Money never appears on the dashboard, the wall display, or the shared calendar.",
     "adminOnly": "Only a household admin can change these."
   },

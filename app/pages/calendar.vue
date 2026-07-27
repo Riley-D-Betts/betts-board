@@ -8,6 +8,7 @@ const route = useRoute()
 const router = useRouter()
 const toast = useToast()
 const { t } = useI18n()
+const { formatDateTime, formatDayMonth, formatTime } = useDateFormat()
 const { state } = useBoardState()
 
 const timezone = computed(() => state.value?.timezone ?? 'UTC')
@@ -139,15 +140,15 @@ const detailTimeLabel = computed(() => {
   const occ = detailOcc.value
   if (!occ) return ''
   if (occ.isAllDay) {
-    const start = DateTime.fromISO(occ.startDate!, { zone: timezone.value })
-    const endIncl = DateTime.fromISO(occ.endDate!, { zone: timezone.value }).minus({ days: 1 })
-    return start.toISODate() === endIncl.toISODate()
-      ? t('calendar.detail.allDayOn', { date: start.toFormat('ccc, LLL d') })
-      : t('calendar.detail.allDayRange', { start: start.toFormat('ccc, LLL d'), end: endIncl.toFormat('ccc, LLL d') })
+    // Calendar strings all the way through — an all-day span has no instant to
+    // convert, so nothing here touches a timezone.
+    const start = occ.startDate!
+    const endIncl = addDaysToDateString(occ.endDate!, -1)
+    return start === endIncl
+      ? t('calendar.detail.allDayOn', { date: formatDayMonth(start) })
+      : t('calendar.detail.allDayRange', { start: formatDayMonth(start), end: formatDayMonth(endIncl) })
   }
-  const start = DateTime.fromMillis(occ.start, { zone: timezone.value })
-  const end = DateTime.fromMillis(occ.end, { zone: timezone.value })
-  return `${start.toFormat('ccc, LLL d · h:mm a')} – ${end.toFormat('h:mm a')}`
+  return `${formatDateTime(occ.start)} – ${formatTime(occ.end)}`
 })
 </script>
 

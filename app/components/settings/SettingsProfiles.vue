@@ -20,6 +20,12 @@ async function addProfile() {
   }
 }
 
+// The badge shows the stored enum; these are the labels the picker below uses.
+function roleLabel(role: string) {
+  const key = { admin: 'roleAdmin', adult: 'roleAdult', kid: 'roleKid' }[role]
+  return key ? t(`settings.profiles.${key}`) : role
+}
+
 async function archiveProfile(id: string, name: string) {
   if (!confirm(t('settings.profiles.removeConfirm', { name }))) return
   await $fetch(`/api/profiles/${id}`, { method: 'DELETE' })
@@ -39,7 +45,7 @@ async function archiveProfile(id: string, name: string) {
       <div v-for="p in profileList ?? []" :key="p.id" class="flex items-center gap-3">
         <ProfileAvatar :profile="p" size="sm" />
         <span class="font-medium flex-1">{{ p.name }}</span>
-        <UBadge :label="p.role" variant="soft" />
+        <UBadge :label="roleLabel(p.role)" variant="soft" />
         <UButton icon="i-lucide-trash-2" variant="ghost" color="neutral" size="sm" @click="archiveProfile(p.id, p.name)" />
       </div>
 

@@ -49,6 +49,7 @@
     "repoLabel": "Repository",
     "repoHelp": "owner/repo — where the issues get filed.",
     "tokenLabel": "Access token",
+    "tokenPlaceholder": "ghp_… or github_pat_…",
     "tokenHelp": "Stored on your server, never shown again.",
     "tokenHelpStored": "Stored on your server, never shown again. Leave blank to keep the current token.",
     "test": "Test connection",

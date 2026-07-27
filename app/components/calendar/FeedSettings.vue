@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const toast = useToast()
 const { t } = useI18n()
+const { formatDateTime } = useDateFormat()
 const { data: feeds, refresh: reload } = await useFetch('/api/feeds')
 const { data: household } = await useFetch('/api/household')
 
@@ -30,7 +31,7 @@ function statusIcon(feed: { lastStatus: string | null }) {
 function statusText(feed: { lastStatus: string | null, lastError: string | null, lastFetchedAt?: string | Date | null }) {
   if (feed.lastStatus === 'error') return feed.lastError || t('calendar.feeds.status.failed')
   if (feed.lastStatus === 'ok' && feed.lastFetchedAt) {
-    return t('calendar.feeds.status.refreshedAt', { when: new Date(feed.lastFetchedAt).toLocaleString() })
+    return t('calendar.feeds.status.refreshedAt', { when: formatDateTime(new Date(feed.lastFetchedAt).getTime()) })
   }
   return t('calendar.feeds.status.never')
 }

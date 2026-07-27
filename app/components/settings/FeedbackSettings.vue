@@ -142,7 +142,12 @@ async function disconnect() {
           ? $t('feedback.settings.tokenHelpStored')
           : $t('feedback.settings.tokenHelp')"
       >
-        <UInput v-model="token" type="password" placeholder="ghp_… or github_pat_…" class="w-full" />
+        <UInput
+          v-model="token"
+          type="password"
+          :placeholder="$t('feedback.settings.tokenPlaceholder')"
+          class="w-full"
+        />
       </UFormField>
 
       <div

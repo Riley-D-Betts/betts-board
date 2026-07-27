@@ -9,6 +9,13 @@
     "modeAuto": "Auto",
     "font": "Font",
     "fontHelp": "Applies to the whole board, for everyone.",
+    "fonts": {
+      "rounded": "Rounded",
+      "system": "System",
+      "serif": "Serif",
+      "mono": "Mono",
+      "playful": "Playful"
+    },
     "addGoogleFont": "Add a Google Font",
     "addGoogleFontHelp": "Downloaded once and stored on your server — the board never calls out to Google when someone opens a page, and it keeps working offline.",
     "googleFontPlaceholder": "e.g. Roboto Slab",
@@ -22,6 +29,18 @@
     "accentDark": "Accent color — dark mode",
     "lightAccentSwatch": "Light accent {color}",
     "darkAccentSwatch": "Dark accent {color}",
+    "colors": {
+      "green": "green",
+      "blue": "blue",
+      "indigo": "indigo",
+      "violet": "violet",
+      "fuchsia": "fuchsia",
+      "rose": "rose",
+      "orange": "orange",
+      "amber": "amber",
+      "teal": "teal",
+      "cyan": "cyan"
+    },
     "tvTheme": "TV mode theme",
     "tvThemeHelp": "How the /tv wall display looks. This is household-wide, not per device.",
     "tvThemeNoLocation": "No location set, so this falls back to a 7am–7pm window. Set a weather location for real sunrise and sunset.",
