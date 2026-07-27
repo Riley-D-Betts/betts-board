@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const { unlocked } = useFinanceSession()
 const { money, moneyShort, fromInput } = useMoney()
+const currency = useHouseholdCurrency()
 const { formatDayMonth } = useDateFormat()
 const { t } = useI18n()
 const toast = useToast()
@@ -27,11 +28,11 @@ const { data: goals, refresh } = await useFetch<Goal[]>('/api/finance/goals', {
   immediate: unlocked.value,
   default: () => [],
 })
-const { data: accountData } = await useFetch<{ accounts: { id: string, name: string, type: string }[] }>(
+const { data: accountData, refresh: refreshAccounts } = await useFetch<{ accounts: { id: string, name: string, type: string }[] }>(
   '/api/finance/accounts',
   { immediate: unlocked.value, default: () => ({ accounts: [] }) },
 )
-watch(unlocked, u => u && refresh())
+watch(unlocked, u => u && Promise.all([refresh(), refreshAccounts()]))
 
 const addOpen = ref(false)
 const saving = ref(false)
@@ -53,7 +54,7 @@ watch(addOpen, (open) => {
 })
 
 async function create() {
-  const targetMinor = fromInput(form.target)
+  const targetMinor = fromInput(form.target, currency.value)
   if (!targetMinor || targetMinor < 1) return
   saving.value = true
   try {
@@ -80,7 +81,7 @@ const contributeGoal = ref<Goal | null>(null)
 const contribution = ref('')
 
 async function contribute() {
-  const amountMinor = fromInput(contribution.value)
+  const amountMinor = fromInput(contribution.value, currency.value)
   if (!contributeGoal.value || amountMinor == null) return
   await $fetch(`/api/finance/goals/${contributeGoal.value.id}/contribute`, {
     method: 'POST',

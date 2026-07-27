@@ -294,7 +294,8 @@
     "currency": "Currency",
     "currencyHelp": "Used for totals and new accounts. Bank accounts keep whatever currency your bank reports.",
     "forecastDays": "Forecast length",
-    "notOnDashboard": "Money never appears on the dashboard, the wall display, or the shared calendar."
+    "notOnDashboard": "Money never appears on the dashboard, the wall display, or the shared calendar.",
+    "adminOnly": "Only a household admin can change these."
   },
   "toast": {
     "saved": "Saved",

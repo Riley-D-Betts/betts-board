@@ -144,9 +144,48 @@ describe('ingestAccount', () => {
     pending.transactions[0]!.pending = true
     ingestAccount(db, connection, pending, WINDOW_START)
 
-    const result = ingestAccount(db, connection, account({ transactions: [] }), WINDOW_START)
+    // The bank still reports the account and other activity — it simply no
+    // longer lists this hold, so the hold really is gone.
+    const stillReporting = account({
+      transactions: [{
+        id: 'TRN-OTHER',
+        postedAt: new Date('2026-01-20T12:00:00Z'),
+        amountMinor: -500,
+        description: 'Something else',
+        payee: null,
+        memo: null,
+        pending: false,
+      }],
+    })
+    const result = ingestAccount(db, connection, stillReporting, WINDOW_START)
     expect(result.removedPending).toBe(1)
-    expect(db.select().from(financeTransactions).all()).toHaveLength(0)
+    expect(db.select().from(financeTransactions).all().map(r => r.externalId)).toEqual(['TRN-OTHER'])
+  })
+
+  it('does NOT clear pending rows when the bank returns nothing at all', () => {
+    // An empty transaction list means "this institution told us nothing" far
+    // more often than "every pending charge was cancelled". Treating it as the
+    // latter wipes every pending row the family can see, on a bad day at the
+    // bank, with no way to get them back before they post.
+    const pending = account()
+    pending.transactions[0]!.pending = true
+    ingestAccount(db, connection, pending, WINDOW_START)
+
+    const result = ingestAccount(db, connection, account({ transactions: [] }), WINDOW_START)
+    expect(result.removedPending).toBe(0)
+    expect(db.select().from(financeTransactions).all()).toHaveLength(1)
+  })
+
+  it('leaves pending rows dated before the fetched window alone', () => {
+    const pending = account()
+    pending.transactions[0]!.pending = true
+    pending.transactions[0]!.postedAt = new Date('2026-01-01T12:00:00Z')
+    ingestAccount(db, connection, pending, WINDOW_START)
+
+    // Re-syncing with a window that starts on that same day: the row sits on
+    // the boundary, so the bank was not necessarily asked about it.
+    const result = ingestAccount(db, connection, account(), WINDOW_START)
+    expect(result.removedPending).toBe(0)
   })
 
   it('does NOT remove a posted row the bank stopped listing', () => {

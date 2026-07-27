@@ -54,7 +54,8 @@ export const financeAccountTypes = ['checking', 'savings', 'credit', 'cash', 'in
 export const financeAccountCreateSchema = z.object({
   name: z.string().trim().min(1).max(80),
   type: z.enum(financeAccountTypes).default('checking'),
-  currency: zCurrency.default('USD'),
+  /** Omitted = the household's currency, resolved server-side. Not 'USD'. */
+  currency: zCurrency.optional(),
   openingBalanceMinor: zAmountMinor.default(0),
   includeInNetWorth: z.boolean().default(true),
 })
@@ -245,8 +246,15 @@ export const financeForecastQuerySchema = z.object({
 // ── Client-facing types ───────────────────────────────────────────────────
 
 export interface FinanceSessionState {
-  /** Does this profile have a finance PIN at all? */
+  /** Is this profile a finance member at all? */
   enrolled: boolean
+  /**
+   * Member, but with no PIN set — i.e. BETTS_RESET_FINANCE_PIN cleared it.
+   * Without this the lock screen shows an unlock form that can never succeed,
+   * because unlockFinance refuses a profile whose pinHash is null. The
+   * documented recovery path would be unreachable from the app.
+   */
+  needsPin: boolean
   unlocked: boolean
   role: 'owner' | 'member' | null
   /** Epoch ms; drives the countdown and the auto-lock. */

@@ -10,11 +10,18 @@ export default defineEventHandler(async (event) => {
   await requireFinanceAccess(event)
   const household = requireHousehold()
   const { periodStart } = await getValidatedQuery(event, financeBudgetQuerySchema.parse)
-  const period = periodStart ?? currentMonth(todayString())
+  const thisMonth = currentMonth(todayString())
+  const period = periodStart ?? thisMonth
   const { currency } = financeCurrency(household)
 
-  // Copy last month forward the first time a month is opened, so the screen
-  // isn't empty every 1st. Only fills gaps — never overwrites this month.
-  carryForwardBudgets(useDb(), household.id, period)
+  // Copy last month forward the first time the CURRENT month is opened, so the
+  // screen isn't empty every 1st.
+  //
+  // Only the current month: a GET must not invent budget rows for whatever
+  // period the client asks for. Browsing back through last year would
+  // otherwise fabricate budgets for months that never had one — rewriting
+  // history — and browsing forward would freeze a future month's budget at
+  // today's numbers.
+  if (period === thisMonth) carryForwardBudgets(useDb(), household.id, period)
   return budgetForMonth(useDb(), household.id, period, currency)
 })

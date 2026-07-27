@@ -78,7 +78,19 @@ export function useFinanceSession() {
       if (!expiresAt) return
       // Re-check just past expiry; the server is the authority on whether the
       // sliding window moved it.
-      timer = setTimeout(() => void refresh().then(schedule), Math.max(1000, expiresAt - Date.now() + 500))
+      //
+      // The catch matters: one failed refresh (a dropped wifi packet on a
+      // kitchen tablet) would otherwise break the promise chain for good, and
+      // the screen would sit showing balances long after the session expired.
+      // On failure, treat it as locked and stop — the server rejects the next
+      // request anyway, so the UI must not keep claiming otherwise.
+      timer = setTimeout(() => {
+        refresh()
+          .then(schedule)
+          .catch(() => {
+            state.value = state.value ? { ...state.value, unlocked: false, expiresAt: null } : null
+          })
+      }, Math.max(1000, expiresAt - Date.now() + 500))
     }
 
     watch(() => state.value?.expiresAt, schedule, { immediate: true })

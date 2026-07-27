@@ -103,7 +103,18 @@ export function markFinanceResetArmed() {
   resetArmed = true
 }
 export function financeResetArmed(): boolean {
-  return resetArmed && !financeIsConfigured()
+  // Membership rows survive a reset (roles and the owner designation are worth
+  // keeping), so `financeIsConfigured()` stays true and cannot be the test —
+  // that made this flag dead code. What matters is whether anyone still holds
+  // a usable PIN.
+  if (!resetArmed) return false
+  const anyMemberHasPin = useDb()
+    .select({ pinHash: profiles.pinHash })
+    .from(financeMembers)
+    .innerJoin(profiles, eq(profiles.id, financeMembers.profileId))
+    .all()
+    .some(r => !!r.pinHash)
+  return !anyMemberHasPin
 }
 
 // ── Reading the claim ─────────────────────────────────────────────────────
@@ -297,10 +308,26 @@ export async function setOwnFinancePin(
   const existing = financeMemberFor(profile.id)
 
   if (existing && profile.pinHash) {
+    // The lockout applies here too. Without it this route is an unmetered
+    // guessing oracle for the same secret the unlock route rate-limits: a
+    // wrong `currentPin` would cost nothing and leave no trace.
+    const now = Date.now()
+    if (existing.lockedUntil && existing.lockedUntil.getTime() > now) {
+      const minutes = Math.ceil((existing.lockedUntil.getTime() - now) / 60_000)
+      throw createError({ statusCode: 429, statusMessage: `Too many attempts — locked for ${minutes} more minute(s)` })
+    }
+
     // Changing an existing PIN needs the current one — being at the tablet
     // isn't enough, or the PIN would protect nothing.
     if (!args.currentPin || !(await verify(profile.pinHash, args.currentPin))) {
       await burnTime(args.pin)
+      const failedAttempts = existing.failedAttempts + 1
+      const lockMs = lockoutFor(failedAttempts)
+      useDb().update(financeMembers).set({
+        failedAttempts,
+        failedSinceLastUnlock: existing.failedSinceLastUnlock + 1,
+        lockedUntil: lockMs ? new Date(now + lockMs) : existing.lockedUntil,
+      }).where(eq(financeMembers.profileId, profile.id)).run()
       throw createError({ statusCode: 401, statusMessage: 'Wrong current PIN' })
     }
   }
@@ -399,6 +426,7 @@ export async function financeSessionState(event: H3Event): Promise<FinanceSessio
   const configured = financeIsConfigured()
   const base: FinanceSessionState = {
     enrolled: false,
+    needsPin: false,
     unlocked: false,
     role: null,
     expiresAt: null,
@@ -426,6 +454,9 @@ export async function financeSessionState(event: H3Event): Promise<FinanceSessio
   return {
     ...base,
     enrolled: true,
+    // A member whose hash was cleared by a reset boot: the lock screen must
+    // offer "set a new PIN", not an unlock form that can only ever 403.
+    needsPin: !profile.pinHash,
     unlocked: !!access,
     role: member.role,
     expiresAt: access?.session.expiresAt.getTime() ?? null,

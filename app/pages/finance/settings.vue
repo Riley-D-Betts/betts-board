@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { isOwner, setPin } = useFinanceSession()
-const { state, refresh: refreshBoard } = useBoardState()
+const { state, isAdmin, refresh: refreshBoard } = useBoardState()
 const { t } = useI18n()
 const toast = useToast()
 
@@ -48,14 +48,29 @@ const CURRENCIES = ['USD', 'CAD', 'GBP', 'EUR', 'AUD', 'NZD', 'JPY', 'CHF', 'SEK
 const currencyItems = CURRENCIES.map(value => ({ value, label: value }))
 const forecastItems = [30, 60, 90, 180, 365].map(value => ({ value, label: `${value} days` }))
 
+
 async function saveSettings() {
-  await $fetch('/api/household', {
-    method: 'PATCH',
-    body: { settings: { finance: { currency: currency.value, forecastDays: forecastDays.value } } },
-  })
-  await refreshBoard()
-  toast.add({ title: t('finance.toast.saved'), color: 'success' })
-  bumpDataTick()
+  try {
+    await $fetch('/api/household', {
+      method: 'PATCH',
+      body: { settings: { finance: { currency: currency.value, forecastDays: forecastDays.value } } },
+    })
+    await refreshBoard()
+    toast.add({ title: t('finance.toast.saved'), color: 'success' })
+    bumpDataTick()
+  }
+  catch (e) {
+    // These live on the household row, which is admin-only. A finance owner
+    // who isn't a household admin gets a 403 — say so instead of silently
+    // leaving the select showing a value that was never saved.
+    toast.add({
+      title: (e as { statusMessage?: string }).statusMessage || t('finance.settings.adminOnly'),
+      color: 'error',
+    })
+    await refreshBoard()
+    currency.value = state.value?.settings?.finance?.currency ?? 'USD'
+    forecastDays.value = state.value?.settings?.finance?.forecastDays ?? 90
+  }
 }
 </script>
 
@@ -72,14 +87,26 @@ async function saveSettings() {
         </template>
 
         <div class="space-y-4">
-          <UFormField :label="$t('finance.settings.currency')" :help="$t('finance.settings.currencyHelp')">
-            <USelect v-model="currency" :items="currencyItems" class="w-full sm:w-48" @change="saveSettings" />
+          <!-- These live on the household row, which is admin-only. Disabling
+               them is kinder than letting a select change and snap back. -->
+          <UFormField
+            :label="$t('finance.settings.currency')"
+            :help="isAdmin ? $t('finance.settings.currencyHelp') : $t('finance.settings.adminOnly')"
+          >
+            <USelect
+              v-model="currency"
+              :items="currencyItems"
+              :disabled="!isAdmin"
+              class="w-full sm:w-48"
+              @change="saveSettings"
+            />
           </UFormField>
 
           <UFormField :label="$t('finance.settings.forecastDays')">
             <USelect
               v-model="forecastDays"
               :items="forecastItems"
+              :disabled="!isAdmin"
               class="w-full sm:w-48"
               @change="saveSettings"
             />

@@ -74,8 +74,19 @@ async function connect() {
 async function syncNow(connection: Connection) {
   syncingId.value = connection.id
   try {
-    await $fetch(`/api/finance/connections/${connection.id}`, { method: 'POST' })
-    toast.add({ title: t('finance.toast.synced'), color: 'success' })
+    // syncConnection never throws — failures come back in the payload. A
+    // blanket success toast would tell someone their bank is fine when it
+    // just refused their credentials.
+    const outcome = await $fetch<{ status: string, error?: string }>(
+      `/api/finance/connections/${connection.id}`, { method: 'POST' },
+    )
+    const failed = outcome.status === 'error' || outcome.status === 'needs_reauth'
+    toast.add({
+      title: failed
+        ? t(`finance.connections.status.${outcome.status}`)
+        : t('finance.toast.synced'),
+      color: failed ? 'error' : outcome.status === 'partial' ? 'warning' : 'success',
+    })
     await refresh()
     bumpDataTick()
   }

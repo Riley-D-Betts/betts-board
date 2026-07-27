@@ -1,7 +1,7 @@
 <!-- Statement import: parse → review duplicates → commit. Nothing is ever
      dropped automatically; the family decides on every flagged row. -->
 <script setup lang="ts">
-const props = defineProps<{ accounts: { id: string, name: string }[] }>()
+const props = defineProps<{ accounts: { id: string, name: string, currency?: string }[] }>()
 const emit = defineEmits<{ imported: [] }>()
 
 const { money } = useMoney()
@@ -28,6 +28,11 @@ const content = ref('')
 const dateFormat = ref<'auto' | 'MDY' | 'DMY' | 'YMD'>('auto')
 const preview = ref<{ rows: Candidate[], warnings: string[], duplicateCount: number } | null>(null)
 const skipRows = ref(new Set<number>())
+
+// The preview must show the TARGET account's currency, not a hardcoded USD —
+// the whole point of a review step is deciding whether a number looks right.
+const targetCurrency = computed(() =>
+  props.accounts.find(a => a.id === accountId.value)?.currency ?? 'USD')
 
 const dateItems = computed(() =>
   (['auto', 'MDY', 'DMY', 'YMD'] as const).map(value => ({
@@ -186,7 +191,7 @@ async function commit() {
                   </span>
                 </p>
               </div>
-              <span class="shrink-0 text-sm font-medium tabular-nums">{{ money(row.amountMinor) }}</span>
+              <span class="shrink-0 text-sm font-medium tabular-nums">{{ money(row.amountMinor, targetCurrency) }}</span>
             </label>
           </div>
 

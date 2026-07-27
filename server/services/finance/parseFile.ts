@@ -96,6 +96,22 @@ export function parseOfx(content: string): ParseResult {
   const currency = ofxValue(content, 'CURDEF') ?? undefined
   const accountHint = ofxValue(content, 'ACCTID') ?? undefined
 
+  // Some banks export every account in one download. Transactions are scanned
+  // from the whole document, so importing that into the single account the
+  // user picked would silently merge two accounts' history — and undoing the
+  // batch afterwards cannot tell them apart again. Refuse instead.
+  const accountIds = new Set(
+    [...content.matchAll(/<ACCTID>([^<]*)/gi)]
+      .map(m => m[1]!.trim())
+      .filter(Boolean),
+  )
+  if (accountIds.size > 1) {
+    throw new ImportParseError(
+      `That file covers more than one account (${[...accountIds].length} of them). `
+      + 'Download a statement for a single account and import it on its own.',
+    )
+  }
+
   const blocks = content.match(/<STMTTRN>[\s\S]*?(?:<\/STMTTRN>|(?=<STMTTRN>)|$)/gi) ?? []
   const rows: ParsedRow[] = []
 
@@ -157,7 +173,10 @@ export function parseCsv(text: string): string[][] {
       }
       field += char; i++; continue
     }
-    if (char === '"') { quoted = true; i++; continue }
+    // A quote only opens a quoted field at the START of one. Mid-field it is
+    // literal text — `5" PIPE FITTING` is a real description, and treating its
+    // quote as an opener swallows every remaining row in the statement.
+    if (char === '"' && field === '') { quoted = true; i++; continue }
     if (char === ',') { row.push(field); field = ''; i++; continue }
     if (char === '\r') { i++; continue }
     if (char === '\n') { row.push(field); rows.push(row); row = []; field = ''; i++; continue }
@@ -200,6 +219,32 @@ export function parseCsvDate(raw: string, order: DateOrder = 'auto'): string | n
 
   const year = c.length === 2 ? `20${c}` : c.padStart(4, '0')
   return resolved === 'DMY' ? isoFrom(year, b, a) : isoFrom(year, a, b)
+}
+
+/**
+ * Decides the day/month order ONCE for a whole file.
+ *
+ * Resolving per row is what makes a UK statement land half in January and half
+ * scattered across the year: "15/01" is unambiguously DMY, but "05/01" on its
+ * own looks like US order and silently becomes 5 May. One unambiguous row is
+ * evidence about every other row in the same file.
+ */
+export function resolveDateOrder(values: string[], requested: DateOrder = 'auto'): DateOrder {
+  if (requested !== 'auto') return requested
+
+  let sawDayFirst = false
+  let sawMonthFirst = false
+  for (const raw of values) {
+    const parts = /^(\d{1,4})[/\-.](\d{1,2})[/\-.](\d{1,4})/.exec(raw.trim())
+    if (!parts || parts[1]!.length === 4) continue
+    if (Number(parts[1]) > 12) sawDayFirst = true
+    else if (Number(parts[2]) > 12) sawMonthFirst = true
+  }
+
+  // If the file contradicts itself, neither order is right for every row —
+  // fall back to US order and let the preview show the user what happened.
+  if (sawDayFirst && !sawMonthFirst) return 'DMY'
+  return 'MDY'
 }
 
 function isoFrom(y: string, m: string, d: string): string | null {
@@ -283,9 +328,17 @@ export function parseCsvStatement(content: string, opts: {
   const rows: ParsedRow[] = []
   const currency = opts.currency ?? 'USD'
 
+  // Decided once for the whole file: one unambiguous row ("15/01") is evidence
+  // about every other row in it. Resolving per row sends "05/01" to May while
+  // its neighbour goes to January.
+  const dateOrder = resolveDateOrder(
+    body.map(cells => (cols.date >= 0 ? (cells[cols.date] ?? '') : '')),
+    opts.dateFormat ?? 'auto',
+  )
+
   for (const [n, cells] of body.entries()) {
     const cell = (i: number) => (i >= 0 ? (cells[i] ?? '').trim() : '')
-    const postedDate = parseCsvDate(cell(cols.date), opts.dateFormat ?? 'auto')
+    const postedDate = parseCsvDate(cell(cols.date), dateOrder)
     if (!postedDate) {
       warnings.push(`Row ${n + (hasHeader ? 2 : 1)}: could not read the date.`)
       continue
@@ -297,11 +350,19 @@ export function parseCsvStatement(content: string, opts: {
         amountMinor = parseDecimalToMinor(normalizeAmount(cell(cols.amount)), currency)
       }
       else {
-        // Debit/credit pair: values are magnitudes, so the sign is ours to set.
-        const debit = cell(cols.debit)
-        const credit = cell(cols.credit)
-        if (debit) amountMinor = -Math.abs(parseDecimalToMinor(normalizeAmount(debit), currency))
-        else if (credit) amountMinor = Math.abs(parseDecimalToMinor(normalizeAmount(credit), currency))
+        // Debit/credit pair: the values are magnitudes, so the sign is ours to
+        // set. Plenty of banks write "0.00" in the column that doesn't apply
+        // rather than leaving it blank — so pick the column with a NON-ZERO
+        // value, not merely a non-empty one. Choosing on emptiness turns a
+        // £2,450 salary into zero, and nothing downstream would flag it.
+        const parse = (text: string) =>
+          text ? Math.abs(parseDecimalToMinor(normalizeAmount(text), currency)) : 0
+        const debit = parse(cell(cols.debit))
+        const credit = parse(cell(cols.credit))
+        if (debit) amountMinor = -debit
+        else if (credit) amountMinor = credit
+        // Both zero: a real zero-value row (an adjustment), not a parse failure.
+        else if (cell(cols.debit) || cell(cols.credit)) amountMinor = 0
       }
     }
     catch {
@@ -337,11 +398,27 @@ function normalizeAmount(raw: string): string {
   let negative = false
   if (/^\(.*\)$/.test(value)) { negative = true; value = value.slice(1, -1) }
   value = value.replace(/[^\d.,+-]/g, '')
-  // "1.234,56" (European) vs "1,234.56" (US): the LAST separator is decimal.
+
   const lastComma = value.lastIndexOf(',')
   const lastDot = value.lastIndexOf('.')
-  if (lastComma > lastDot) value = value.replace(/\./g, '').replace(',', '.')
-  else value = value.replace(/,/g, '')
+
+  if (lastComma >= 0 && lastDot >= 0) {
+    // Both present: whichever comes last is the decimal separator.
+    // "1,234.56" (US) vs "1.234,56" (European).
+    if (lastComma > lastDot) value = value.replace(/\./g, '').replace(',', '.')
+    else value = value.replace(/,/g, '')
+  }
+  else if (lastComma >= 0) {
+    // Only commas. "12,50" is a European decimal; "1,234" is a US thousands
+    // separator. The tell is the digit count after the LAST comma: a decimal
+    // fraction is 1-2 digits, a thousands group is always exactly 3.
+    // Reading "1,234" as 1.234 divides a statement line by a thousand, and
+    // nothing downstream would ever notice.
+    const tail = value.slice(lastComma + 1)
+    if (tail.length === 3) value = value.replace(/,/g, '')
+    else value = value.replace(',', '.')
+  }
+
   if (value.startsWith('-')) { negative = !negative; value = value.slice(1) }
   if (value.startsWith('+')) value = value.slice(1)
   return negative ? `-${value}` : value

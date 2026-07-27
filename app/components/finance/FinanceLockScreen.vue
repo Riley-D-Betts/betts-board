@@ -12,6 +12,11 @@ const confirmPin = ref('')
 const error = ref('')
 
 const mode = computed<'unlock' | 'setup' | 'noAccess'>(() => {
+  // A member whose PIN was cleared by BETTS_RESET_FINANCE_PIN. This has to be
+  // checked BEFORE `enrolled`, or the screen offers an unlock form that can
+  // never succeed — unlockFinance refuses a profile with no stored hash — and
+  // the documented recovery path becomes unreachable from the app.
+  if (state.value?.needsPin) return 'setup'
   if (state.value?.enrolled) return 'unlock'
   // Trust on first use: with nobody enrolled, the household password is the
   // only anchor there is, and demanding it again would add ceremony without

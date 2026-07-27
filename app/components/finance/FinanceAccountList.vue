@@ -13,7 +13,8 @@ interface AccountRow {
 defineProps<{ accounts: AccountRow[] }>()
 const emit = defineEmits<{ changed: [] }>()
 
-const { money } = useMoney()
+const { money, fromInput } = useMoney()
+const currency = useHouseholdCurrency()
 const { formatTime } = useDateFormat()
 const { t } = useI18n()
 const toast = useToast()
@@ -21,7 +22,6 @@ const toast = useToast()
 const addOpen = ref(false)
 const saving = ref(false)
 const form = reactive({ name: '', type: 'checking', balance: '' })
-const { fromInput } = useMoney()
 
 const ICONS: Record<string, string> = {
   checking: 'i-lucide-landmark',
@@ -44,7 +44,8 @@ async function create() {
       body: {
         name: form.name.trim(),
         type: form.type,
-        openingBalanceMinor: fromInput(form.balance) ?? 0,
+        currency: currency.value,
+        openingBalanceMinor: fromInput(form.balance, currency.value) ?? 0,
       },
     })
     addOpen.value = false

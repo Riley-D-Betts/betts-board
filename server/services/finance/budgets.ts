@@ -68,8 +68,13 @@ export function budgetForMonth(db: Db, householdId: string, period: string, curr
   const categories = db.select().from(financeCategories)
     .where(eq(financeCategories.householdId, householdId)).all()
 
+  // An archived category keeps its history: hiding it from the list is fine,
+  // but dropping it silently subtracts its spend from the month's total, so
+  // the headline stops matching the transactions behind it. Archived
+  // categories are shown for any month where they were actually used.
   const lines: BudgetLine[] = categories
-    .filter(c => c.kind === 'expense' && !c.archivedAt)
+    .filter(c => c.kind === 'expense'
+      && (!c.archivedAt || spend.has(c.id) || byCategory.has(c.id)))
     .map((c) => {
       const budget = byCategory.get(c.id)
       const spent = spend.get(c.id)?.total ?? 0

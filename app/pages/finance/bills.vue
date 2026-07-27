@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const { unlocked } = useFinanceSession()
 const { money, fromInput } = useMoney()
+const currency = useHouseholdCurrency()
 const { formatDayMonth } = useDateFormat()
 const { t } = useI18n()
 const toast = useToast()
@@ -26,11 +27,11 @@ const { data, refresh } = await useFetch<Occurrence[]>('/api/finance/bills/upcom
   default: () => [],
   query: computed(() => ({ start: windowStart.value, end: windowEnd.value })),
 })
-const { data: categories } = await useFetch<{ id: string, name: string }[]>('/api/finance/categories', {
+const { data: categories, refresh: refreshCategories } = await useFetch<{ id: string, name: string }[]>('/api/finance/categories', {
   immediate: unlocked.value,
   default: () => [],
 })
-watch(unlocked, u => u && refresh())
+watch(unlocked, u => u && Promise.all([refresh(), refreshCategories()]))
 useLiveRefresh(() => unlocked.value && refresh())
 
 const today = todayString()
@@ -94,7 +95,7 @@ watch(addOpen, (open) => {
 })
 
 async function create() {
-  const amountMinor = fromInput(form.amount)
+  const amountMinor = fromInput(form.amount, currency.value)
   if (amountMinor == null) return
   saving.value = true
   try {

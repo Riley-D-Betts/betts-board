@@ -1,6 +1,6 @@
 import { and, eq, gte, inArray, isNotNull, isNull, or, lte } from 'drizzle-orm'
 import { currencyExponent } from '#shared/utils/money'
-import { toDateString } from '#shared/utils/dates'
+import { addDaysToDateString, toDateString } from '#shared/utils/dates'
 import type { Db } from '../../db/client'
 import { financeAccounts, financeConnections, financeTransactions } from '../../db/schema'
 import { decryptSecret, encryptSecret } from '../../utils/crypto'
@@ -108,19 +108,40 @@ export async function syncConnection(db: Db, connection: ConnectionRow): Promise
     return { ...base, status: needsReauth ? 'needs_reauth' : 'error', error: describeSyncError(error) }
   }
 
+  // Ingest must not be able to escape this function. If it threw, the status
+  // and nextAttemptAt below would never be written, so the connection would
+  // stay due and retry on EVERY tick — the exact hot-loop the backoff exists
+  // to prevent, and against a rate-limited bank API that is how you get
+  // blocked. A failure here is treated as a failed sync, backoff included.
   const counts = { inserted: 0, updated: 0, removedPending: 0 }
-  for (const account of result.accounts) {
-    const applied = ingestAccount(db, connection, account, startDate)
-    counts.inserted += applied.inserted
-    counts.updated += applied.updated
-    counts.removedPending += applied.removedPending
+  try {
+    for (const account of result.accounts) {
+      const applied = ingestAccount(db, connection, account, startDate)
+      counts.inserted += applied.inserted
+      counts.updated += applied.updated
+      counts.removedPending += applied.removedPending
+    }
+  }
+  catch (error) {
+    const consecutiveFailures = connection.consecutiveFailures + 1
+    db.update(financeConnections).set({
+      status: 'error',
+      consecutiveFailures,
+      lastError: describeSyncError(error),
+      nextAttemptAt: new Date(now.getTime() + backoffMs(connection.syncIntervalMinutes, consecutiveFailures)),
+    }).where(eq(financeConnections.id, connection.id)).run()
+    return { ...base, status: 'error', ...counts, error: describeSyncError(error) }
   }
 
   const status: ConnectionRow['status'] = result.errors.length ? 'partial' : 'ok'
   db.update(financeConnections).set({
     status,
     consecutiveFailures: 0,
-    lastSyncAt: now,
+    // On a PARTIAL sync one institution returned nothing, so advancing the
+    // watermark to now would move the next fetch window past the gap and lose
+    // that bank's transactions permanently. Hold the watermark where it was;
+    // re-fetching a window we already have is free, thanks to the unique index.
+    ...(status === 'ok' ? { lastSyncAt: now } : {}),
     lastError: null,
     lastErrorList: result.errors.length ? result.errors : null,
     nextAttemptAt: new Date(now.getTime() + connection.syncIntervalMinutes * 60_000),
@@ -248,20 +269,33 @@ export function ingestAccount(
   // A pending row inside the re-fetched window that the bank no longer lists
   // is genuinely gone (cancelled hold, dropped auth). Safe *because* the
   // window always overlaps — outside it we have no opinion.
-  const seen = new Set(incoming.transactions.map(t => t.id))
-  const stale = db.select().from(financeTransactions)
-    .where(and(
-      eq(financeTransactions.accountId, accountId),
-      eq(financeTransactions.pending, true),
-      eq(financeTransactions.source, 'sync'),
-      isNotNull(financeTransactions.externalId),
-      gte(financeTransactions.postedDate, toDateString(windowStart)),
-    ))
-    .all()
-    .filter(row => !seen.has(row.externalId!))
+  //
+  // Two guards on that reasoning:
+  //  - An account that returned NO transactions tells us nothing. It happens
+  //    when an institution is having a bad day, and treating it as "everything
+  //    was cancelled" would wipe every pending row the family could see.
+  //  - The floor is the day AFTER windowStart. windowStart is an instant, but
+  //    postedDate is a calendar date, so a row dated on the boundary day may
+  //    sit before the instant the bank was actually asked about — outside the
+  //    window, where we have no opinion.
+  let stale: typeof financeTransactions.$inferSelect[] = []
+  if (incoming.transactions.length) {
+    const seen = new Set(incoming.transactions.map(t => t.id))
+    const floor = addDaysToDateString(toDateString(windowStart), 1)
+    stale = db.select().from(financeTransactions)
+      .where(and(
+        eq(financeTransactions.accountId, accountId),
+        eq(financeTransactions.pending, true),
+        eq(financeTransactions.source, 'sync'),
+        isNotNull(financeTransactions.externalId),
+        gte(financeTransactions.postedDate, floor),
+      ))
+      .all()
+      .filter(row => !seen.has(row.externalId!))
 
-  if (stale.length) {
-    db.delete(financeTransactions).where(inArray(financeTransactions.id, stale.map(r => r.id))).run()
+    if (stale.length) {
+      db.delete(financeTransactions).where(inArray(financeTransactions.id, stale.map(r => r.id))).run()
+    }
   }
 
   return { inserted, updated, removedPending: stale.length }

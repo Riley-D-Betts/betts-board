@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const { unlocked } = useFinanceSession()
 const { moneySigned, fromInput } = useMoney()
+const currency = useHouseholdCurrency()
 const { formatDayMonth } = useDateFormat()
 const { t } = useI18n()
 const toast = useToast()
@@ -32,11 +33,11 @@ const limit = ref(100)
 
 const debouncedQ = refDebounced(q, 250)
 
-const { data: accountData } = await useFetch<{ accounts: { id: string, name: string, currency: string }[] }>(
+const { data: accountData, refresh: refreshAccounts } = await useFetch<{ accounts: { id: string, name: string, currency: string }[] }>(
   '/api/finance/accounts',
   { immediate: unlocked.value, default: () => ({ accounts: [] }) },
 )
-const { data: categories } = await useFetch<{ id: string, name: string, icon: string | null }[]>(
+const { data: categories, refresh: refreshCategories } = await useFetch<{ id: string, name: string, icon: string | null }[]>(
   '/api/finance/categories',
   { immediate: unlocked.value, default: () => [] },
 )
@@ -52,7 +53,10 @@ const { data, refresh } = await useFetch<{ total: number, items: TxnItem[] }>('/
     limit: limit.value,
   })),
 })
-watch(unlocked, u => u && refresh())
+// Every list has to reload on unlock, not just the ledger: they were skipped
+// while locked, and an empty account list makes "Add transaction" fail
+// silently — create() returns early with no account to post to.
+watch(unlocked, u => u && Promise.all([refresh(), refreshAccounts(), refreshCategories()]))
 useLiveRefresh(() => unlocked.value && refresh())
 
 /** Sentinels, not '': Reka's SelectItem throws on an empty-string value. */
@@ -105,7 +109,7 @@ watch(addOpen, (open) => {
 })
 
 async function create() {
-  const amountMinor = fromInput(form.amount)
+  const amountMinor = fromInput(form.amount, currency.value)
   if (amountMinor == null || !form.accountId) return
   saving.value = true
   try {

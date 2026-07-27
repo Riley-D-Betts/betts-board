@@ -1,5 +1,5 @@
-import { and, eq, gte, lt } from 'drizzle-orm'
-import { addDaysToDateString, todayString } from '#shared/utils/dates'
+import { and, asc, eq, gte, lt } from 'drizzle-orm'
+import { addDaysToDateString, dateStringDiffDays, todayString } from '#shared/utils/dates'
 import type { Db } from '../../db/client'
 import { financeCategories, financeTransactions } from '../../db/schema'
 import { listAccounts, netWorthByCurrency } from './accounts'
@@ -27,7 +27,15 @@ export function buildForecast(db: Db, householdId: string, args: {
     .reduce((acc, a) => acc + a.balanceMinor, 0)
 
   const trailingStart = addDaysToDateString(today, -TRAILING_DAYS)
+  // Only spend that actually leaves the cash accounts we projected from.
+  // Card spend is drawn against a credit line, not the current account, and it
+  // reaches the cash balance later as the card-payment bill — which the
+  // forecast already models. Counting both subtracts the same money twice.
+  const cashAccountIds = new Set(
+    accounts.filter(a => CASH_TYPES.has(a.type)).map(a => a.id),
+  )
   const trailing = db.select({
+    accountId: financeTransactions.accountId,
     amountMinor: financeTransactions.amountMinor,
     currency: financeTransactions.currency,
     categoryId: financeTransactions.categoryId,
@@ -42,6 +50,7 @@ export function buildForecast(db: Db, householdId: string, args: {
       lt(financeTransactions.postedDate, today),
     ))
     .all()
+    .filter(t => cashAccountIds.has(t.accountId))
 
   // Bills are modelled explicitly as occurrences, so their spend must not also
   // land in the daily average — otherwise every recurring cost is counted
@@ -63,6 +72,29 @@ export function buildForecast(db: Db, householdId: string, args: {
 
   const occurrences = expandBills(db, householdId, today, addDaysToDateString(today, args.days))
 
+  // Divide by the history we ACTUALLY have, not a flat 90 days. A household
+  // five days into using the board has five days of spend; dividing it by 90
+  // reports a daily average eighteen times too low and produces a comfortable
+  // forecast that is simply wrong.
+  //
+  // The floor of 14 days is the other half of the guard: with two days of
+  // history, dividing by two extrapolates one big shop into a catastrophe.
+  // Under-reacting to very short history is the safer error.
+  const oldest = db.select({ postedDate: financeTransactions.postedDate })
+    .from(financeTransactions)
+    .where(and(
+      eq(financeTransactions.householdId, householdId),
+      gte(financeTransactions.postedDate, trailingStart),
+    ))
+    .orderBy(asc(financeTransactions.postedDate))
+    .limit(1)
+    .get()
+
+  const observedDays = oldest
+    ? Math.max(1, dateStringDiffDays(today, oldest.postedDate))
+    : TRAILING_DAYS
+  const historyDays = Math.min(TRAILING_DAYS, Math.max(14, observedDays))
+
   return projectCashFlow({
     today,
     days: args.days,
@@ -72,7 +104,7 @@ export function buildForecast(db: Db, householdId: string, args: {
     occurrences,
     dailyDiscretionaryMinor: averageDailySpend({
       transactions: discretionary,
-      days: TRAILING_DAYS,
+      days: historyDays,
       currency: args.currency,
     }),
   })
