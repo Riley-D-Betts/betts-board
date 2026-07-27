@@ -1,175 +1,175 @@
 {
-  "allDay": "All day",
+  "allDay": "Todo el día",
   "views": {
-    "month": "Month",
-    "week": "Week",
-    "day": "Day",
+    "month": "Mes",
+    "week": "Semana",
+    "day": "Día",
     "agenda": "Agenda"
   },
   "nav": {
-    "previous": "Previous",
-    "next": "Next"
+    "previous": "Anterior",
+    "next": "Siguiente"
   },
   "actions": {
-    "addEvent": "Add event"
+    "addEvent": "Añadir evento"
   },
   "errors": {
-    "couldNotLoadEvent": "Could not load event"
+    "couldNotLoadEvent": "No se pudo cargar el evento"
   },
   "detail": {
-    "cookingTitle": "Cooking — {title}",
-    "allDayOn": "{date} · All day",
-    "allDayRange": "{start} – {end} · All day",
-    "cookingHint": "Cooking block from the meal planner — change the cook or meal there.",
-    "viewRecipe": "View recipe",
-    "openMealPlanner": "Open meal planner",
-    "fromFeed": "From {name} — imported events can't be edited here.",
-    "imported": "Imported from a calendar subscription — read-only."
+    "cookingTitle": "Cocinar — {title}",
+    "allDayOn": "{date} · Todo el día",
+    "allDayRange": "{start} – {end} · Todo el día",
+    "cookingHint": "Bloque de cocina del planificador de comidas: cambia allí el plato o quién cocina.",
+    "viewRecipe": "Ver receta",
+    "openMealPlanner": "Abrir el planificador",
+    "fromFeed": "De {name}: los eventos importados no se editan aquí.",
+    "imported": "Importado de una suscripción de calendario: solo lectura."
   },
   "agenda": {
-    "empty": "Nothing scheduled in the next 30 days."
+    "empty": "Nada previsto en los próximos 30 días."
   },
   "month": {
-    "more": "+{n} more"
+    "more": "+{n} más"
   },
   "week": {
-    "allDayRow": "all-day"
+    "allDayRow": "todo el día"
   },
   "editor": {
-    "titleNew": "New event",
-    "titleAll": "Edit event",
-    "titleThis": "Edit this occurrence",
-    "titleFuture": "Edit this and future events",
-    "limitedHint": "Only this occurrence changes — time, title, location and notes.",
-    "eventTitle": "Title",
-    "eventTitlePlaceholder": "Soccer practice",
-    "starts": "Starts",
-    "ends": "Ends",
-    "endBeforeStart": "Must end after it starts",
-    "location": "Location",
-    "notes": "Notes",
-    "optionalPlaceholder": "Optional",
-    "attendees": "Who's going",
-    "repeats": "Repeats",
-    "reminder": "Reminder",
+    "titleNew": "Nuevo evento",
+    "titleAll": "Editar evento",
+    "titleThis": "Editar solo este evento",
+    "titleFuture": "Editar este y los siguientes",
+    "limitedHint": "Solo cambia este evento: hora, título, lugar y notas.",
+    "eventTitle": "Título",
+    "eventTitlePlaceholder": "Entrenamiento de fútbol",
+    "starts": "Empieza",
+    "ends": "Termina",
+    "endBeforeStart": "Debe terminar después de empezar",
+    "location": "Lugar",
+    "notes": "Notas",
+    "optionalPlaceholder": "Opcional",
+    "attendees": "Quién va",
+    "repeats": "Repetición",
+    "reminder": "Recordatorio",
     "color": "Color",
-    "colorHelp": "Auto uses the first attendee's color.",
+    "colorHelp": "Auto toma el color de la primera persona.",
     "colorAuto": "Auto",
     "colorSwatch": "Color {color}",
-    "confirmDelete": "Confirm delete?",
+    "confirmDelete": "¿Confirmar?",
     "reminders": {
-      "none": "No reminder",
-      "min5": "5 minutes before",
-      "min15": "15 minutes before",
-      "min30": "30 minutes before",
-      "hour1": "1 hour before",
-      "day1": "1 day before"
+      "none": "Sin recordatorio",
+      "min5": "5 minutos antes",
+      "min15": "15 minutos antes",
+      "min30": "30 minutos antes",
+      "hour1": "1 hora antes",
+      "day1": "1 día antes"
     },
     "toast": {
-      "updated": "Event updated",
-      "added": "Event added",
-      "deleted": "Event deleted",
-      "couldNotSave": "Could not save event",
-      "couldNotDelete": "Could not delete event"
+      "updated": "Evento actualizado",
+      "added": "Evento añadido",
+      "deleted": "Evento eliminado",
+      "couldNotSave": "No se pudo guardar el evento",
+      "couldNotDelete": "No se pudo eliminar el evento"
     }
   },
   "scope": {
-    "title": "Edit recurring event",
-    "this": "This event",
-    "future": "This and future events",
-    "all": "All events"
+    "title": "Editar evento recurrente",
+    "this": "Este evento",
+    "future": "Este y los siguientes",
+    "all": "Todos los eventos"
   },
   "repeat": {
-    "every": "Every",
-    "times": "times",
+    "every": "Cada",
+    "times": "veces",
     "presets": {
-      "none": "Does not repeat",
-      "daily": "Daily",
-      "weekly": "Weekly",
-      "monthly": "Monthly",
-      "quarterly": "Quarterly",
-      "yearly": "Yearly",
-      "custom": "Custom…"
+      "none": "No se repite",
+      "daily": "Cada día",
+      "weekly": "Cada semana",
+      "monthly": "Cada mes",
+      "quarterly": "Cada tres meses",
+      "yearly": "Cada año",
+      "custom": "Personalizado…"
     },
     "freq": {
-      "daily": "day(s)",
-      "weekly": "week(s)",
-      "monthly": "month(s)",
-      "yearly": "year(s)"
+      "daily": "día(s)",
+      "weekly": "semana(s)",
+      "monthly": "mes(es)",
+      "yearly": "año(s)"
     },
     "end": {
-      "never": "Never ends",
-      "until": "Ends on date",
-      "count": "Ends after…"
+      "never": "No termina nunca",
+      "until": "Termina en una fecha",
+      "count": "Termina después de…"
     },
     "weekdays": {
-      "su": "S",
-      "mo": "M",
-      "tu": "T",
-      "we": "W",
-      "th": "T",
-      "fr": "F",
+      "su": "D",
+      "mo": "L",
+      "tu": "M",
+      "we": "X",
+      "th": "J",
+      "fr": "V",
       "sa": "S"
     }
   },
   "feeds": {
-    "title": "Calendar feeds",
-    "empty": "Subscribe to school, sports or work calendars — their events show up read-only on the board.",
-    "namePlaceholder": "Name (e.g. School)",
-    "urlPlaceholder": "https://… or webcal://… .ics URL",
-    "add": "Add feed",
-    "refreshNow": "Refresh now",
-    "remove": "Remove feed",
-    "confirmRemove": "Remove the \"{name}\" feed? Its imported events disappear from the calendar.",
+    "title": "Calendarios externos",
+    "empty": "Suscríbete a los calendarios del colegio, del deporte o del trabajo: sus eventos aparecen en el tablón en modo solo lectura.",
+    "namePlaceholder": "Nombre (p. ej. Colegio)",
+    "urlPlaceholder": "URL .ics: https://… o webcal://…",
+    "add": "Añadir calendario",
+    "refreshNow": "Actualizar ahora",
+    "remove": "Quitar calendario",
+    "confirmRemove": "¿Quitar el calendario «{name}»? Sus eventos importados desaparecerán del tablón.",
     "intervals": {
-      "min15": "Every 15 min",
-      "hourly": "Hourly",
-      "hours6": "Every 6 hours",
-      "daily": "Daily"
+      "min15": "Cada 15 min",
+      "hourly": "Cada hora",
+      "hours6": "Cada 6 horas",
+      "daily": "Cada día"
     },
     "status": {
-      "failed": "Last refresh failed",
-      "refreshedAt": "Last refreshed {when}",
-      "never": "Not fetched yet"
+      "failed": "Falló la última actualización",
+      "refreshedAt": "Última actualización: {when}",
+      "never": "Todavía sin descargar"
     },
     "subscribe": {
-      "title": "Subscribe on your phone",
-      "help": "Add this URL as a calendar subscription in Google Calendar or Apple Calendar to see the board's events everywhere. Keep it private — the link is the key.",
-      "copyUrl": "Copy URL",
-      "copyWebcal": "Copy webcal URL"
+      "title": "Suscríbete desde el móvil",
+      "help": "Añade esta URL como suscripción en Google Calendar o Apple Calendar para ver los eventos del tablón en cualquier dispositivo. No la compartas: el enlace es la llave.",
+      "copyUrl": "Copiar URL",
+      "copyWebcal": "Copiar URL webcal"
     },
     "toast": {
-      "couldNotAdd": "Could not add feed",
-      "couldNotAddHelp": "Check the URL and try again.",
-      "couldNotUpdate": "Could not update feed",
-      "refreshFailed": "Refresh failed",
-      "refreshed": "Feed refreshed",
-      "couldNotRemove": "Could not remove feed",
-      "copied": "Copied to clipboard",
-      "couldNotCopy": "Could not copy"
+      "couldNotAdd": "No se pudo añadir el calendario",
+      "couldNotAddHelp": "Revisa la URL e inténtalo otra vez.",
+      "couldNotUpdate": "No se pudo actualizar el calendario",
+      "refreshFailed": "Falló la actualización",
+      "refreshed": "Calendario actualizado",
+      "couldNotRemove": "No se pudo quitar el calendario",
+      "copied": "Copiado al portapapeles",
+      "couldNotCopy": "No se pudo copiar"
     }
   },
   "tile": {
-    "moreToday": "+{n} more today",
-    "empty": "Nothing on the calendar today."
+    "moreToday": "+{n} más hoy",
+    "empty": "Hoy no hay nada en el calendario."
   },
   "recurrence": {
-    "none": "Does not repeat",
-    "daily": "Daily",
-    "dailyEvery": "Every {n} days",
-    "weekly": "Weekly",
-    "weeklyOn": "Weekly on {days}",
-    "weeklyEvery": "Every {n} weeks",
-    "weeklyEveryOn": "Every {n} weeks on {days}",
-    "monthly": "Monthly",
-    "monthlyOnDay": "Monthly on day {day}",
-    "monthlyEvery": "Every {n} months",
-    "monthlyEveryOnDay": "Every {n} months on day {day}",
-    "quarterly": "Quarterly",
-    "quarterlyOnDay": "Quarterly on day {day}",
-    "yearly": "Yearly",
-    "yearlyEvery": "Every {n} years",
-    "times": "{base}, {n} time | {base}, {n} times",
-    "until": "{base} until {date}"
+    "none": "No se repite",
+    "daily": "Cada día",
+    "dailyEvery": "Cada {n} días",
+    "weekly": "Cada semana",
+    "weeklyOn": "Cada semana los {days}",
+    "weeklyEvery": "Cada {n} semanas",
+    "weeklyEveryOn": "Cada {n} semanas los {days}",
+    "monthly": "Cada mes",
+    "monthlyOnDay": "Cada mes el día {day}",
+    "monthlyEvery": "Cada {n} meses",
+    "monthlyEveryOnDay": "Cada {n} meses el día {day}",
+    "quarterly": "Cada tres meses",
+    "quarterlyOnDay": "Cada tres meses el día {day}",
+    "yearly": "Cada año",
+    "yearlyEvery": "Cada {n} años",
+    "times": "{base}, {n} vez | {base}, {n} veces",
+    "until": "{base} hasta el {date}"
   }
 }

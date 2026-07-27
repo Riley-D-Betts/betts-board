@@ -4,7 +4,7 @@ import type { CalendarOccurrence } from '#shared/schemas/events'
 import type { ChoreInstance } from '#shared/schemas/chores'
 import type { WeatherReport } from '~~/server/services/weather/forecast'
 
-const { formatTime } = useDateFormat()
+const { formatTime, formatWeekdayShort } = useDateFormat()
 const { t } = useI18n()
 
 definePageMeta({ layout: 'tv' })
@@ -53,7 +53,7 @@ function timeLabel(occ: CalendarOccurrence) {
 }
 
 function weekdayLabel(date: string) {
-  return parseDateString(date).toLocaleDateString(undefined, { weekday: 'short' })
+  return formatWeekdayShort(parseDateString(date))
 }
 </script>
 

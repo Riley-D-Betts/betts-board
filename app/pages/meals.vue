@@ -2,6 +2,7 @@
 const { state } = useBoardState()
 const toast = useToast()
 const { t } = useI18n()
+const { formatDayMonth, formatWeekdayShort } = useDateFormat()
 
 interface PlanRecipe {
   id: string
@@ -48,8 +49,7 @@ const weekLabel = computed(() => {
   if (weekOffset.value === -1) return t('meals.lastWeek')
   const start = parseDateString(weekStart.value)
   const end = parseDateString(addDaysToDateString(weekStart.value, 6))
-  const fmt = (d: Date) => d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
-  return `${fmt(start)} – ${fmt(end)}`
+  return `${formatDayMonth(start)} – ${formatDayMonth(end)}`
 })
 
 const { data: entries, refresh } = await useFetch<PlanEntry[]>('/api/meal-plan', {
@@ -62,7 +62,7 @@ function cellEntries(date: string, slot: MealSlot) {
 }
 
 function dayLabel(date: string) {
-  return parseDateString(date).toLocaleDateString(undefined, { weekday: 'short' })
+  return formatWeekdayShort(parseDateString(date))
 }
 function dayNumber(date: string) {
   return parseDateString(date).getDate()

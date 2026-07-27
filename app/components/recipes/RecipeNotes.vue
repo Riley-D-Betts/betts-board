@@ -14,6 +14,7 @@ const emit = defineEmits<{ changed: [] }>()
 const { activeProfile, isAdmin } = useBoardState()
 const toast = useToast()
 const { t } = useI18n()
+const { formatDayMonthYear } = useDateFormat()
 
 const draft = ref('')
 const saving = ref(false)
@@ -31,7 +32,7 @@ function timeAgo(value: string | Date) {
   if (hours < 24) return t('recipes.notes.hoursAgo', { n: hours })
   const days = Math.round(hours / 24)
   if (days < 30) return t('recipes.notes.daysAgo', { n: days })
-  return new Date(value).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+  return formatDayMonthYear(new Date(value))
 }
 
 async function addNote() {

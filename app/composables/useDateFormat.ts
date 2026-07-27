@@ -61,6 +61,36 @@ export function useDateFormat() {
     return withLocale(toDateTime(date)).toLocaleString({ month: 'long', year: 'numeric' })
   }
 
+  /** "Jul 23, 2026" — for anything old enough that the year matters. */
+  function formatDayMonthYear(date: Date | string): string {
+    return withLocale(toDateTime(date))
+      .toLocaleString({ month: 'short', day: 'numeric', year: 'numeric' })
+  }
+
+  /** "Thu, Jul 23, 2026" — the day-view heading. */
+  function formatWeekdayDateYear(date: Date | string): string {
+    return withLocale(toDateTime(date))
+      .toLocaleString({ weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
+  }
+
+  /** "Thu, Jul 23, 7:30 AM" — one instant, spelled out. */
+  function formatDateTime(ms: number): string {
+    return withLocale(DateTime.fromMillis(ms))
+      .toLocaleString({ weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+  }
+
+  /**
+   * "6 AM" / "06" — the hour gutter down the side of the week grid.
+   *
+   * Locale-driven rather than a hardcoded 12-hour format: half the world reads
+   * 18:00, and a column of "6 PM" labels is the kind of thing that makes a
+   * translated app still feel foreign.
+   */
+  function formatHour(hour: number): string {
+    return withLocale(DateTime.fromObject({ hour }))
+      .toLocaleString({ hour: 'numeric' })
+  }
+
   /**
    * "3 minutes ago" / "yesterday". Luxon's toRelative, which delegates to
    * Intl.RelativeTimeFormat — so it stays display-only like everything else
@@ -86,6 +116,10 @@ export function useDateFormat() {
     formatWeekdayShort,
     formatWeekdayDate,
     formatMonthYear,
+    formatDayMonthYear,
+    formatWeekdayDateYear,
+    formatDateTime,
+    formatHour,
     formatRelative,
     weekdayNames,
   }

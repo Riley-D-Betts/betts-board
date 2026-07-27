@@ -4,6 +4,7 @@ import type { RewardDef } from '~/components/rewards/RewardCard.vue'
 const { activeProfile } = useBoardState()
 const toast = useToast()
 const { t } = useI18n()
+const { formatDayMonthYear } = useDateFormat()
 
 const canManage = computed(() =>
   activeProfile.value?.role === 'admin' || activeProfile.value?.role === 'adult')
@@ -86,7 +87,7 @@ function timeAgo(epochMs: number) {
   if (hours < 24) return t('rewards.recent.hoursAgo', { n: hours })
   const days = Math.round(hours / 24)
   if (days < 30) return t('rewards.recent.daysAgo', { n: days })
-  return new Date(epochMs).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+  return formatDayMonthYear(new Date(epochMs))
 }
 </script>
 

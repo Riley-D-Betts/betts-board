@@ -22,6 +22,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+const { formatWeekdayDate } = useDateFormat()
 
 const { state } = useBoardState()
 const cookItems = computed(() => [
@@ -51,9 +52,7 @@ const { data: recipes } = await useFetch<PickerRecipe[]>('/api/recipes', {
 const recipeList = computed(() => (Array.isArray(recipes.value) ? recipes.value : []))
 
 const title = computed(() => {
-  const day = parseDateString(props.date).toLocaleDateString(undefined, {
-    weekday: 'long', month: 'short', day: 'numeric',
-  })
+  const day = formatWeekdayDate(parseDateString(props.date))
   return t('meals.picker.title', { slot: t(`meals.slots.${props.mealSlot}`), day })
 })
 
