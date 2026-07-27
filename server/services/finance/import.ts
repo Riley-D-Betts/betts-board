@@ -8,6 +8,7 @@ import {
 } from './parseFile'
 import { applyRules, listRules } from './rules'
 import { dedupeHashFor } from './transactions'
+import { setSplits, singleSplit } from './splits'
 
 export interface ImportCandidate extends ParsedRow {
   index: number
@@ -157,7 +158,7 @@ export function commitImport(db: Db, args: {
     })
 
     try {
-      db.insert(financeTransactions).values({
+      const created = db.insert(financeTransactions).values({
         householdId: args.householdId,
         accountId: account.id,
         // NOT stored as externalId: that column is scoped to bank sync, and a
@@ -173,8 +174,6 @@ export function commitImport(db: Db, args: {
         payee: row.payee ?? effect?.payee ?? null,
         memo: row.memo ?? null,
         pending: false,
-        categoryId: effect?.categoryId ?? null,
-        categorizedBy: effect?.categoryId ? 'import' : null,
         source: 'import',
         importBatchId: batch.id,
         dedupeHash: dedupeHashFor({
@@ -184,7 +183,13 @@ export function commitImport(db: Db, args: {
           description: row.description,
         }),
         createdByProfileId: args.profileId,
-      }).run()
+      }).returning().get()
+
+      setSplits(db, created.id, created.amountMinor, singleSplit({
+        amountMinor: created.amountMinor,
+        categoryId: effect?.categoryId ?? null,
+        categorizedBy: 'import',
+      }))
       imported++
     }
     catch {

@@ -1,6 +1,6 @@
 import { and, asc, eq, isNull } from 'drizzle-orm'
 import type { Db } from '../../db/client'
-import { financeCategories, financeTransactions } from '../../db/schema'
+import { financeCategories, financeTransactionSplits } from '../../db/schema'
 
 /**
  * Seeded on first finance setup so the ledger is usable immediately — an empty
@@ -95,8 +95,8 @@ export function deleteCategory(db: Db, householdId: string, id: string): { archi
     .where(and(eq(financeCategories.id, id), eq(financeCategories.householdId, householdId))).get()
   if (!row) throw createError({ statusCode: 404, statusMessage: 'Category not found' })
 
-  const used = db.select({ id: financeTransactions.id }).from(financeTransactions)
-    .where(eq(financeTransactions.categoryId, id)).limit(1).get()
+  const used = db.select({ id: financeTransactionSplits.id }).from(financeTransactionSplits)
+    .where(eq(financeTransactionSplits.categoryId, id)).limit(1).get()
   if (used) {
     db.update(financeCategories).set({ archivedAt: new Date() }).where(eq(financeCategories.id, id)).run()
     return { archived: true }

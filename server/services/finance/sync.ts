@@ -5,6 +5,7 @@ import type { Db } from '../../db/client'
 import { financeAccounts, financeConnections, financeTransactions } from '../../db/schema'
 import { decryptSecret, encryptSecret } from '../../utils/crypto'
 import { dedupeHashFor } from './transactions'
+import { rebalanceSplits, setSplits, singleSplit } from './splits'
 import { applyRules, listRules } from './rules'
 import {
   INITIAL_HISTORY_DAYS, SYNC_OVERLAP_DAYS, SimpleFinReauthError,
@@ -233,6 +234,12 @@ export function ingestAccount(
           postedAt: txn.postedAt,
           postedDate,
         }).where(eq(financeTransactions.id, existing.id)).run()
+        // The categorisation is left alone — that is the promise a re-sync
+        // makes — but the LINES have to keep summing to the amount, and the
+        // bank just changed it. Nothing else touches them.
+        if (existing.amountMinor !== txn.amountMinor) {
+          rebalanceSplits(db, existing.id, txn.amountMinor)
+        }
         updated++
       }
       continue
@@ -245,7 +252,7 @@ export function ingestAccount(
       accountId,
     })
 
-    db.insert(financeTransactions).values({
+    const created = db.insert(financeTransactions).values({
       householdId: connection.householdId,
       accountId,
       externalId: txn.id,
@@ -258,11 +265,18 @@ export function ingestAccount(
       payee: txn.payee ?? effect?.payee ?? null,
       memo: txn.memo,
       pending: txn.pending,
-      categoryId: effect?.categoryId ?? null,
-      categorizedBy: effect?.categoryId ? 'rule' : null,
       source: 'sync',
       dedupeHash: dedupeHashFor({ accountId, postedDate, amountMinor: txn.amountMinor, description: txn.description }),
-    }).run()
+    }).returning().get()
+
+    // One line carrying the whole amount. Re-syncing an existing transaction
+    // never touches its splits, so a receipt somebody divided by hand survives
+    // every future sync — same guarantee the old categoryId column had.
+    setSplits(db, created.id, created.amountMinor, singleSplit({
+      amountMinor: created.amountMinor,
+      categoryId: effect?.categoryId ?? null,
+      categorizedBy: 'rule',
+    }))
     inserted++
   }
 

@@ -304,5 +304,23 @@
     "synced": "Synced",
     "locked": "Money locked",
     "pinSet": "PIN set — unlock with it now"
+  },
+  "splits": {
+    "title": "Split across categories",
+    "subtitle": "{description} · {amount}",
+    "help": "Give each part of this receipt its own category. The parts have to add up to the whole.",
+    "line": "Line {n}",
+    "addLine": "Add a line",
+    "removeLine": "Remove this line",
+    "note": "Note",
+    "notePlaceholder": "Emma's shoes",
+    "remaining": "{amount} left to assign",
+    "over": "{amount} too much assigned",
+    "balanced": "Adds up exactly",
+    "assign": "Use the rest",
+    "badge": "{n} categories",
+    "edit": "Split",
+    "splitLocked": "Split across categories — open the split editor to change it.",
+    "saved": "Split saved"
   }
 }

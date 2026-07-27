@@ -9,6 +9,13 @@ const route = useRoute()
 
 const NO_FILTER = 'all'
 
+interface TxnSplit {
+  categoryId: string | null
+  categoryName: string | null
+  amountMinor: number
+  note: string | null
+}
+
 interface TxnItem {
   id: string
   accountId: string
@@ -19,6 +26,10 @@ interface TxnItem {
   description: string
   payee: string | null
   pending: boolean
+  splits: TxnSplit[]
+  /** True once a person has actually divided it up. */
+  isSplit: boolean
+  /** Derived server-side: the single split's category, null when split. */
   categoryId: string | null
   categoryName: string | null
   categoryIcon: string | null
@@ -86,6 +97,20 @@ async function setCategory(txn: TxnItem, value: string) {
     body: { categoryId: value === NO_FILTER ? null : value },
   })
   await refresh()
+}
+
+// ── Split ────────────────────────────────────────────────────────────────
+const splitOpen = ref(false)
+const splitting = ref<TxnItem | null>(null)
+
+function openSplit(txn: TxnItem) {
+  splitting.value = txn
+  splitOpen.value = true
+}
+
+async function onSplitSaved() {
+  await refresh()
+  bumpDataTick()
 }
 
 // ── Add ──────────────────────────────────────────────────────────────────
@@ -185,14 +210,38 @@ async function create() {
                 </span>
               </div>
 
-              <USelect
-                :model-value="txn.categoryId ?? NO_FILTER"
-                :items="categoryItems"
-                size="sm"
-                class="mt-2 w-full sm:mt-0 sm:w-40 sm:shrink-0"
-                :aria-label="$t('finance.transactions.category')"
-                @update:model-value="(v: string) => setCategory(txn, v)"
-              />
+              <div class="mt-2 flex items-center gap-1 sm:mt-0 sm:w-48 sm:shrink-0">
+                <!-- A split row shows what it was split into rather than a
+                     picker: choosing a category there would silently collapse
+                     the lines somebody made by hand. -->
+                <UBadge
+                  v-if="txn.isSplit"
+                  color="neutral"
+                  variant="subtle"
+                  class="min-w-0 flex-1 justify-center truncate"
+                  :title="txn.splits.map(s => s.categoryName ?? $t('finance.transactions.uncategorized')).join(' · ')"
+                >
+                  {{ $t('finance.splits.badge', { n: txn.splits.length }) }}
+                </UBadge>
+                <USelect
+                  v-else
+                  :model-value="txn.categoryId ?? NO_FILTER"
+                  :items="categoryItems"
+                  size="sm"
+                  class="min-w-0 flex-1"
+                  :aria-label="$t('finance.transactions.category')"
+                  @update:model-value="(v: string) => setCategory(txn, v)"
+                />
+                <UButton
+                  icon="i-lucide-split"
+                  size="sm"
+                  color="neutral"
+                  variant="ghost"
+                  class="shrink-0"
+                  :aria-label="$t('finance.splits.edit')"
+                  @click="openSplit(txn)"
+                />
+              </div>
 
               <span
                 class="hidden w-24 shrink-0 text-right text-sm font-semibold tabular-nums sm:inline"
@@ -218,6 +267,14 @@ async function create() {
         </p>
       </UCard>
     </div>
+
+    <FinanceSplitEditor
+      v-if="splitting"
+      v-model:open="splitOpen"
+      :transaction="splitting"
+      :categories="categories ?? []"
+      @saved="onSplitSaved"
+    />
 
     <UModal v-model:open="addOpen" :title="$t('finance.transactions.add')">
       <template #body>

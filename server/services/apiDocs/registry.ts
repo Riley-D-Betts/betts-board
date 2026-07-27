@@ -1217,7 +1217,7 @@ export const routeRegistry: RouteDoc[] = [
     tags: ['Finance'],
     auth: 'finance',
     querySchema: financeTransactionQuerySchema,
-    responseDescription: '`{ total, items }`. The date window is half-open: `start` inclusive, `end` exclusive.',
+    responseDescription: '`{ total, items }`. The date window is half-open: `start` inclusive, `end` exclusive. Each item carries its `splits` array; `categoryId` is derived from it and is null when a transaction is genuinely split. Filtering by `categoryId` matches a transaction with *any* line in that category.',
   },
   {
     method: 'post',
@@ -1226,7 +1226,7 @@ export const routeRegistry: RouteDoc[] = [
     tags: ['Finance'],
     auth: 'finance',
     requestSchema: financeTransactionCreateSchema,
-    responseDescription: 'The created row. Categorisation rules run on manual entries too.',
+    responseDescription: 'The created row. Categorisation rules run on manual entries too. Send `splits` to divide it across categories — the lines must sum to `amountMinor` exactly and all point the same way as it.',
   },
   {
     method: 'patch',
@@ -1236,7 +1236,7 @@ export const routeRegistry: RouteDoc[] = [
     auth: 'finance',
     requestSchema: financeTransactionPatchSchema,
     pathParams: ['id'],
-    responseDescription: 'The updated row. Editing the amount or date of a synced transaction is a `400` — the next sync would overwrite it. A category set here is marked user-chosen and survives every later rule run.',
+    responseDescription: 'The updated row. Editing the amount or date of a synced transaction is a `400` — the next sync would overwrite it. A category set here is marked user-chosen and survives every later rule run. `splits` replaces the whole set and must sum to the amount after this patch; sending `categoryId` or a new `amountMinor` for an already-split transaction is a `400` rather than a silent collapse of somebody\'s lines.',
   },
   {
     method: 'delete',
