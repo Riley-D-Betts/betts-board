@@ -38,6 +38,30 @@ describe('parseOfx', () => {
     expect(result.rows[0]!.description).toBe('Uncle Frank\'s Bait Shop')
   })
 
+  it.each([
+    ['&amp;', '&'],
+    ['&lt;', '<'],
+    ['&gt;', '>'],
+    ['&quot;', '"'],
+    ['&apos;', '\''],
+    ['&#39;', '\''],
+    ['&#x27;', '\''],
+    ['B&amp;Q', 'B&Q'],
+    // The one that matters: decoding must not re-read its own output.
+    // A chain of .replace() calls turns this into "<", losing the fact that
+    // the statement contained the literal text "&lt;".
+    ['&amp;lt;', '&lt;'],
+    ['&amp;amp;', '&amp;'],
+    // Unknown or malformed entities are left alone rather than mangled.
+    ['&nosuch;', '&nosuch;'],
+    ['R&D', 'R&D'],
+    ['&#999999999;', '&#999999999;'],
+  ])('decodes %j to %j exactly once', (input, expected) => {
+    const xml = `<OFX><BANKTRANLIST><STMTTRN><DTPOSTED>20260105</DTPOSTED>`
+      + `<TRNAMT>-1.00</TRNAMT><FITID>e</FITID><NAME>${input}</NAME></STMTTRN></BANKTRANLIST></OFX>`
+    expect(parseOfx(xml).rows[0]!.description).toBe(expected)
+  })
+
   it('keeps the FITID for exact dedup', () => {
     expect(result.rows[0]!.externalId).toBe('202601050001')
   })

@@ -39,14 +39,36 @@ function ofxValue(block: string, tag: string): string | null {
   return value ? decodeEntities(value) : null
 }
 
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: '\'',
+}
+
+/**
+ * ONE pass, deliberately — not a chain of .replace() calls.
+ *
+ * Replacing `&amp;` first and `&lt;` second means "&amp;lt;" decodes to "<",
+ * when it should decode to the literal text "&lt;": the second replace sees
+ * the ampersand the first one just produced. A single scan consumes each
+ * `&…;` exactly once and never re-reads its own output.
+ */
 function decodeEntities(value: string): string {
-  return value
-    .replace(/&amp;/gi, '&')
-    .replace(/&lt;/gi, '<')
-    .replace(/&gt;/gi, '>')
-    .replace(/&quot;/gi, '"')
-    .replace(/&apos;|&#39;/gi, '\'')
-    .replace(/&#(\d+);/g, (_m, code: string) => String.fromCodePoint(Number(code)))
+  return value.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (match, body: string) => {
+    const lower = body.toLowerCase()
+    if (lower.startsWith('#')) {
+      const code = lower.startsWith('#x')
+        ? Number.parseInt(lower.slice(2), 16)
+        : Number(lower.slice(1))
+      // Anything outside the Unicode range would make fromCodePoint throw;
+      // leave the original text rather than lose the row.
+      if (!Number.isInteger(code) || code < 0 || code > 0x10FFFF) return match
+      return String.fromCodePoint(code)
+    }
+    return NAMED_ENTITIES[lower] ?? match
+  })
 }
 
 /**
