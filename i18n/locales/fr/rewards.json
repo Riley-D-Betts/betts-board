@@ -1,0 +1,46 @@
+{
+  "title": "Rewards",
+  "manage": "Manage",
+  "done": "Done",
+  "myStars": "{name}'s stars",
+  "newReward": "New reward",
+  "redeem": "Redeem",
+  "emptyManage": "No rewards yet — add something worth saving up for.",
+  "addFirst": "Add the first reward",
+  "empty": "No rewards yet. Ask a parent to add some rewards!",
+  "removeConfirm": "Remove \"{title}\"? Past redemptions are kept.",
+  "couldNotRemove": "Could not remove reward",
+  "notEnoughStars": "Not enough stars",
+  "couldNotRedeem": "Could not redeem reward",
+  "redeemed": {
+    "title": "🎉 {emoji} {title} is yours!",
+    "description": "{n} star well spent, {name}. | {n} stars well spent, {name}."
+  },
+  "card": {
+    "remove": "Remove {title}",
+    "needMore": "Need {n} more ⭐"
+  },
+  "recent": {
+    "title": "Recent redemptions",
+    "justNow": "just now",
+    "minutesAgo": "{n}m ago",
+    "hoursAgo": "{n}h ago",
+    "daysAgo": "{n}d ago"
+  },
+  "confirm": {
+    "title": "Redeem reward",
+    "spend": "Spend {n} star on {title}? | Spend {n} stars on {title}?",
+    "remaining": "You'll have {n} ⭐ left."
+  },
+  "editor": {
+    "editTitle": "Edit reward",
+    "title": "Title",
+    "titlePlaceholder": "Ice cream trip",
+    "cost": "Cost in stars",
+    "description": "Description",
+    "descriptionPlaceholder": "One scoop at the shop downtown",
+    "saveChanges": "Save changes",
+    "create": "Add reward",
+    "couldNotSave": "Could not save reward"
+  }
+}

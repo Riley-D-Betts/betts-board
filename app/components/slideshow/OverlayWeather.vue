@@ -25,7 +25,7 @@ watch(useWeatherTick(), load) // settings changed (unit/location) → refetch no
         {{ Math.round(weather.current.temperature) }}°
       </p>
       <p v-if="weather.daily[0]" class="mt-1 text-sm opacity-90">
-        {{ weather.current.label }} · H {{ Math.round(weather.daily[0].tempMax) }}° L {{ Math.round(weather.daily[0].tempMin) }}°
+        {{ weather.current.label }} · {{ $t('photos.overlay.hiLo', { high: Math.round(weather.daily[0].tempMax), low: Math.round(weather.daily[0].tempMin) }) }}
       </p>
     </div>
     <UIcon :name="weather.current.icon" class="size-12 shrink-0" />

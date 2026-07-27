@@ -5,6 +5,7 @@ import type { ChoreInstance } from '#shared/schemas/chores'
 import type { WeatherReport } from '~~/server/services/weather/forecast'
 
 const { formatTime } = useDateFormat()
+const { t } = useI18n()
 
 definePageMeta({ layout: 'tv' })
 
@@ -47,7 +48,7 @@ const { data: choreBoard } = await useAsyncData('tv-chores-today', async () => {
 }, { default: () => [] })
 
 function timeLabel(occ: CalendarOccurrence) {
-  if (occ.isAllDay) return 'All day'
+  if (occ.isAllDay) return t('tv.agenda.allDay')
   return formatTime(occ.start, timezone.value)
 }
 
@@ -67,7 +68,7 @@ function weekdayLabel(date: string) {
       </section>
 
       <!-- Weather (3-day) -->
-      <TvSection heading="Weather">
+      <TvSection :heading="$t('tv.weather.heading')">
         <div v-if="weather" class="mt-3 space-y-4">
           <div class="flex items-center gap-4">
             <UIcon :name="weather.current.icon" class="size-14 shrink-0" />
@@ -85,7 +86,7 @@ function weekdayLabel(date: string) {
               class="tv-chip rounded-xl p-3 text-center"
             >
               <p class="tv-muted text-xs font-medium">
-                {{ day.date === today ? 'Today' : weekdayLabel(day.date) }}
+                {{ day.date === today ? $t('common.actions.today') : weekdayLabel(day.date) }}
               </p>
               <UIcon :name="day.icon" class="my-1 size-7" :title="day.label" />
               <p class="text-sm tabular-nums">
@@ -95,12 +96,12 @@ function weekdayLabel(date: string) {
           </div>
         </div>
         <p v-else class="tv-muted mt-3 text-sm">
-          Set a weather location in Settings to see the forecast.
+          {{ $t('tv.weather.noLocation') }}
         </p>
       </TvSection>
 
       <!-- Today's agenda -->
-      <TvSection heading="Today">
+      <TvSection :heading="$t('common.actions.today')">
         <ul v-if="agenda.length" class="mt-3 space-y-2">
           <li v-for="occ in agenda.slice(0, 5)" :key="occ.occurrenceId" class="flex items-center gap-3">
             <span class="h-6 w-1.5 shrink-0 rounded-full" :style="{ backgroundColor: occ.color }" />
@@ -108,14 +109,14 @@ function weekdayLabel(date: string) {
             <span class="tv-muted shrink-0 text-sm">{{ timeLabel(occ) }}</span>
           </li>
           <li v-if="agenda.length > 5" class="tv-muted text-sm">
-            +{{ agenda.length - 5 }} more
+            {{ $t('tv.moreCount', { n: agenda.length - 5 }) }}
           </li>
         </ul>
-        <p v-else class="tv-muted mt-3 text-sm">Nothing on the calendar today.</p>
+        <p v-else class="tv-muted mt-3 text-sm">{{ $t('tv.agenda.empty') }}</p>
       </TvSection>
 
       <!-- Today's chores -->
-      <TvSection heading="Chores">
+      <TvSection :heading="$t('common.nav.chores')">
         <ul v-if="choreBoard.length" class="mt-3 space-y-2">
           <li
             v-for="i in choreBoard.slice(0, 6)"
@@ -133,20 +134,20 @@ function weekdayLabel(date: string) {
             <span class="shrink-0 text-sm" :style="{ color: i.profileColor }">{{ i.profileName }}</span>
           </li>
           <li v-if="choreBoard.length > 6" class="tv-muted text-sm">
-            +{{ choreBoard.length - 6 }} more
+            {{ $t('tv.moreCount', { n: choreBoard.length - 6 }) }}
           </li>
         </ul>
-        <p v-else class="tv-muted mt-3 text-sm">No chores due today.</p>
+        <p v-else class="tv-muted mt-3 text-sm">{{ $t('tv.chores.empty') }}</p>
       </TvSection>
     </div>
 
     <!-- D-pad focusable footer, in DOM order -->
     <div class="flex flex-wrap gap-4">
       <UButton to="/tv/slideshow" icon="i-lucide-images" size="xl">
-        Slideshow
+        {{ $t('tv.actions.slideshow') }}
       </UButton>
       <UButton to="/" icon="i-lucide-door-open" size="xl" variant="soft" color="neutral">
-        Exit TV mode
+        {{ $t('tv.actions.exitTvMode') }}
       </UButton>
     </div>
   </div>

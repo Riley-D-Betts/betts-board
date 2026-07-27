@@ -4,6 +4,7 @@ import { DateTime } from 'luxon'
 import type { CalendarOccurrence } from '#shared/schemas/events'
 
 const { formatTime } = useDateFormat()
+const { t } = useI18n()
 
 const { state } = useBoardState()
 const timezone = computed(() => state.value?.timezone ?? 'UTC')
@@ -34,7 +35,7 @@ const upcoming = computed(() =>
   occurrences.value.filter(o => o.start > todayEnd.value).slice(0, 3))
 
 function timeLabel(occ: CalendarOccurrence) {
-  if (occ.isAllDay) return 'All day'
+  if (occ.isAllDay) return t('photos.overlay.allDay')
   return formatTime(occ.start, timezone.value)
 }
 
@@ -46,7 +47,7 @@ function dayLabel(occ: CalendarOccurrence) {
 <template>
   <div v-if="today.length || upcoming.length" class="max-w-xs space-y-3 text-right">
     <div v-if="today.length">
-      <p class="text-xs font-semibold uppercase tracking-widest opacity-75">Today</p>
+      <p class="text-xs font-semibold uppercase tracking-widest opacity-75">{{ $t('common.actions.today') }}</p>
       <ul class="mt-1 space-y-1">
         <li v-for="occ in today" :key="occ.occurrenceId" class="text-sm leading-snug">
           <span class="font-medium">{{ occ.title }}</span>
@@ -55,7 +56,7 @@ function dayLabel(occ: CalendarOccurrence) {
       </ul>
     </div>
     <div v-if="upcoming.length">
-      <p class="text-xs font-semibold uppercase tracking-widest opacity-75">Coming up</p>
+      <p class="text-xs font-semibold uppercase tracking-widest opacity-75">{{ $t('photos.overlay.comingUp') }}</p>
       <ul class="mt-1 space-y-1">
         <li v-for="occ in upcoming" :key="occ.occurrenceId" class="text-sm leading-snug">
           <span class="font-medium">{{ occ.title }}</span>

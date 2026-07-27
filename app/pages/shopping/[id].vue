@@ -19,6 +19,7 @@ interface ListDetail {
 const route = useRoute()
 const listId = route.params.id as string
 const toast = useToast()
+const { t } = useI18n()
 
 const { data: list, refresh } = await useFetch<ListDetail>(`/api/shopping-lists/${listId}`)
 
@@ -67,7 +68,7 @@ async function addItem() {
     await refresh()
   }
   catch {
-    toast.add({ title: 'Could not add the item', color: 'error' })
+    toast.add({ title: t('shopping.errors.couldNotAddItem'), color: 'error' })
   }
   finally {
     adding.value = false
@@ -83,7 +84,7 @@ async function toggle(item: Item) {
     await refresh()
   }
   catch {
-    toast.add({ title: 'Could not update the item', color: 'error' })
+    toast.add({ title: t('shopping.errors.couldNotUpdateItem'), color: 'error' })
   }
 }
 
@@ -113,7 +114,7 @@ async function saveEdit() {
     await refresh()
   }
   catch {
-    toast.add({ title: 'Could not save the item', color: 'error' })
+    toast.add({ title: t('shopping.errors.couldNotSaveItem'), color: 'error' })
   }
   finally {
     savingEdit.value = false
@@ -126,7 +127,7 @@ async function deleteEditItem() {
     await refresh()
   }
   catch {
-    toast.add({ title: 'Could not delete the item', color: 'error' })
+    toast.add({ title: t('shopping.errors.couldNotDeleteItem'), color: 'error' })
   }
 }
 
@@ -143,14 +144,14 @@ async function clearChecked(toPantry: boolean) {
     clearOpen.value = false
     toast.add({
       title: toPantry
-        ? `Put ${res.toPantry} item${res.toPantry === 1 ? '' : 's'} away to the pantry`
-        : `Cleared ${res.cleared} item${res.cleared === 1 ? '' : 's'}`,
+        ? t('shopping.clearChecked.putAwayDone', res.toPantry)
+        : t('shopping.clearedCount', res.cleared),
       color: 'success',
     })
     await refresh()
   }
   catch {
-    toast.add({ title: 'Could not clear checked items', color: 'error' })
+    toast.add({ title: t('shopping.errors.couldNotClearChecked'), color: 'error' })
   }
   finally {
     clearing.value = false
@@ -165,11 +166,11 @@ async function clearAll() {
   try {
     const res = await $fetch<{ removed: number }>(`/api/shopping-lists/${listId}/clear`, { method: 'POST' })
     clearAllOpen.value = false
-    toast.add({ title: `Cleared ${res.removed} item${res.removed === 1 ? '' : 's'}`, color: 'success' })
+    toast.add({ title: t('shopping.clearedCount', res.removed), color: 'success' })
     await refresh()
   }
   catch {
-    toast.add({ title: 'Could not clear the list', color: 'error' })
+    toast.add({ title: t('shopping.errors.couldNotClearList'), color: 'error' })
   }
   finally {
     clearingAll.value = false
@@ -182,9 +183,9 @@ const totalItems = computed(() => (list.value?.items ?? []).length)
 <template>
   <div class="space-y-4">
     <div class="flex items-center gap-2">
-      <UButton to="/shopping" icon="i-lucide-arrow-left" variant="ghost" color="neutral" aria-label="All lists" />
-      <h1 class="min-w-0 flex-1 truncate text-2xl font-bold">{{ list?.name ?? 'List' }}</h1>
-      <UBadge v-if="list?.isDefault" variant="soft" size="sm">default</UBadge>
+      <UButton to="/shopping" icon="i-lucide-arrow-left" variant="ghost" color="neutral" :aria-label="$t('shopping.allLists')" />
+      <h1 class="min-w-0 flex-1 truncate text-2xl font-bold">{{ list?.name ?? $t('shopping.untitledList') }}</h1>
+      <UBadge v-if="list?.isDefault" variant="soft" size="sm">{{ $t('shopping.defaultBadge') }}</UBadge>
       <UButton
         v-if="totalItems"
         variant="soft"
@@ -193,21 +194,20 @@ const totalItems = computed(() => (list.value?.items ?? []).length)
         icon="i-lucide-eraser"
         @click="clearAllOpen = true"
       >
-        Clear
+        {{ $t('shopping.clear') }}
       </UButton>
     </div>
 
     <!-- Clear entire list confirm -->
-    <UModal v-model:open="clearAllOpen" title="Clear this list">
+    <UModal v-model:open="clearAllOpen" :title="$t('shopping.clearList.title')">
       <template #body>
         <div class="space-y-4">
           <p class="text-sm text-slate-600 dark:text-slate-300">
-            Remove all {{ totalItems }} item{{ totalItems === 1 ? '' : 's' }} from
-            “{{ list?.name }}” — checked and unchecked? The list itself stays.
+            {{ $t('shopping.clearList.confirm', { n: totalItems, name: list?.name ?? '' }, totalItems) }}
           </p>
           <div class="flex gap-2">
-            <UButton color="error" :loading="clearingAll" @click="clearAll">Clear everything</UButton>
-            <UButton variant="soft" color="neutral" @click="clearAllOpen = false">Cancel</UButton>
+            <UButton color="error" :loading="clearingAll" @click="clearAll">{{ $t('shopping.clearList.cta') }}</UButton>
+            <UButton variant="soft" color="neutral" @click="clearAllOpen = false">{{ $t('common.actions.cancel') }}</UButton>
           </div>
         </div>
       </template>
@@ -221,16 +221,16 @@ const totalItems = computed(() => (list.value?.items ?? []).length)
       <UInput
         v-model="quickAdd"
         icon="i-lucide-plus"
-        placeholder="Add — “2 lbs chicken”, “paper towels”…"
+        :placeholder="$t('shopping.items.quickAddPlaceholder')"
         class="flex-1"
         size="lg"
       />
-      <UButton type="submit" size="lg" :loading="adding" :disabled="!quickAdd.trim()">Add</UButton>
+      <UButton type="submit" size="lg" :loading="adding" :disabled="!quickAdd.trim()">{{ $t('common.actions.add') }}</UButton>
     </form>
 
     <div v-if="!groups.length && !checkedItems.length" class="py-12 text-center text-slate-500 dark:text-slate-400">
       <UIcon name="i-lucide-shopping-basket" class="mb-2 size-10" />
-      <p>Nothing to buy. Add items above or generate from your meal plan.</p>
+      <p>{{ $t('shopping.items.empty') }}</p>
     </div>
 
     <!-- Unchecked, grouped by aisle -->
@@ -245,7 +245,7 @@ const totalItems = computed(() => (list.value?.items ?? []).length)
             icon="i-lucide-pencil"
             variant="ghost"
             color="neutral"
-            :aria-label="`Edit ${item.name}`"
+            :aria-label="$t('shopping.items.editAria', { name: item.name })"
             @click="openEdit(item)"
           />
         </div>
@@ -260,10 +260,10 @@ const totalItems = computed(() => (list.value?.items ?? []).length)
           @click="showChecked = !showChecked"
         >
           <UIcon :name="showChecked ? 'i-lucide-chevron-down' : 'i-lucide-chevron-right'" class="size-4" />
-          Checked ({{ checkedItems.length }})
+          {{ $t('shopping.checked', { n: checkedItems.length }) }}
         </button>
         <UButton variant="soft" color="neutral" size="sm" icon="i-lucide-trash-2" @click="clearOpen = true">
-          Clear
+          {{ $t('shopping.clear') }}
         </UButton>
       </div>
       <div
@@ -280,23 +280,23 @@ const totalItems = computed(() => (list.value?.items ?? []).length)
     </section>
 
     <!-- Edit item -->
-    <UModal v-model:open="editOpen" title="Edit item">
+    <UModal v-model:open="editOpen" :title="$t('shopping.editor.title')">
       <template #body>
         <div class="space-y-4">
-          <UFormField label="Name">
+          <UFormField :label="$t('shopping.editor.name')">
             <UInput v-model="editForm.name" class="w-full" />
           </UFormField>
-          <UFormField label="Quantity" help="Free text — “2 lbs”, “1½ cups + 2 tbsp”">
+          <UFormField :label="$t('shopping.editor.quantity')" :help="$t('shopping.editor.quantityHelp')">
             <UInput v-model="editForm.displayQuantity" class="w-full" />
           </UFormField>
-          <UFormField label="Aisle">
+          <UFormField :label="$t('shopping.editor.aisle')">
             <USelect v-model="editForm.category" :items="CATEGORY_ORDER" class="w-full" />
           </UFormField>
           <div class="flex gap-2">
-            <UButton :loading="savingEdit" :disabled="!editForm.name.trim()" @click="saveEdit">Save</UButton>
-            <UButton variant="soft" color="neutral" @click="editOpen = false">Cancel</UButton>
+            <UButton :loading="savingEdit" :disabled="!editForm.name.trim()" @click="saveEdit">{{ $t('common.actions.save') }}</UButton>
+            <UButton variant="soft" color="neutral" @click="editOpen = false">{{ $t('common.actions.cancel') }}</UButton>
             <UButton variant="ghost" color="error" icon="i-lucide-trash-2" class="ml-auto" @click="deleteEditItem">
-              Delete
+              {{ $t('common.actions.delete') }}
             </UButton>
           </div>
         </div>
@@ -304,21 +304,20 @@ const totalItems = computed(() => (list.value?.items ?? []).length)
     </UModal>
 
     <!-- Clear checked confirm -->
-    <UModal v-model:open="clearOpen" title="Clear checked items">
+    <UModal v-model:open="clearOpen" :title="$t('shopping.clearChecked.title')">
       <template #body>
         <div class="space-y-4">
           <p class="text-sm text-slate-600 dark:text-slate-300">
-            Put the {{ checkedItems.length }} checked item{{ checkedItems.length === 1 ? '' : 's' }}
-            away to the pantry so meal planning knows you have them?
+            {{ $t('shopping.clearChecked.confirm', checkedItems.length) }}
           </p>
           <div class="flex flex-col gap-2">
             <UButton icon="i-lucide-package" :loading="clearing" block @click="clearChecked(true)">
-              Put away to pantry
+              {{ $t('shopping.clearChecked.putAway') }}
             </UButton>
             <UButton variant="soft" color="neutral" :loading="clearing" block @click="clearChecked(false)">
-              Just clear
+              {{ $t('shopping.clearChecked.justClear') }}
             </UButton>
-            <UButton variant="ghost" color="neutral" block @click="clearOpen = false">Cancel</UButton>
+            <UButton variant="ghost" color="neutral" block @click="clearOpen = false">{{ $t('common.actions.cancel') }}</UButton>
           </div>
         </div>
       </template>

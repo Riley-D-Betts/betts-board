@@ -2,6 +2,7 @@
 import type { FeedbackStatus } from '#shared/schemas/feedback'
 
 const toast = useToast()
+const { t } = useI18n()
 const { data: status, refresh } = await useFetch<FeedbackStatus>('/api/feedback/status')
 
 const repo = ref(status.value?.repo ?? '')
@@ -15,7 +16,7 @@ const repoValid = computed(() => /^[\w.-]+\/[\w.-]+$/.test(repo.value.trim()))
 
 async function save() {
   if (!repoValid.value) {
-    toast.add({ title: 'Repo must look like owner/repo', color: 'error' })
+    toast.add({ title: t('feedback.settings.errors.invalidRepo'), color: 'error' })
     return
   }
   saving.value = true
@@ -31,11 +32,11 @@ async function save() {
     token.value = ''
     testResult.value = null
     await refresh()
-    toast.add({ title: 'Feedback settings saved', color: 'success' })
+    toast.add({ title: t('feedback.settings.saved'), color: 'success' })
   }
   catch (err) {
     const e = err as { data?: { statusMessage?: string } }
-    toast.add({ title: e.data?.statusMessage ?? 'Could not save feedback settings', color: 'error' })
+    toast.add({ title: e.data?.statusMessage ?? t('feedback.settings.errors.couldNotSave'), color: 'error' })
   }
   finally {
     saving.value = false
@@ -47,15 +48,15 @@ async function testConnection() {
   testResult.value = null
   try {
     const res = await $fetch<{ ok: true, repoFullName: string }>('/api/feedback/test', { method: 'POST' })
-    testResult.value = { ok: true, message: `Connected to ${res.repoFullName}` }
+    testResult.value = { ok: true, message: t('feedback.settings.testOk', { repo: res.repoFullName }) }
   }
   catch (err) {
     const e = err as { statusCode?: number, data?: { statusMessage?: string } }
     testResult.value = {
       ok: false,
       message: e.statusCode === 409
-        ? 'Save a repo and token first'
-        : e.data?.statusMessage ?? 'Could not reach GitHub',
+        ? t('feedback.settings.errors.needsSetup')
+        : e.data?.statusMessage ?? t('feedback.settings.errors.couldNotReach'),
     }
   }
   finally {
@@ -64,7 +65,7 @@ async function testConnection() {
 }
 
 async function disconnect() {
-  if (!confirm('Disconnect GitHub? The saved token is deleted and family members can no longer send feedback.')) return
+  if (!confirm(t('feedback.settings.disconnectConfirm'))) return
   disconnecting.value = true
   try {
     await $fetch('/api/feedback/settings', { method: 'PUT', body: { repo: null } })
@@ -72,10 +73,10 @@ async function disconnect() {
     token.value = ''
     testResult.value = null
     await refresh()
-    toast.add({ title: 'GitHub disconnected', color: 'success' })
+    toast.add({ title: t('feedback.settings.disconnected'), color: 'success' })
   }
   catch {
-    toast.add({ title: 'Could not disconnect', color: 'error' })
+    toast.add({ title: t('feedback.settings.errors.couldNotDisconnect'), color: 'error' })
   }
   finally {
     disconnecting.value = false
@@ -88,20 +89,28 @@ async function disconnect() {
     <template #header>
       <div class="flex items-center gap-2 font-semibold">
         <UIcon name="i-lucide-megaphone" class="text-primary size-5" />
-        Feedback → GitHub
+        {{ $t('feedback.settings.title') }}
       </div>
     </template>
     <div class="space-y-4">
-      <p class="text-sm text-slate-500 dark:text-slate-400">
-        Bug reports and ideas from the <NuxtLink to="/feedback" class="text-primary hover:underline">Feedback page</NuxtLink>
-        become GitHub issues on your repo — no GitHub accounts needed for the family. Create a
-        <a
-          href="https://github.com/settings/personal-access-tokens"
-          target="_blank"
-          class="text-primary hover:underline"
-        >fine-grained personal access token</a>
-        with Issues read &amp; write on just that one repo.
-      </p>
+      <!-- i18n-t so both links stay inside one translatable sentence. -->
+      <i18n-t
+        keypath="feedback.settings.intro"
+        tag="p"
+        scope="global"
+        class="text-sm text-slate-500 dark:text-slate-400"
+      >
+        <template #link>
+          <NuxtLink to="/feedback" class="text-primary hover:underline">{{ $t('feedback.settings.introLinkText') }}</NuxtLink>
+        </template>
+        <template #tokenLink>
+          <a
+            href="https://github.com/settings/personal-access-tokens"
+            target="_blank"
+            class="text-primary hover:underline"
+          >{{ $t('feedback.settings.introTokenLinkText') }}</a>
+        </template>
+      </i18n-t>
 
       <!-- Current status -->
       <div class="flex items-center gap-2 text-sm">
@@ -109,20 +118,29 @@ async function disconnect() {
           class="size-2 rounded-full shrink-0"
           :class="status?.configured ? 'bg-green-500' : 'bg-slate-300 dark:bg-slate-600'"
         />
-        <span v-if="status?.configured" class="text-slate-600 dark:text-slate-300">
-          Connected to <code class="font-mono text-xs">{{ status.repo }}</code>
-        </span>
-        <span v-else class="text-slate-500 dark:text-slate-400">Not connected</span>
+        <!-- i18n-t so the repo name keeps its code styling inside one translatable sentence. -->
+        <i18n-t
+          v-if="status?.configured"
+          keypath="feedback.settings.connected"
+          tag="span"
+          scope="global"
+          class="text-slate-600 dark:text-slate-300"
+        >
+          <template #repo>
+            <code class="font-mono text-xs">{{ status.repo }}</code>
+          </template>
+        </i18n-t>
+        <span v-else class="text-slate-500 dark:text-slate-400">{{ $t('feedback.settings.notConnected') }}</span>
       </div>
 
-      <UFormField label="Repository" help="owner/repo — where the issues get filed.">
+      <UFormField :label="$t('feedback.settings.repoLabel')" :help="$t('feedback.settings.repoHelp')">
         <UInput v-model="repo" placeholder="Riley-D-Betts/betts-board" class="w-full" />
       </UFormField>
       <UFormField
-        label="Access token"
+        :label="$t('feedback.settings.tokenLabel')"
         :help="status?.configured
-          ? 'Stored on your server, never shown again. Leave blank to keep the current token.'
-          : 'Stored on your server, never shown again.'"
+          ? $t('feedback.settings.tokenHelpStored')
+          : $t('feedback.settings.tokenHelp')"
       >
         <UInput v-model="token" type="password" placeholder="ghp_… or github_pat_…" class="w-full" />
       </UFormField>
@@ -137,7 +155,7 @@ async function disconnect() {
       </div>
 
       <div class="flex flex-wrap gap-2">
-        <UButton icon="i-lucide-save" :loading="saving" @click="save">Save</UButton>
+        <UButton icon="i-lucide-save" :loading="saving" @click="save">{{ $t('common.actions.save') }}</UButton>
         <UButton
           icon="i-lucide-radio-tower"
           variant="soft"
@@ -146,7 +164,7 @@ async function disconnect() {
           :disabled="!status?.configured"
           @click="testConnection"
         >
-          Test connection
+          {{ $t('feedback.settings.test') }}
         </UButton>
         <UButton
           v-if="status?.configured"
@@ -156,7 +174,7 @@ async function disconnect() {
           :loading="disconnecting"
           @click="disconnect"
         >
-          Disconnect
+          {{ $t('feedback.settings.disconnect') }}
         </UButton>
       </div>
     </div>

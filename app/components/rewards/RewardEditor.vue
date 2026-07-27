@@ -10,6 +10,7 @@ const open = defineModel<boolean>('open', { required: true })
 const emit = defineEmits<{ saved: [] }>()
 
 const toast = useToast()
+const { t } = useI18n()
 
 const EMOJIS = [
   '🍦', '🍕', '🍩', '🍿', '🧁', '🍭',
@@ -57,7 +58,7 @@ async function save() {
     emit('saved')
   }
   catch {
-    toast.add({ title: 'Could not save reward', color: 'error' })
+    toast.add({ title: t('rewards.editor.couldNotSave'), color: 'error' })
   }
   finally {
     busy.value = false
@@ -66,16 +67,16 @@ async function save() {
 </script>
 
 <template>
-  <UModal v-model:open="open" :title="reward ? 'Edit reward' : 'New reward'">
+  <UModal v-model:open="open" :title="reward ? $t('rewards.editor.editTitle') : $t('rewards.newReward')">
     <template #body>
       <div class="space-y-4">
-        <UFormField label="Title">
-          <UInput v-model="form.title" placeholder="Ice cream trip" class="w-full" size="lg" autofocus />
+        <UFormField :label="$t('rewards.editor.title')">
+          <UInput v-model="form.title" :placeholder="$t('rewards.editor.titlePlaceholder')" class="w-full" size="lg" autofocus />
         </UFormField>
 
         <EmojiField v-model="form.emoji" :presets="EMOJIS" />
 
-        <UFormField label="Cost in stars">
+        <UFormField :label="$t('rewards.editor.cost')">
           <div class="flex items-center gap-3">
             <UButton
               icon="i-lucide-minus"
@@ -97,17 +98,17 @@ async function save() {
           </div>
         </UFormField>
 
-        <UFormField label="Description" hint="optional">
-          <UTextarea v-model="form.description" :rows="2" class="w-full" placeholder="One scoop at the shop downtown" />
+        <UFormField :label="$t('rewards.editor.description')" :hint="$t('common.state.optional')">
+          <UTextarea v-model="form.description" :rows="2" class="w-full" :placeholder="$t('rewards.editor.descriptionPlaceholder')" />
         </UFormField>
       </div>
     </template>
 
     <template #footer>
       <div class="flex w-full justify-end gap-2">
-        <UButton variant="ghost" color="neutral" @click="open = false">Cancel</UButton>
+        <UButton variant="ghost" color="neutral" @click="open = false">{{ $t('common.actions.cancel') }}</UButton>
         <UButton :disabled="!valid" :loading="busy" @click="save">
-          {{ reward ? 'Save changes' : 'Add reward' }}
+          {{ reward ? $t('rewards.editor.saveChanges') : $t('rewards.editor.create') }}
         </UButton>
       </div>
     </template>

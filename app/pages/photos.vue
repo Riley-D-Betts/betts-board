@@ -5,6 +5,7 @@ const PAGE_SIZE = 50
 const MAX_FILE_BYTES = 25 * 1024 * 1024
 
 const toast = useToast()
+const { t } = useI18n()
 
 // First page is SSR-visible; later pages append client-side via the id cursor.
 const { data: firstPage, refresh: refreshFirst } = await useFetch<PhotoDto[]>('/api/photos', {
@@ -31,7 +32,7 @@ async function loadMore() {
     if (batch.length < PAGE_SIZE) endReached.value = true
   }
   catch {
-    toast.add({ title: 'Could not load more photos', color: 'error' })
+    toast.add({ title: t('photos.errors.couldNotLoadMore'), color: 'error' })
   }
   finally {
     loadingMore.value = false
@@ -82,12 +83,12 @@ async function upload(files: File[]) {
   if (uploading.value) return
   const images = files.filter(f => f.type.startsWith('image/') || IMAGE_EXT.test(f.name))
   if (!images.length) {
-    toast.add({ title: 'Only image files can be uploaded', color: 'error' })
+    toast.add({ title: t('photos.upload.onlyImages'), color: 'error' })
     return
   }
   const tooBig = images.find(f => f.size > MAX_FILE_BYTES)
   if (tooBig) {
-    toast.add({ title: `${tooBig.name} is larger than 25 MB`, color: 'error' })
+    toast.add({ title: t('photos.upload.tooLarge', { name: tooBig.name }), color: 'error' })
     return
   }
 
@@ -104,27 +105,27 @@ async function upload(files: File[]) {
       }
       xhr.onload = () => {
         if (xhr.status >= 200 && xhr.status < 300) return resolve()
-        let message = `Upload failed (${xhr.status})`
+        let message = t('photos.upload.failedWithStatus', { status: xhr.status })
         try {
           message = (JSON.parse(xhr.responseText) as { statusMessage?: string }).statusMessage ?? message
         }
         catch { /* keep the generic message */ }
         reject(new Error(message))
       }
-      xhr.onerror = () => reject(new Error('Upload failed'))
+      xhr.onerror = () => reject(new Error(t('photos.upload.failed')))
       const fd = new FormData()
       for (const f of images) fd.append('files', f, f.name)
       xhr.send(fd)
     })
     toast.add({
-      title: images.length === 1 ? 'Photo added' : `${images.length} photos added`,
+      title: t('photos.upload.added', images.length),
       icon: 'i-lucide-image-plus',
       color: 'success',
     })
     await reloadAll()
   }
   catch (e) {
-    toast.add({ title: (e as Error).message || 'Upload failed', color: 'error' })
+    toast.add({ title: (e as Error).message || t('photos.upload.failed'), color: 'error' })
   }
   finally {
     uploading.value = false
@@ -155,7 +156,7 @@ async function toggleSlideshow(p: PhotoDto) {
     replaceLocal(updated)
   }
   catch {
-    toast.add({ title: 'Could not update photo', color: 'error' })
+    toast.add({ title: t('photos.errors.couldNotUpdate'), color: 'error' })
   }
 }
 
@@ -167,11 +168,11 @@ async function confirmDelete() {
   try {
     await $fetch(`/api/photos/${pendingDelete.value.id}`, { method: 'DELETE' })
     pendingDelete.value = null
-    toast.add({ title: 'Photo deleted', color: 'success' })
+    toast.add({ title: t('photos.deleted'), color: 'success' })
     await reloadAll()
   }
   catch {
-    toast.add({ title: 'Could not delete photo', color: 'error' })
+    toast.add({ title: t('photos.errors.couldNotDelete'), color: 'error' })
   }
   finally {
     deleting.value = false
@@ -188,9 +189,9 @@ async function confirmDelete() {
     @drop.prevent="onDrop"
   >
     <div class="flex flex-wrap items-center gap-2">
-      <h1 class="text-2xl md:text-3xl font-bold flex-1">Photos</h1>
+      <h1 class="text-2xl md:text-3xl font-bold flex-1">{{ $t('photos.title') }}</h1>
       <UButton icon="i-lucide-image-plus" :loading="uploading" @click="pickFiles">
-        Add photos
+        {{ $t('photos.add') }}
       </UButton>
       <input
         ref="fileInput"
@@ -204,7 +205,7 @@ async function confirmDelete() {
 
     <div v-if="uploading" class="space-y-1">
       <p class="text-sm text-slate-500 dark:text-slate-400">
-        Uploading {{ uploadCount === 1 ? 'photo' : `${uploadCount} photos` }}…
+        {{ $t('photos.upload.uploading', uploadCount) }}
       </p>
       <UProgress :model-value="uploadProgress" />
     </div>
@@ -214,14 +215,14 @@ async function confirmDelete() {
       v-if="dragDepth > 0"
       class="rounded-xl border-2 border-dashed border-primary bg-primary/5 p-8 text-center text-primary font-medium"
     >
-      Drop photos to upload
+      {{ $t('photos.upload.dropHint') }}
     </div>
 
     <div v-if="!photos.length && !uploading" class="py-16 text-center text-slate-500 dark:text-slate-400">
       <UIcon name="i-lucide-images" class="size-10 mb-2" />
-      <p>No photos yet. Add some and they'll show up in the slideshow.</p>
+      <p>{{ $t('photos.empty') }}</p>
       <UButton variant="soft" class="mt-3" icon="i-lucide-image-plus" @click="pickFiles">
-        Add photos
+        {{ $t('photos.add') }}
       </UButton>
     </div>
 
@@ -244,7 +245,7 @@ async function confirmDelete() {
         <div
           v-if="!p.inSlideshow"
           class="pointer-events-none absolute left-2 top-2 rounded-full bg-black/50 p-1.5 text-white"
-          title="Not in slideshow"
+          :title="$t('photos.photo.notInSlideshow')"
         >
           <UIcon name="i-lucide-monitor-off" class="block size-4" />
         </div>
@@ -257,8 +258,8 @@ async function confirmDelete() {
             variant="ghost"
             :color="p.inSlideshow ? 'primary' : 'neutral'"
             class="size-11 justify-center text-white"
-            :title="p.inSlideshow ? 'Remove from slideshow' : 'Include in slideshow'"
-            :aria-label="p.inSlideshow ? 'Remove from slideshow' : 'Include in slideshow'"
+            :title="p.inSlideshow ? $t('photos.photo.removeFromSlideshow') : $t('photos.photo.includeInSlideshow')"
+            :aria-label="p.inSlideshow ? $t('photos.photo.removeFromSlideshow') : $t('photos.photo.includeInSlideshow')"
             @click="toggleSlideshow(p)"
           />
           <UButton
@@ -266,8 +267,8 @@ async function confirmDelete() {
             variant="ghost"
             color="error"
             class="size-11 justify-center"
-            title="Delete photo"
-            aria-label="Delete photo"
+            :title="$t('photos.photo.delete')"
+            :aria-label="$t('photos.photo.delete')"
             @click="pendingDelete = p"
           />
         </div>
@@ -276,21 +277,21 @@ async function confirmDelete() {
 
     <div v-if="hasMore" class="flex justify-center">
       <UButton variant="soft" color="neutral" :loading="loadingMore" @click="loadMore">
-        Load more
+        {{ $t('photos.loadMore') }}
       </UButton>
     </div>
 
     <!-- Delete confirmation -->
-    <UModal :open="!!pendingDelete" title="Delete photo?" @update:open="(v: boolean) => { if (!v) pendingDelete = null }">
+    <UModal :open="!!pendingDelete" :title="$t('photos.deleteConfirm.title')" @update:open="(v: boolean) => { if (!v) pendingDelete = null }">
       <template #body>
         <p class="text-sm text-slate-500 dark:text-slate-400">
-          This removes the photo from the board and the slideshow. There's no undo.
+          {{ $t('photos.deleteConfirm.description') }}
         </p>
       </template>
       <template #footer>
         <div class="flex w-full justify-end gap-2">
-          <UButton variant="ghost" color="neutral" @click="pendingDelete = null">Cancel</UButton>
-          <UButton color="error" :loading="deleting" @click="confirmDelete">Delete</UButton>
+          <UButton variant="ghost" color="neutral" @click="pendingDelete = null">{{ $t('common.actions.cancel') }}</UButton>
+          <UButton color="error" :loading="deleting" @click="confirmDelete">{{ $t('common.actions.delete') }}</UButton>
         </div>
       </template>
     </UModal>

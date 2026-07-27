@@ -13,6 +13,7 @@ const emit = defineEmits<{ changed: [] }>()
 
 const { activeProfile, isAdmin } = useBoardState()
 const toast = useToast()
+const { t } = useI18n()
 
 const draft = ref('')
 const saving = ref(false)
@@ -24,12 +25,12 @@ function canDelete(note: { author: { id: string } | null }) {
 function timeAgo(value: string | Date) {
   const then = new Date(value).getTime()
   const mins = Math.round((Date.now() - then) / 60_000)
-  if (mins < 1) return 'just now'
-  if (mins < 60) return `${mins}m ago`
+  if (mins < 1) return t('recipes.notes.justNow')
+  if (mins < 60) return t('recipes.notes.minutesAgo', { n: mins })
   const hours = Math.round(mins / 60)
-  if (hours < 24) return `${hours}h ago`
+  if (hours < 24) return t('recipes.notes.hoursAgo', { n: hours })
   const days = Math.round(hours / 24)
-  if (days < 30) return `${days}d ago`
+  if (days < 30) return t('recipes.notes.daysAgo', { n: days })
   return new Date(value).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
@@ -43,7 +44,7 @@ async function addNote() {
     emit('changed')
   }
   catch {
-    toast.add({ title: 'Could not add note', color: 'error' })
+    toast.add({ title: t('recipes.notes.couldNotAdd'), color: 'error' })
   }
   finally {
     saving.value = false
@@ -51,13 +52,13 @@ async function addNote() {
 }
 
 async function removeNote(noteId: string) {
-  if (!confirm('Delete this note?')) return
+  if (!confirm(t('recipes.notes.confirmDelete'))) return
   try {
     await $fetch(`/api/recipes/${props.recipeId}/notes/${noteId}`, { method: 'DELETE' })
     emit('changed')
   }
   catch {
-    toast.add({ title: 'Could not delete note', color: 'error' })
+    toast.add({ title: t('recipes.notes.couldNotDelete'), color: 'error' })
   }
 }
 </script>
@@ -66,11 +67,11 @@ async function removeNote(noteId: string) {
   <section class="space-y-4">
     <h2 class="text-lg font-semibold flex items-center gap-2">
       <UIcon name="i-lucide-message-square" class="size-5" />
-      Family notes
+      {{ $t('recipes.notes.title') }}
     </h2>
 
     <p v-if="!notes.length" class="text-sm text-slate-500 dark:text-slate-400">
-      No notes yet. "Double the sauce next time" goes here.
+      {{ $t('recipes.notes.empty') }}
     </p>
 
     <div v-else class="space-y-3">
@@ -85,7 +86,7 @@ async function removeNote(noteId: string) {
         />
         <div class="min-w-0 flex-1">
           <p class="text-xs text-slate-500 dark:text-slate-400">
-            <span class="font-medium text-slate-700 dark:text-slate-200">{{ note.author?.name ?? 'Someone' }}</span>
+            <span class="font-medium text-slate-700 dark:text-slate-200">{{ note.author?.name ?? $t('recipes.notes.unknownAuthor') }}</span>
             · {{ timeAgo(note.createdAt) }}
           </p>
           <p class="mt-0.5 whitespace-pre-wrap break-words">{{ note.body }}</p>
@@ -96,7 +97,7 @@ async function removeNote(noteId: string) {
           variant="ghost"
           color="neutral"
           size="sm"
-          aria-label="Delete note"
+          :aria-label="$t('recipes.notes.deleteAria')"
           @click="removeNote(note.id)"
         />
       </div>
@@ -105,7 +106,7 @@ async function removeNote(noteId: string) {
     <div class="flex items-end gap-2">
       <UTextarea
         v-model="draft"
-        placeholder="Add a note for next time…"
+        :placeholder="$t('recipes.notes.placeholder')"
         :rows="2"
         autoresize
         class="flex-1"
@@ -115,7 +116,7 @@ async function removeNote(noteId: string) {
         icon="i-lucide-send"
         :loading="saving"
         :disabled="!draft.trim()"
-        aria-label="Add note"
+        :aria-label="$t('recipes.notes.addAria')"
         @click="addNote"
       />
     </div>

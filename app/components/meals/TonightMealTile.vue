@@ -9,6 +9,8 @@ interface TileEntry {
   recipe: { id: string, title: string, imagePath: string | null, avgRating: number | null } | null
 }
 
+const { t } = useI18n()
+
 const today = todayString()
 const { data: entries, refresh } = await useFetch<TileEntry[]>('/api/meal-plan', {
   query: { start: today, end: addDaysToDateString(today, 1) },
@@ -29,7 +31,7 @@ const tonight = computed(() => {
 const slotLabel = computed(() => {
   const slot = tonight.value?.slot
   if (!slot || slot === 'dinner') return null
-  return slot[0]!.toUpperCase() + slot.slice(1)
+  return t(`meals.slots.${slot}`)
 })
 
 function imgSrc(recipe: NonNullable<TileEntry['recipe']>) {
@@ -43,7 +45,7 @@ function imgSrc(recipe: NonNullable<TileEntry['recipe']>) {
     <template #header>
       <NuxtLink to="/meals" class="flex items-center gap-2 font-semibold hover:text-primary">
         <UIcon name="i-lucide-utensils" class="text-primary size-5" />
-        <span class="flex-1">Tonight</span>
+        <span class="flex-1">{{ $t('meals.tile.tonight') }}</span>
         <UBadge v-if="slotLabel" variant="soft" size="sm">{{ slotLabel }}</UBadge>
         <UIcon name="i-lucide-chevron-right" class="size-4 text-slate-400" />
       </NuxtLink>
@@ -80,9 +82,9 @@ function imgSrc(recipe: NonNullable<TileEntry['recipe']>) {
     </p>
 
     <div v-else class="text-sm text-slate-500 dark:text-slate-400">
-      <p>Nothing planned for tonight.</p>
+      <p>{{ $t('meals.tile.nothingPlanned') }}</p>
       <UButton to="/meals" variant="soft" size="sm" class="mt-2" icon="i-lucide-calendar-plus">
-        Plan tonight
+        {{ $t('meals.tile.planTonight') }}
       </UButton>
     </div>
   </UCard>

@@ -13,6 +13,7 @@ interface ListDetail {
 }
 
 const toast = useToast()
+const { t } = useI18n()
 const requestFetch = useRequestFetch()
 
 const { data: list, refresh } = await useAsyncData('shopping-quick-tile', async () => {
@@ -36,7 +37,7 @@ async function check(item: QuickItem) {
     await refresh()
   }
   catch {
-    toast.add({ title: 'Could not check off the item', color: 'error' })
+    toast.add({ title: t('shopping.errors.couldNotCheckOff'), color: 'error' })
   }
 }
 </script>
@@ -49,16 +50,16 @@ async function check(item: QuickItem) {
         class="flex items-center gap-2 font-semibold hover:text-primary"
       >
         <UIcon name="i-lucide-shopping-cart" class="text-primary size-5" />
-        <span class="flex-1">Shopping</span>
+        <span class="flex-1">{{ $t('shopping.title') }}</span>
         <span v-if="unchecked.length" class="text-xs font-normal text-slate-500 dark:text-slate-400">
-          {{ unchecked.length }} to buy
+          {{ $t('shopping.toBuy', { n: unchecked.length }) }}
         </span>
         <UIcon name="i-lucide-chevron-right" class="size-4 text-slate-400" />
       </NuxtLink>
     </template>
 
     <p v-if="!list || !unchecked.length" class="text-sm text-slate-500 dark:text-slate-400">
-      Nothing on the list — nice.
+      {{ $t('shopping.nothingOnList') }}
     </p>
     <div v-else class="-my-1 divide-y divide-slate-100 dark:divide-slate-800">
       <ShoppingItemRow
@@ -70,7 +71,7 @@ async function check(item: QuickItem) {
         @toggle="check(item)"
       />
       <p v-if="unchecked.length > 5" class="py-1.5 text-xs text-slate-500 dark:text-slate-400">
-        +{{ unchecked.length - 5 }} more on the list
+        {{ $t('shopping.moreOnList', { n: unchecked.length - 5 }) }}
       </p>
     </div>
   </UCard>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const { state } = useBoardState()
 const toast = useToast()
+const { t } = useI18n()
 
 interface PlanRecipe {
   id: string
@@ -22,12 +23,12 @@ interface PlanEntry {
   cook: { id: string, name: string, color: string } | null
 }
 
-const SLOTS: { key: MealSlot, label: string }[] = [
-  { key: 'breakfast', label: 'Breakfast' },
-  { key: 'lunch', label: 'Lunch' },
-  { key: 'dinner', label: 'Dinner' },
-  { key: 'snack', label: 'Snack' },
-]
+const SLOTS = computed<{ key: MealSlot, label: string }[]>(() => [
+  { key: 'breakfast', label: t('meals.slots.breakfast') },
+  { key: 'lunch', label: t('meals.slots.lunch') },
+  { key: 'dinner', label: t('meals.slots.dinner') },
+  { key: 'snack', label: t('meals.slots.snack') },
+])
 
 const today = todayString()
 const weekStartsOn = computed(() => state.value?.settings?.weekStartsOn ?? 0)
@@ -42,9 +43,9 @@ const weekEnd = computed(() => addDaysToDateString(weekStart.value, 7))
 const days = computed(() => Array.from({ length: 7 }, (_, i) => addDaysToDateString(weekStart.value, i)))
 
 const weekLabel = computed(() => {
-  if (weekOffset.value === 0) return 'This week'
-  if (weekOffset.value === 1) return 'Next week'
-  if (weekOffset.value === -1) return 'Last week'
+  if (weekOffset.value === 0) return t('meals.thisWeek')
+  if (weekOffset.value === 1) return t('meals.nextWeek')
+  if (weekOffset.value === -1) return t('meals.lastWeek')
   const start = parseDateString(weekStart.value)
   const end = parseDateString(addDaysToDateString(weekStart.value, 6))
   const fmt = (d: Date) => d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
@@ -89,7 +90,7 @@ async function addEntry(payload: { recipeId?: string, freeText?: string, serving
     await refresh()
   }
   catch {
-    toast.add({ title: 'Could not plan the meal', color: 'error' })
+    toast.add({ title: t('meals.couldNotPlan'), color: 'error' })
   }
 }
 
@@ -99,7 +100,7 @@ async function removeEntry(entry: PlanEntry) {
     await refresh()
   }
   catch {
-    toast.add({ title: 'Could not remove the meal', color: 'error' })
+    toast.add({ title: t('meals.couldNotRemove'), color: 'error' })
   }
 }
 
@@ -109,18 +110,18 @@ const generateOpen = ref(false)
 <template>
   <div class="space-y-6">
     <div class="flex flex-wrap items-center gap-2">
-      <h1 class="text-2xl md:text-3xl font-bold flex-1">Meals</h1>
+      <h1 class="text-2xl md:text-3xl font-bold flex-1">{{ $t('meals.title') }}</h1>
       <UButton icon="i-lucide-shopping-cart" variant="soft" @click="generateOpen = true">
-        Generate shopping list
+        {{ $t('meals.generateList') }}
       </UButton>
     </div>
 
     <!-- Week navigation -->
     <div class="flex items-center gap-1">
-      <UButton icon="i-lucide-chevron-left" variant="ghost" color="neutral" aria-label="Previous week" @click="weekOffset--" />
+      <UButton icon="i-lucide-chevron-left" variant="ghost" color="neutral" :aria-label="$t('meals.weekNav.previous')" @click="weekOffset--" />
       <span class="min-w-36 text-center font-medium">{{ weekLabel }}</span>
-      <UButton icon="i-lucide-chevron-right" variant="ghost" color="neutral" aria-label="Next week" @click="weekOffset++" />
-      <UButton v-if="weekOffset !== 0" variant="ghost" size="sm" @click="weekOffset = 0">Today</UButton>
+      <UButton icon="i-lucide-chevron-right" variant="ghost" color="neutral" :aria-label="$t('meals.weekNav.next')" @click="weekOffset++" />
+      <UButton v-if="weekOffset !== 0" variant="ghost" size="sm" @click="weekOffset = 0">{{ $t('common.actions.today') }}</UButton>
     </div>
 
     <!-- 7 day columns on desktop, stacked cards on mobile -->
@@ -181,7 +182,7 @@ const generateOpen = ref(false)
                 </p>
                 <button
                   class="absolute right-0.5 top-0.5 rounded p-1 text-slate-400 hover:text-red-500"
-                  :aria-label="`Remove ${entry.recipe?.title ?? entry.freeText}`"
+                  :aria-label="$t('meals.removeEntry', { title: entry.recipe?.title ?? entry.freeText })"
                   @click="removeEntry(entry)"
                 >
                   <UIcon name="i-lucide-x" class="size-3.5" />
@@ -190,7 +191,7 @@ const generateOpen = ref(false)
 
               <button
                 class="flex min-h-8 w-full items-center justify-center rounded-lg border border-dashed border-slate-300 dark:border-slate-700 text-slate-400 hover:border-primary hover:text-primary"
-                :aria-label="`Plan ${slot.label} for ${date}`"
+                :aria-label="$t('meals.planSlot', { slot: slot.label, date })"
                 @click="openPicker(date, slot.key)"
               >
                 <UIcon name="i-lucide-plus" class="size-4" />

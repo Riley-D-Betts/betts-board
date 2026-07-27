@@ -21,9 +21,11 @@ const emit = defineEmits<{
   pick: [payload: { recipeId?: string, freeText?: string, servingsOverride?: number | null, cookProfileId?: string | null }]
 }>()
 
+const { t } = useI18n()
+
 const { state } = useBoardState()
 const cookItems = computed(() => [
-  { label: 'No cook', value: NO_COOK },
+  { label: t('meals.picker.noCook'), value: NO_COOK },
   ...(state.value?.profiles ?? []).map(p => ({ label: p.name, value: p.id })),
 ])
 
@@ -52,8 +54,7 @@ const title = computed(() => {
   const day = parseDateString(props.date).toLocaleDateString(undefined, {
     weekday: 'long', month: 'short', day: 'numeric',
   })
-  const slot = props.mealSlot[0]!.toUpperCase() + props.mealSlot.slice(1)
-  return `${slot} · ${day}`
+  return t('meals.picker.title', { slot: t(`meals.slots.${props.mealSlot}`), day })
 })
 
 function servingsValue(): number | null {
@@ -85,24 +86,24 @@ function imgSrc(recipe: PickerRecipe) {
     <template #body>
       <div class="space-y-4">
         <div class="flex gap-2">
-          <UInput v-model="q" icon="i-lucide-search" placeholder="Search recipes…" class="flex-1" />
+          <UInput v-model="q" icon="i-lucide-search" :placeholder="$t('meals.picker.search')" class="flex-1" />
           <UInput
             v-model.number="servings"
             type="number"
             min="1"
-            placeholder="Servings"
+            :placeholder="$t('meals.picker.servings')"
             class="w-28"
-            aria-label="Servings override"
+            :aria-label="$t('meals.picker.servingsOverride')"
           />
         </div>
 
-        <UFormField label="Who's cooking?">
+        <UFormField :label="$t('meals.picker.whosCooking')">
           <USelect
             v-model="cookId"
             :items="cookItems"
             icon="i-lucide-chef-hat"
             class="w-full"
-            aria-label="Cook"
+            :aria-label="$t('meals.picker.cook')"
           />
         </UFormField>
 
@@ -135,25 +136,25 @@ function imgSrc(recipe: PickerRecipe) {
                   <UIcon name="i-lucide-star" class="size-3 text-amber-500" />
                   {{ recipe.avgRating.toFixed(1) }}
                 </span>
-                <span v-if="recipe.servings"> · {{ recipe.servings }} servings</span>
+                <span v-if="recipe.servings"> · {{ $t('meals.picker.servingsCount', { n: recipe.servings }) }}</span>
               </p>
             </div>
             <UIcon name="i-lucide-plus" class="size-4 shrink-0 text-slate-400" />
           </button>
         </div>
         <p v-else class="py-2 text-center text-sm text-slate-500 dark:text-slate-400">
-          No recipes {{ q ? 'match your search' : 'yet' }}.
+          {{ q ? $t('meals.picker.noMatches') : $t('meals.picker.empty') }}
         </p>
 
-        <USeparator label="or just type it" />
+        <USeparator :label="$t('meals.picker.orTypeIt')" />
 
         <form class="flex gap-2" @submit.prevent="addFreeText">
           <UInput
             v-model="freeText"
-            placeholder="“Leftovers”, “Pizza night out”…"
+            :placeholder="$t('meals.picker.freeTextPlaceholder')"
             class="flex-1"
           />
-          <UButton type="submit" :disabled="!freeText.trim()">Add</UButton>
+          <UButton type="submit" :disabled="!freeText.trim()">{{ $t('common.actions.add') }}</UButton>
         </form>
       </div>
     </template>

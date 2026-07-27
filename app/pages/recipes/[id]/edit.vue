@@ -3,13 +3,14 @@ import type { RecipeDetail } from '~~/server/services/recipes/recipes'
 
 const route = useRoute()
 const toast = useToast()
+const { t } = useI18n()
 const recipeId = route.params.id as string
 
 // Dynamic URL defeats Nuxt's route-based response inference — type it by hand.
 const { data: recipe } = await useFetch<RecipeDetail>(`/api/recipes/${recipeId}`)
 
 if (!recipe.value) {
-  throw createError({ statusCode: 404, statusMessage: 'Recipe not found', fatal: true })
+  throw createError({ statusCode: 404, statusMessage: t('recipes.notFound'), fatal: true })
 }
 
 const form = reactive({
@@ -55,7 +56,7 @@ const saving = ref(false)
 async function save() {
   const title = form.title.trim()
   if (!title) {
-    toast.add({ title: 'Give the recipe a title first', color: 'warning' })
+    toast.add({ title: t('recipes.edit.titleRequired'), color: 'warning' })
     return
   }
   saving.value = true
@@ -77,11 +78,11 @@ async function save() {
           .map(raw => ({ raw })),
       },
     })
-    toast.add({ title: 'Recipe saved', icon: 'i-lucide-check', color: 'success' })
+    toast.add({ title: t('recipes.edit.saved'), icon: 'i-lucide-check', color: 'success' })
     await navigateTo(`/recipes/${recipeId}`)
   }
   catch {
-    toast.add({ title: 'Could not save recipe', color: 'error' })
+    toast.add({ title: t('recipes.edit.couldNotSave'), color: 'error' })
     saving.value = false
   }
 }
@@ -95,10 +96,10 @@ async function save() {
         icon="i-lucide-arrow-left"
         variant="ghost"
         color="neutral"
-        aria-label="Back to recipe"
+        :aria-label="$t('recipes.edit.back')"
       />
-      <h1 class="text-2xl md:text-3xl font-bold flex-1 truncate">Edit recipe</h1>
-      <UButton icon="i-lucide-check" :loading="saving" @click="save">Save</UButton>
+      <h1 class="text-2xl md:text-3xl font-bold flex-1 truncate">{{ $t('recipes.edit.title') }}</h1>
+      <UButton icon="i-lucide-check" :loading="saving" @click="save">{{ $t('common.actions.save') }}</UButton>
     </div>
 
     <img
@@ -109,39 +110,45 @@ async function save() {
     >
 
     <div class="space-y-4">
-      <UFormField label="Title" required>
-        <UInput v-model="form.title" size="lg" class="w-full" placeholder="Grandma's lasagna" />
+      <UFormField :label="$t('recipes.edit.fields.title')" required>
+        <UInput v-model="form.title" size="lg" class="w-full" :placeholder="$t('recipes.edit.fields.titlePlaceholder')" />
       </UFormField>
 
-      <UFormField label="Description">
-        <UTextarea v-model="form.description" :rows="3" autoresize class="w-full" placeholder="What makes it great?" />
+      <UFormField :label="$t('recipes.edit.fields.description')">
+        <UTextarea
+          v-model="form.description"
+          :rows="3"
+          autoresize
+          class="w-full"
+          :placeholder="$t('recipes.edit.fields.descriptionPlaceholder')"
+        />
       </UFormField>
 
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <UFormField label="Prep (min)">
+        <UFormField :label="$t('recipes.edit.fields.prep')">
           <UInput v-model="form.prepMinutes" type="number" min="0" inputmode="numeric" />
         </UFormField>
-        <UFormField label="Cook (min)">
+        <UFormField :label="$t('recipes.edit.fields.cook')">
           <UInput v-model="form.cookMinutes" type="number" min="0" inputmode="numeric" />
         </UFormField>
-        <UFormField label="Total (min)">
+        <UFormField :label="$t('recipes.edit.fields.total')">
           <UInput v-model="form.totalMinutes" type="number" min="0" inputmode="numeric" />
         </UFormField>
-        <UFormField label="Servings">
+        <UFormField :label="$t('recipes.edit.fields.servings')">
           <UInput v-model="form.servings" type="number" min="0" inputmode="decimal" />
         </UFormField>
       </div>
 
-      <UFormField label="Tags" help="Separate with commas — e.g. dinner, pasta, weeknight">
-        <UInput v-model="form.tags" class="w-full" placeholder="dinner, pasta" />
+      <UFormField :label="$t('recipes.edit.fields.tags')" :help="$t('recipes.edit.fields.tagsHelp')">
+        <UInput v-model="form.tags" class="w-full" :placeholder="$t('recipes.edit.fields.tagsPlaceholder')" />
       </UFormField>
     </div>
 
     <!-- Ingredients -->
     <section class="space-y-2">
-      <h2 class="text-lg font-semibold">Ingredients</h2>
+      <h2 class="text-lg font-semibold">{{ $t('recipes.edit.ingredients.title') }}</h2>
       <p v-if="!ingredientLines.length" class="text-sm text-slate-500 dark:text-slate-400">
-        No ingredients yet.
+        {{ $t('recipes.edit.ingredients.empty') }}
       </p>
       <div v-for="(line, i) in ingredientLines" :key="`ing-${i}`" class="flex items-start gap-1.5">
         <div class="flex flex-col shrink-0">
@@ -151,7 +158,7 @@ async function save() {
             color="neutral"
             size="xs"
             :disabled="i === 0"
-            :aria-label="`Move ingredient ${i + 1} up`"
+            :aria-label="$t('recipes.edit.ingredients.moveUp', { n: i + 1 })"
             @click="moveLine(ingredientLines, i, -1)"
           />
           <UButton
@@ -160,7 +167,7 @@ async function save() {
             color="neutral"
             size="xs"
             :disabled="i === ingredientLines.length - 1"
-            :aria-label="`Move ingredient ${i + 1} down`"
+            :aria-label="$t('recipes.edit.ingredients.moveDown', { n: i + 1 })"
             @click="moveLine(ingredientLines, i, 1)"
           />
         </div>
@@ -169,26 +176,26 @@ async function save() {
           :rows="1"
           autoresize
           class="flex-1"
-          placeholder="1 cup flour"
+          :placeholder="$t('recipes.edit.ingredients.placeholder')"
         />
         <UButton
           icon="i-lucide-x"
           variant="ghost"
           color="neutral"
-          :aria-label="`Remove ingredient ${i + 1}`"
+          :aria-label="$t('recipes.edit.ingredients.remove', { n: i + 1 })"
           @click="removeLine(ingredientLines, i)"
         />
       </div>
       <UButton icon="i-lucide-plus" variant="soft" color="neutral" size="sm" @click="addLine(ingredientLines)">
-        Add ingredient
+        {{ $t('recipes.edit.ingredients.add') }}
       </UButton>
     </section>
 
     <!-- Steps -->
     <section class="space-y-2">
-      <h2 class="text-lg font-semibold">Steps</h2>
+      <h2 class="text-lg font-semibold">{{ $t('recipes.edit.steps.title') }}</h2>
       <p v-if="!stepLines.length" class="text-sm text-slate-500 dark:text-slate-400">
-        No steps yet.
+        {{ $t('recipes.edit.steps.empty') }}
       </p>
       <div v-for="(line, i) in stepLines" :key="`step-${i}`" class="flex items-start gap-1.5">
         <span class="mt-2 size-7 shrink-0 rounded-full bg-primary/10 text-primary text-sm font-semibold flex items-center justify-center">
@@ -201,7 +208,7 @@ async function save() {
             color="neutral"
             size="xs"
             :disabled="i === 0"
-            :aria-label="`Move step ${i + 1} up`"
+            :aria-label="$t('recipes.edit.steps.moveUp', { n: i + 1 })"
             @click="moveLine(stepLines, i, -1)"
           />
           <UButton
@@ -210,7 +217,7 @@ async function save() {
             color="neutral"
             size="xs"
             :disabled="i === stepLines.length - 1"
-            :aria-label="`Move step ${i + 1} down`"
+            :aria-label="$t('recipes.edit.steps.moveDown', { n: i + 1 })"
             @click="moveLine(stepLines, i, 1)"
           />
         </div>
@@ -219,24 +226,24 @@ async function save() {
           :rows="2"
           autoresize
           class="flex-1"
-          placeholder="Preheat the oven to 375F…"
+          :placeholder="$t('recipes.edit.steps.placeholder')"
         />
         <UButton
           icon="i-lucide-x"
           variant="ghost"
           color="neutral"
-          :aria-label="`Remove step ${i + 1}`"
+          :aria-label="$t('recipes.edit.steps.remove', { n: i + 1 })"
           @click="removeLine(stepLines, i)"
         />
       </div>
       <UButton icon="i-lucide-plus" variant="soft" color="neutral" size="sm" @click="addLine(stepLines)">
-        Add step
+        {{ $t('recipes.edit.steps.add') }}
       </UButton>
     </section>
 
     <div class="flex justify-end gap-2 pb-8">
-      <UButton :to="`/recipes/${recipeId}`" variant="ghost" color="neutral">Cancel</UButton>
-      <UButton icon="i-lucide-check" size="lg" :loading="saving" @click="save">Save recipe</UButton>
+      <UButton :to="`/recipes/${recipeId}`" variant="ghost" color="neutral">{{ $t('common.actions.cancel') }}</UButton>
+      <UButton icon="i-lucide-check" size="lg" :loading="saving" @click="save">{{ $t('recipes.edit.save') }}</UButton>
     </div>
   </div>
 </template>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const toast = useToast()
+const { t } = useI18n()
 const { refresh } = useBoardState()
 const { data: profileList, refresh: reload } = await useFetch('/api/profiles')
 
@@ -15,12 +16,12 @@ async function addProfile() {
     await Promise.all([reload(), refresh()])
   }
   catch {
-    toast.add({ title: 'Could not add profile', color: 'error' })
+    toast.add({ title: t('settings.profiles.addFailed'), color: 'error' })
   }
 }
 
 async function archiveProfile(id: string, name: string) {
-  if (!confirm(`Remove ${name} from the board? Their history is kept.`)) return
+  if (!confirm(t('settings.profiles.removeConfirm', { name }))) return
   await $fetch(`/api/profiles/${id}`, { method: 'DELETE' })
   await Promise.all([reload(), refresh()])
 }
@@ -31,7 +32,7 @@ async function archiveProfile(id: string, name: string) {
     <template #header>
       <div class="flex items-center gap-2 font-semibold">
         <UIcon name="i-lucide-users" class="text-primary size-5" />
-        Family members
+        {{ $t('settings.profiles.title') }}
       </div>
     </template>
     <div class="space-y-3">
@@ -44,15 +45,15 @@ async function archiveProfile(id: string, name: string) {
 
       <div v-if="adding" class="flex items-center gap-2 pt-2">
         <input v-model="newProfile.color" type="color" class="size-9 rounded cursor-pointer border-0 bg-transparent shrink-0">
-        <UInput v-model="newProfile.name" placeholder="Name" class="flex-1" autofocus @keyup.enter="addProfile" />
+        <UInput v-model="newProfile.name" :placeholder="$t('settings.profiles.namePlaceholder')" class="flex-1" autofocus @keyup.enter="addProfile" />
         <USelect
           v-model="newProfile.role"
-          :items="[{ label: 'Admin', value: 'admin' }, { label: 'Adult', value: 'adult' }, { label: 'Kid', value: 'kid' }]"
+          :items="[{ label: $t('settings.profiles.roleAdmin'), value: 'admin' }, { label: $t('settings.profiles.roleAdult'), value: 'adult' }, { label: $t('settings.profiles.roleKid'), value: 'kid' }]"
           class="w-28"
         />
         <UButton icon="i-lucide-check" @click="addProfile" />
       </div>
-      <UButton v-else variant="soft" icon="i-lucide-plus" @click="adding = true">Add member</UButton>
+      <UButton v-else variant="soft" icon="i-lucide-plus" @click="adding = true">{{ $t('settings.profiles.addMember') }}</UButton>
     </div>
   </UCard>
 </template>

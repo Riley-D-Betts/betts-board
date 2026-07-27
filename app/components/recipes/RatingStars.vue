@@ -35,7 +35,7 @@ function filled(i: number) {
     </div>
 
     <!-- Interactive: 44px tap targets -->
-    <div v-else class="flex items-center" role="radiogroup" aria-label="Rate this recipe">
+    <div v-else class="flex items-center" role="radiogroup" :aria-label="$t('recipes.rating.groupLabel')">
       <button
         v-for="i in 5"
         :key="i"
@@ -43,7 +43,7 @@ function filled(i: number) {
         class="size-11 flex items-center justify-center rounded-lg active:scale-90 transition-transform"
         role="radio"
         :aria-checked="modelValue === i"
-        :aria-label="`${i} star${i === 1 ? '' : 's'}`"
+        :aria-label="$t('recipes.rating.starCount', i)"
         @click="emit('rate', i)"
       >
         <UIcon

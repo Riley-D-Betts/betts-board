@@ -5,5 +5,53 @@
   "checked": "Checked ({n})",
   "clear": "Clear",
   "nothingOnList": "Nothing on the list — nice.",
-  "moreOnList": "+{n} more on the list"
+  "moreOnList": "+{n} more on the list",
+  "toBuy": "{n} to buy",
+  "defaultBadge": "default",
+  "allLists": "All lists",
+  "untitledList": "List",
+  "clearedCount": "Cleared {n} item | Cleared {n} items",
+  "lists": {
+    "newPlaceholder": "New list — “Costco run”…",
+    "empty": "No lists yet — create one above, or plan meals and generate one.",
+    "planMeals": "Plan meals",
+    "deleteAria": "Delete {name}",
+    "uncheckedItems": "{n} unchecked item | {n} unchecked items",
+    "confirmDelete": "Delete \"{name}\"? Its {items} (and any checked ones) are deleted with it."
+  },
+  "items": {
+    "quickAddPlaceholder": "Add — “2 lbs chicken”, “paper towels”…",
+    "empty": "Nothing to buy. Add items above or generate from your meal plan.",
+    "editAria": "Edit {name}"
+  },
+  "editor": {
+    "title": "Edit item",
+    "name": "Name",
+    "quantity": "Quantity",
+    "quantityHelp": "Free text — “2 lbs”, “1½ cups + 2 tbsp”",
+    "aisle": "Aisle"
+  },
+  "clearChecked": {
+    "title": "Clear checked items",
+    "confirm": "Put the {n} checked item away to the pantry so meal planning knows you have them? | Put the {n} checked items away to the pantry so meal planning knows you have them?",
+    "putAway": "Put away to pantry",
+    "justClear": "Just clear",
+    "putAwayDone": "Put {n} item away to the pantry | Put {n} items away to the pantry"
+  },
+  "clearList": {
+    "title": "Clear this list",
+    "confirm": "Remove all {n} item from “{name}” — checked and unchecked? The list itself stays. | Remove all {n} items from “{name}” — checked and unchecked? The list itself stays.",
+    "cta": "Clear everything"
+  },
+  "errors": {
+    "couldNotCreateList": "Could not create the list",
+    "couldNotDeleteList": "Could not delete the list",
+    "couldNotAddItem": "Could not add the item",
+    "couldNotUpdateItem": "Could not update the item",
+    "couldNotSaveItem": "Could not save the item",
+    "couldNotDeleteItem": "Could not delete the item",
+    "couldNotCheckOff": "Could not check off the item",
+    "couldNotClearChecked": "Could not clear checked items",
+    "couldNotClearList": "Could not clear the list"
+  }
 }

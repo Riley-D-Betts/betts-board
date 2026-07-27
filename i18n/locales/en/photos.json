@@ -1,0 +1,53 @@
+{
+  "title": "Photos",
+  "add": "Add photos",
+  "loadMore": "Load more",
+  "empty": "No photos yet. Add some and they'll show up in the slideshow.",
+  "deleted": "Photo deleted",
+  "upload": {
+    "uploading": "Uploading photo… | Uploading {n} photos…",
+    "dropHint": "Drop photos to upload",
+    "added": "Photo added | {n} photos added",
+    "onlyImages": "Only image files can be uploaded",
+    "tooLarge": "{name} is larger than 25 MB",
+    "failed": "Upload failed",
+    "failedWithStatus": "Upload failed ({status})"
+  },
+  "photo": {
+    "notInSlideshow": "Not in slideshow",
+    "includeInSlideshow": "Include in slideshow",
+    "removeFromSlideshow": "Remove from slideshow",
+    "delete": "Delete photo"
+  },
+  "deleteConfirm": {
+    "title": "Delete photo?",
+    "description": "This removes the photo from the board and the slideshow. There's no undo."
+  },
+  "errors": {
+    "couldNotLoadMore": "Could not load more photos",
+    "couldNotUpdate": "Could not update photo",
+    "couldNotDelete": "Could not delete photo"
+  },
+  "slideshow": {
+    "title": "Slideshow",
+    "description": "Wall displays turn into a photo slideshow after sitting idle. Tap or press any key to get back to the board.",
+    "idleMinutes": "Start after idle (minutes)",
+    "secondsPerPhoto": "Seconds per photo",
+    "transition": "Transition",
+    "transitions": {
+      "fade": "Crossfade",
+      "kenburns": "Ken Burns (slow pan & zoom)"
+    },
+    "showClock": "Show clock",
+    "showWeather": "Show weather",
+    "showAgenda": "Show today's agenda",
+    "preview": "Preview slideshow",
+    "saved": "Slideshow settings saved",
+    "couldNotSave": "Could not save slideshow settings"
+  },
+  "overlay": {
+    "allDay": "All day",
+    "comingUp": "Coming up",
+    "hiLo": "H {high}° L {low}°"
+  }
+}

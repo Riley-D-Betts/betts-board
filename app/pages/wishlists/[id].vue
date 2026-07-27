@@ -3,13 +3,14 @@ import type { WishlistDto, WishlistItemDto } from '#shared/schemas/wishlists'
 
 const route = useRoute()
 const toast = useToast()
+const { t } = useI18n()
 const { activeProfile } = useBoardState()
 const listId = route.params.id as string
 
 const { data: list, refresh } = await useFetch<WishlistDto>(`/api/wishlists/${listId}`)
 
 if (!list.value) {
-  throw createError({ statusCode: 404, statusMessage: 'Wish list not found', fatal: true })
+  throw createError({ statusCode: 404, statusMessage: t('wishlists.notFound'), fatal: true })
 }
 
 useLiveRefresh(refresh)
@@ -21,11 +22,11 @@ const canEdit = computed(() => {
   return p.role !== 'kid' || list.value?.profileId === p.id
 })
 
-const PRIORITY = [
-  { label: 'Nice to have', value: 0 },
-  { label: 'Would love', value: 1 },
-  { label: 'Really wants', value: 2 },
-]
+const PRIORITY = computed(() => [
+  { label: t('wishlists.priority.nice'), value: 0 },
+  { label: t('wishlists.priority.love'), value: 1 },
+  { label: t('wishlists.priority.really'), value: 2 },
+])
 
 const draft = reactive({ name: '', url: '', price: '', notes: '', priority: 0 })
 const adding = ref(false)
@@ -51,7 +52,7 @@ async function addItem() {
   }
   catch (err) {
     const e = err as { data?: { statusMessage?: string } }
-    toast.add({ title: e.data?.statusMessage ?? 'Could not add that', color: 'error' })
+    toast.add({ title: e.data?.statusMessage ?? t('wishlists.errors.couldNotAdd'), color: 'error' })
   }
   finally {
     adding.value = false
@@ -59,24 +60,24 @@ async function addItem() {
 }
 
 async function removeItem(item: WishlistItemDto) {
-  if (!confirm(`Remove "${item.name}" from this list?`)) return
+  if (!confirm(t('wishlists.confirmRemove', { name: item.name }))) return
   try {
     await $fetch(`/api/wishlists/${listId}/items/${item.id}`, { method: 'DELETE' })
     await refresh()
   }
   catch {
-    toast.add({ title: 'Could not remove that', color: 'error' })
+    toast.add({ title: t('wishlists.errors.couldNotRemove'), color: 'error' })
   }
 }
 
 async function archiveList() {
-  if (!confirm('Archive this wish list?')) return
+  if (!confirm(t('wishlists.confirmArchive'))) return
   try {
     await $fetch(`/api/wishlists/${listId}`, { method: 'DELETE' })
     await navigateTo('/wishlists')
   }
   catch {
-    toast.add({ title: 'Could not archive the list', color: 'error' })
+    toast.add({ title: t('wishlists.errors.couldNotArchive'), color: 'error' })
   }
 }
 
@@ -88,16 +89,18 @@ const today = todayString()
 const countdown = computed(() => {
   if (!list.value?.eventDate) return null
   const days = dateStringDiffDays(list.value.eventDate, today)
-  if (days === 0) return 'Today'
-  if (days === 1) return 'Tomorrow'
-  return days > 0 ? `In ${days} days` : `${Math.abs(days)} days ago`
+  if (days === 0) return t('common.actions.today')
+  if (days === 1) return t('common.actions.tomorrow')
+  return days > 0
+    ? t('wishlists.countdown.inDays', { n: days })
+    : t('wishlists.countdown.daysAgo', { n: Math.abs(days) })
 })
 </script>
 
 <template>
   <div v-if="list" class="space-y-6 max-w-3xl">
     <div class="flex flex-wrap items-start gap-2">
-      <UButton to="/wishlists" icon="i-lucide-arrow-left" variant="ghost" color="neutral" aria-label="Back to wish lists" />
+      <UButton to="/wishlists" icon="i-lucide-arrow-left" variant="ghost" color="neutral" :aria-label="$t('wishlists.backToLists')" />
       <div class="min-w-0 flex-1">
         <h1 class="text-2xl md:text-3xl font-bold truncate">{{ list.title }}</h1>
         <p class="text-sm text-slate-500 dark:text-slate-400">
@@ -112,45 +115,45 @@ const countdown = computed(() => {
         color="neutral"
         @click="editing = null; editorOpen = true"
       >
-        Edit
+        {{ $t('common.actions.edit') }}
       </UButton>
     </div>
 
     <!-- Add an idea -->
     <UCard v-if="canEdit">
       <div class="space-y-3">
-        <UFormField label="Add an idea">
+        <UFormField :label="$t('wishlists.addIdea')">
           <UInput
             v-model="draft.name"
-            placeholder="Lego Botanical set"
+            :placeholder="$t('wishlists.ideaPlaceholder')"
             class="w-full"
             size="lg"
             @keydown.enter.prevent="addItem"
           />
         </UFormField>
         <div class="grid gap-3 sm:grid-cols-2">
-          <UFormField label="Link" hint="optional">
+          <UFormField :label="$t('wishlists.link')" :hint="$t('common.state.optional')">
             <UInput v-model="draft.url" placeholder="https://…" class="w-full" />
           </UFormField>
-          <UFormField label="Rough price" hint="optional">
-            <UInput v-model="draft.price" placeholder="about $30" class="w-full" />
+          <UFormField :label="$t('wishlists.roughPrice')" :hint="$t('common.state.optional')">
+            <UInput v-model="draft.price" :placeholder="$t('wishlists.pricePlaceholder')" class="w-full" />
           </UFormField>
         </div>
-        <UFormField label="Notes" hint="optional">
-          <UTextarea v-model="draft.notes" :rows="2" class="w-full" placeholder="Size medium, blue if they have it" />
+        <UFormField :label="$t('wishlists.notes')" :hint="$t('common.state.optional')">
+          <UTextarea v-model="draft.notes" :rows="2" class="w-full" :placeholder="$t('wishlists.notesPlaceholder')" />
         </UFormField>
-        <UFormField label="How much do they want it">
+        <UFormField :label="$t('wishlists.wantLevel')">
           <USelect v-model="draft.priority" :items="PRIORITY" class="w-full" />
         </UFormField>
         <UButton icon="i-lucide-plus" :loading="adding" :disabled="!draft.name.trim()" @click="addItem">
-          Add to list
+          {{ $t('wishlists.addToList') }}
         </UButton>
       </div>
     </UCard>
 
     <div v-if="!items.length" class="py-12 text-center text-slate-500 dark:text-slate-400">
       <UIcon name="i-lucide-gift" class="size-10 mb-2" />
-      <p>Nothing on this list yet.</p>
+      <p>{{ $t('wishlists.emptyItems') }}</p>
     </div>
 
     <div v-else class="space-y-2">
@@ -169,8 +172,8 @@ const countdown = computed(() => {
               class="font-medium text-primary hover:underline truncate"
             >{{ item.name }}</a>
             <span v-else class="font-medium truncate">{{ item.name }}</span>
-            <UBadge v-if="item.priority === 2" variant="soft" color="primary">Really wants</UBadge>
-            <UBadge v-else-if="item.priority === 1" variant="soft" color="neutral">Would love</UBadge>
+            <UBadge v-if="item.priority === 2" variant="soft" color="primary">{{ $t('wishlists.priority.really') }}</UBadge>
+            <UBadge v-else-if="item.priority === 1" variant="soft" color="neutral">{{ $t('wishlists.priority.love') }}</UBadge>
           </div>
           <p v-if="item.price" class="text-sm font-semibold text-slate-600 dark:text-slate-300">{{ item.price }}</p>
           <p v-if="item.notes" class="text-sm text-slate-500 dark:text-slate-400">{{ item.notes }}</p>
@@ -180,14 +183,14 @@ const countdown = computed(() => {
           icon="i-lucide-trash-2"
           variant="ghost"
           color="error"
-          :aria-label="`Remove ${item.name}`"
+          :aria-label="$t('wishlists.removeItem', { name: item.name })"
           @click="removeItem(item)"
         />
       </div>
     </div>
 
     <UButton v-if="canEdit" variant="ghost" color="error" icon="i-lucide-archive" @click="archiveList">
-      Archive this list
+      {{ $t('wishlists.archive') }}
     </UButton>
 
     <WishlistEditor v-model:open="editorOpen" :list="list" @saved="refresh()" />

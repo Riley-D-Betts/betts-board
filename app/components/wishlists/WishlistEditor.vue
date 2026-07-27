@@ -7,11 +7,18 @@ const open = defineModel<boolean>('open', { required: true })
 const emit = defineEmits<{ saved: [] }>()
 
 const toast = useToast()
+const { t } = useI18n()
 const { state, activeProfile } = useBoardState()
 
 // Presets fill the free-text field — the ergonomics of an enum without the
 // rigidity, since families invent their own occasions.
-const OCCASIONS = ['Birthday', 'Christmas', 'Hanukkah', 'Graduation', 'Just because']
+const OCCASIONS = computed(() => [
+  t('wishlists.occasions.birthday'),
+  t('wishlists.occasions.christmas'),
+  t('wishlists.occasions.hanukkah'),
+  t('wishlists.occasions.graduation'),
+  t('wishlists.occasions.justBecause'),
+])
 
 const form = reactive({
   title: '',
@@ -35,7 +42,7 @@ const busy = ref(false)
 
 async function save() {
   if (!form.title.trim()) {
-    toast.add({ title: 'Give the list a name first', color: 'warning' })
+    toast.add({ title: t('wishlists.errors.nameRequired'), color: 'warning' })
     return
   }
   busy.value = true
@@ -57,7 +64,7 @@ async function save() {
   }
   catch (err) {
     const e = err as { data?: { statusMessage?: string } }
-    toast.add({ title: e.data?.statusMessage ?? 'Could not save the list', color: 'error' })
+    toast.add({ title: e.data?.statusMessage ?? t('wishlists.errors.couldNotSave'), color: 'error' })
   }
   finally {
     busy.value = false
@@ -66,19 +73,19 @@ async function save() {
 </script>
 
 <template>
-  <UModal v-model:open="open" :title="props.list ? 'Edit wish list' : 'New wish list'">
+  <UModal v-model:open="open" :title="props.list ? $t('wishlists.editList') : $t('wishlists.createList')">
     <template #body>
       <div class="space-y-4">
-        <UFormField label="Name">
-          <UInput v-model="form.title" placeholder="Emma's birthday" class="w-full" size="lg" autofocus />
+        <UFormField :label="$t('wishlists.name')">
+          <UInput v-model="form.title" :placeholder="$t('wishlists.namePlaceholder')" class="w-full" size="lg" autofocus />
         </UFormField>
 
-        <UFormField label="Who is it for">
+        <UFormField :label="$t('wishlists.forWhom')">
           <USelect v-model="form.profileId" :items="profiles" class="w-full" />
         </UFormField>
 
-        <UFormField label="Occasion" hint="optional">
-          <UInput v-model="form.occasion" placeholder="Birthday" class="w-full" />
+        <UFormField :label="$t('wishlists.occasion')" :hint="$t('common.state.optional')">
+          <UInput v-model="form.occasion" :placeholder="$t('wishlists.occasionPlaceholder')" class="w-full" />
           <div class="mt-2 flex flex-wrap gap-1">
             <UButton
               v-for="o in OCCASIONS"
@@ -93,7 +100,7 @@ async function save() {
           </div>
         </UFormField>
 
-        <UFormField label="Date" hint="optional" help="Shows a countdown on the list.">
+        <UFormField :label="$t('wishlists.date')" :hint="$t('common.state.optional')" :help="$t('wishlists.dateHelp')">
           <UInput v-model="form.eventDate" type="date" class="w-full" />
         </UFormField>
       </div>
@@ -101,8 +108,8 @@ async function save() {
 
     <template #footer>
       <div class="flex justify-end gap-2">
-        <UButton variant="ghost" color="neutral" @click="open = false">Cancel</UButton>
-        <UButton :loading="busy" @click="save">Save</UButton>
+        <UButton variant="ghost" color="neutral" @click="open = false">{{ $t('common.actions.cancel') }}</UButton>
+        <UButton :loading="busy" @click="save">{{ $t('common.actions.save') }}</UButton>
       </div>
     </template>
   </UModal>

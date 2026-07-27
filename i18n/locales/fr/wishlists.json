@@ -1,21 +1,36 @@
 {
   "title": "Wish lists",
   "newList": "New list",
+  "createList": "New wish list",
   "editList": "Edit wish list",
+  "notFound": "Wish list not found",
+  "backToLists": "Back to wish lists",
   "empty": "No wish lists yet. Start one for a birthday or the holidays.",
   "emptyItems": "Nothing on this list yet.",
   "ideas": "{n} idea | {n} ideas",
   "addIdea": "Add an idea",
+  "ideaPlaceholder": "Lego Botanical set",
   "addToList": "Add to list",
   "archive": "Archive this list",
   "name": "Name",
+  "namePlaceholder": "Emma's birthday",
   "forWhom": "Who is it for",
   "occasion": "Occasion",
+  "occasionPlaceholder": "Birthday",
+  "occasions": {
+    "birthday": "Birthday",
+    "christmas": "Christmas",
+    "hanukkah": "Hanukkah",
+    "graduation": "Graduation",
+    "justBecause": "Just because"
+  },
   "date": "Date",
   "dateHelp": "Shows a countdown on the list.",
   "link": "Link",
   "roughPrice": "Rough price",
+  "pricePlaceholder": "about $30",
   "notes": "Notes",
+  "notesPlaceholder": "Size medium, blue if they have it",
   "wantLevel": "How much do they want it",
   "priority": {
     "nice": "Nice to have",
@@ -25,5 +40,15 @@
   "countdown": {
     "inDays": "In {n} days",
     "daysAgo": "{n} days ago"
+  },
+  "removeItem": "Remove {name}",
+  "confirmRemove": "Remove \"{name}\" from this list?",
+  "confirmArchive": "Archive this wish list?",
+  "errors": {
+    "nameRequired": "Give the list a name first",
+    "couldNotSave": "Could not save the list",
+    "couldNotAdd": "Could not add that",
+    "couldNotRemove": "Could not remove that",
+    "couldNotArchive": "Could not archive the list"
   }
 }

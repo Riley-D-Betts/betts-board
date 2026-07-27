@@ -1,0 +1,18 @@
+{
+  "moreCount": "+{n} more",
+  "weather": {
+    "heading": "Weather",
+    "noLocation": "Set a weather location in Settings to see the forecast."
+  },
+  "agenda": {
+    "allDay": "All day",
+    "empty": "Nothing on the calendar today."
+  },
+  "chores": {
+    "empty": "No chores due today."
+  },
+  "actions": {
+    "slideshow": "Slideshow",
+    "exitTvMode": "Exit TV mode"
+  }
+}

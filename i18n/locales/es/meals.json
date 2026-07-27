@@ -1,0 +1,58 @@
+{
+  "title": "Meals",
+  "generateList": "Generate shopping list",
+  "thisWeek": "This week",
+  "nextWeek": "Next week",
+  "lastWeek": "Last week",
+  "planSlot": "Plan {slot} for {date}",
+  "removeEntry": "Remove {title}",
+  "couldNotPlan": "Could not plan the meal",
+  "couldNotRemove": "Could not remove the meal",
+  "slots": {
+    "breakfast": "Breakfast",
+    "lunch": "Lunch",
+    "dinner": "Dinner",
+    "snack": "Snack"
+  },
+  "weekNav": {
+    "previous": "Previous week",
+    "next": "Next week"
+  },
+  "tile": {
+    "tonight": "Tonight",
+    "nothingPlanned": "Nothing planned for tonight.",
+    "planTonight": "Plan tonight"
+  },
+  "picker": {
+    "title": "{slot} · {day}",
+    "search": "Search recipes…",
+    "servings": "Servings",
+    "servingsOverride": "Servings override",
+    "servingsCount": "{n} servings",
+    "whosCooking": "Who's cooking?",
+    "cook": "Cook",
+    "noCook": "No cook",
+    "noMatches": "No recipes match your search.",
+    "empty": "No recipes yet.",
+    "orTypeIt": "or just type it",
+    "freeTextPlaceholder": "“Leftovers”, “Pizza night out”…"
+  },
+  "generate": {
+    "from": "From",
+    "until": "Until (exclusive)",
+    "addToList": "Add to list",
+    "defaultList": "Default list",
+    "listIsDefault": "{name} (default)",
+    "checkPantry": "Check the pantry",
+    "checkPantryHint": "Flag ingredients you already have at home.",
+    "submit": "Generate",
+    "summary": "{created} added, {merged} merged into existing items.",
+    "inPantry": "Already in your pantry — tap to remove:",
+    "skippedFreeText": "Couldn't shop for these free-text meals:",
+    "openList": "Open list",
+    "done": "Done",
+    "failed": "Could not generate the shopping list",
+    "removedItem": "Removed {name}",
+    "couldNotRemoveItem": "Could not remove item"
+  }
+}

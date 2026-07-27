@@ -18,7 +18,7 @@ async function pick(profileId: string) {
 
 <template>
   <div class="text-center space-y-8">
-    <h1 class="text-3xl font-bold text-slate-800 dark:text-slate-100">Who's using the board?</h1>
+    <h1 class="text-3xl font-bold text-slate-800 dark:text-slate-100">{{ $t('auth.profiles.chooseTitle') }}</h1>
     <div class="flex flex-wrap justify-center gap-6">
       <button
         v-for="p in state?.profiles ?? []"
