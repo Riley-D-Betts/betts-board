@@ -52,7 +52,6 @@
     "tokenHelp": "Stored on your server, never shown again.",
     "tokenHelpStored": "Stored on your server, never shown again. Leave blank to keep the current token.",
     "test": "Test connection",
-    "testOk": "Connected to {repo}",
     "disconnect": "Disconnect",
     "disconnectConfirm": "Disconnect GitHub? The saved token is deleted and family members can no longer send feedback.",
     "disconnected": "GitHub disconnected",
@@ -61,7 +60,6 @@
       "invalidRepo": "Repo must look like owner/repo",
       "couldNotSave": "Could not save feedback settings",
       "needsSetup": "Save a repo and token first",
-      "couldNotReach": "Could not reach GitHub",
       "couldNotDisconnect": "Could not disconnect"
     }
   }

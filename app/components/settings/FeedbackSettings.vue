@@ -48,7 +48,7 @@ async function testConnection() {
   testResult.value = null
   try {
     const res = await $fetch<{ ok: true, repoFullName: string }>('/api/feedback/test', { method: 'POST' })
-    testResult.value = { ok: true, message: t('feedback.settings.testOk', { repo: res.repoFullName }) }
+    testResult.value = { ok: true, message: t('feedback.settings.connected', { repo: res.repoFullName }) }
   }
   catch (err) {
     const e = err as { statusCode?: number, data?: { statusMessage?: string } }
@@ -56,7 +56,7 @@ async function testConnection() {
       ok: false,
       message: e.statusCode === 409
         ? t('feedback.settings.errors.needsSetup')
-        : e.data?.statusMessage ?? t('feedback.settings.errors.couldNotReach'),
+        : e.data?.statusMessage ?? t('feedback.errors.couldNotReach'),
     }
   }
   finally {
