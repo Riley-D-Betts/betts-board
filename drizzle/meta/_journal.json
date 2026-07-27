@@ -43,6 +43,13 @@
       "when": 1785091611367,
       "tag": "0005_wishlists",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1785120641426,
+      "tag": "0006_finance",
+      "breakpoints": true
     }
   ]
 }

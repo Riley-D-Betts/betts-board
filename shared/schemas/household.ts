@@ -29,6 +29,17 @@ export const tvSettingsSchema = z.object({
   theme: z.enum(['auto', 'light', 'dark']),
 })
 
+export const financeSettingsSchema = z.object({
+  /**
+   * Display default only. Each account carries its own currency (SimpleFIN
+   * reports per-account, and mixed-currency households are real), and totals
+   * are grouped by currency rather than converted — there is no FX anywhere.
+   */
+  currency: z.string().trim().min(1).max(120),
+  /** Days of cash-flow projection on the finance overview. */
+  forecastDays: z.number().int().min(7).max(365),
+})
+
 /**
  * THE household settings contract. The DB column type, the client bootstrap
  * type, and the PATCH validator all derive from this — keep it the only place
@@ -52,6 +63,7 @@ export const householdSettingsSchema = z.object({
   }).optional(),
   appearance: appearanceSchema.optional(),
   tv: tvSettingsSchema.optional(),
+  finance: financeSettingsSchema.optional(),
   slideshow: slideshowSettingsSchema,
 })
 
@@ -77,6 +89,7 @@ export const householdPatchSchema = z.object({
     }).partial().optional(),
     appearance: appearanceSchema.partial().optional(),
     tv: tvSettingsSchema.partial().optional(),
+    finance: financeSettingsSchema.partial().optional(),
     slideshow: slideshowSettingsSchema.partial().optional(),
   }).partial().optional(),
 })
