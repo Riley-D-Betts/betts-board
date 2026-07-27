@@ -103,9 +103,9 @@ const personGroups = computed(() => {
 
     <!-- Week navigation + grouping -->
     <div class="flex flex-wrap items-center gap-1">
-      <UButton icon="i-lucide-chevron-left" variant="ghost" color="neutral" aria-label="Previous week" @click="weekOffset--" />
+      <UButton icon="i-lucide-chevron-left" variant="ghost" color="neutral" :aria-label="$t('chores.weekNav.previous')" @click="weekOffset--" />
       <span class="min-w-36 text-center font-medium">{{ weekLabel }}</span>
-      <UButton icon="i-lucide-chevron-right" variant="ghost" color="neutral" aria-label="Next week" @click="weekOffset++" />
+      <UButton icon="i-lucide-chevron-right" variant="ghost" color="neutral" :aria-label="$t('chores.weekNav.next')" @click="weekOffset++" />
       <UButton v-if="weekOffset !== 0" variant="ghost" size="sm" @click="weekOffset = 0">{{ $t('common.actions.today') }}</UButton>
 
       <div class="ml-auto flex rounded-lg border border-slate-200 dark:border-slate-700 p-0.5">

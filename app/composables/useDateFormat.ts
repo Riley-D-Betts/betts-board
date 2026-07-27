@@ -1,4 +1,5 @@
 import { DateTime, Info } from 'luxon'
+import { languageTag } from '#shared/schemas/locales'
 
 /**
  * Locale-aware date and time formatting for *display*.
@@ -20,8 +21,13 @@ import { DateTime, Info } from 'luxon'
  */
 export function useDateFormat() {
   const { locale } = useI18n()
+  // The BCP 47 tag, not the bare code. `es` leaves the date order and the
+  // decimal separator to the runtime's guess, and Node and the browser do not
+  // always guess the same — a hydration mismatch that only shows up for
+  // non-English households.
+  const tag = computed(() => languageTag(locale.value))
 
-  const withLocale = (dt: DateTime) => dt.setLocale(locale.value)
+  const withLocale = (dt: DateTime) => dt.setLocale(tag.value)
 
   /** "7:30 AM" / "07:30" — follows the locale's clock convention. */
   function formatTime(ms: number, zone?: string): string {
@@ -69,7 +75,7 @@ export function useDateFormat() {
   function weekdayNames(format: 'short' | 'long' = 'short'): string[] {
     // Luxon returns Monday-first; rotate so index 0 is Sunday, matching the
     // app's weekStartsOn convention and Date#getDay().
-    const names = Info.weekdays(format, { locale: locale.value })
+    const names = Info.weekdays(format, { locale: tag.value })
     return [names[6]!, ...names.slice(0, 6)]
   }
 

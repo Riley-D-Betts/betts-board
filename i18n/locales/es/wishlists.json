@@ -1,0 +1,29 @@
+{
+  "title": "Wish lists",
+  "newList": "New list",
+  "editList": "Edit wish list",
+  "empty": "No wish lists yet. Start one for a birthday or the holidays.",
+  "emptyItems": "Nothing on this list yet.",
+  "ideas": "{n} idea | {n} ideas",
+  "addIdea": "Add an idea",
+  "addToList": "Add to list",
+  "archive": "Archive this list",
+  "name": "Name",
+  "forWhom": "Who is it for",
+  "occasion": "Occasion",
+  "date": "Date",
+  "dateHelp": "Shows a countdown on the list.",
+  "link": "Link",
+  "roughPrice": "Rough price",
+  "notes": "Notes",
+  "wantLevel": "How much do they want it",
+  "priority": {
+    "nice": "Nice to have",
+    "love": "Would love",
+    "really": "Really wants"
+  },
+  "countdown": {
+    "inDays": "In {n} days",
+    "daysAgo": "{n} days ago"
+  }
+}

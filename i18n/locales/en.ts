@@ -1,3 +1,4 @@
+import calendar from './en/calendar.json'
 import chores from './en/chores.json'
 import common from './en/common.json'
 import finance from './en/finance.json'
@@ -15,11 +16,12 @@ import wishlists from './en/wishlists.json'
  * `de.ts`, and add one entry to `i18n.locales` in nuxt.config.ts.
  */
 export default defineI18nLocale(() => ({
-  common,
+  calendar,
   chores,
+  common,
   finance,
-  wishlists,
+  recipes,
   settings,
   shopping,
-  recipes,
+  wishlists,
 }))

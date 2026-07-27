@@ -57,7 +57,7 @@ function formatTime(t: string) {
       <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
         <template v-if="dateLabel">{{ dateLabel }}</template>
         <template v-if="dateLabel && instance.dueTime"> · </template>
-        <template v-if="instance.dueTime">by {{ formatTime(instance.dueTime) }}</template>
+        <template v-if="instance.dueTime">{{ $t('chores.dueByTime', { time: formatTime(instance.dueTime) }) }}</template>
         <template v-if="(dateLabel || instance.dueTime) && !compact"> · </template>
         <template v-if="!compact">{{ instance.profileName }}</template>
       </p>

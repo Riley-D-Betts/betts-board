@@ -1,0 +1,21 @@
+{
+  "recurrence": {
+    "none": "Does not repeat",
+    "daily": "Daily",
+    "dailyEvery": "Every {n} days",
+    "weekly": "Weekly",
+    "weeklyOn": "Weekly on {days}",
+    "weeklyEvery": "Every {n} weeks",
+    "weeklyEveryOn": "Every {n} weeks on {days}",
+    "monthly": "Monthly",
+    "monthlyOnDay": "Monthly on day {day}",
+    "monthlyEvery": "Every {n} months",
+    "monthlyEveryOnDay": "Every {n} months on day {day}",
+    "quarterly": "Quarterly",
+    "quarterlyOnDay": "Quarterly on day {day}",
+    "yearly": "Yearly",
+    "yearlyEvery": "Every {n} years",
+    "times": "{base}, {n} time | {base}, {n} times",
+    "until": "{base} until {date}"
+  }
+}

@@ -7,6 +7,7 @@ import type { EditPayload, EventMaster } from '~/components/calendar/calendarTyp
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
+const { t } = useI18n()
 const { state } = useBoardState()
 
 const timezone = computed(() => state.value?.timezone ?? 'UTC')
@@ -14,12 +15,12 @@ const weekStartsOn = computed<0 | 1>(() => state.value?.settings?.weekStartsOn ?
 const profiles = computed(() => state.value?.profiles ?? [])
 
 const VIEWS: CalendarView[] = ['month', 'week', 'day', 'agenda']
-const viewItems = [
-  { value: 'month', label: 'Month', icon: 'i-lucide-calendar' },
-  { value: 'week', label: 'Week', icon: 'i-lucide-calendar-range' },
-  { value: 'day', label: 'Day', icon: 'i-lucide-calendar-1' },
-  { value: 'agenda', label: 'Agenda', icon: 'i-lucide-list' },
-] as const
+const viewItems = computed<{ value: CalendarView, label: string, icon: string }[]>(() => [
+  { value: 'month', label: t('calendar.views.month'), icon: 'i-lucide-calendar' },
+  { value: 'week', label: t('calendar.views.week'), icon: 'i-lucide-calendar-range' },
+  { value: 'day', label: t('calendar.views.day'), icon: 'i-lucide-calendar-1' },
+  { value: 'agenda', label: t('calendar.views.agenda'), icon: 'i-lucide-list' },
+])
 
 const view = computed<CalendarView>({
   get: () => VIEWS.includes(route.query.view as CalendarView) ? route.query.view as CalendarView : 'month',
@@ -110,7 +111,7 @@ async function openEditor(occ: CalendarOccurrence, scope: 'all' | 'this' | 'futu
     editorOpen.value = true
   }
   catch {
-    toast.add({ title: 'Could not load event', color: 'error' })
+    toast.add({ title: t('calendar.errors.couldNotLoadEvent'), color: 'error' })
   }
 }
 
@@ -130,7 +131,7 @@ function gotoDay(date: string) {
 const detailTitle = computed(() => {
   const occ = detailOcc.value
   if (!occ) return ''
-  if (occ.kind === 'meal') return `Cooking — ${occ.title.replace(/^Cook: /, '')}`
+  if (occ.kind === 'meal') return t('calendar.detail.cookingTitle', { title: occ.title.replace(/^Cook: /, '') })
   return occ.title
 })
 
@@ -141,8 +142,8 @@ const detailTimeLabel = computed(() => {
     const start = DateTime.fromISO(occ.startDate!, { zone: timezone.value })
     const endIncl = DateTime.fromISO(occ.endDate!, { zone: timezone.value }).minus({ days: 1 })
     return start.toISODate() === endIncl.toISODate()
-      ? `${start.toFormat('ccc, LLL d')} · All day`
-      : `${start.toFormat('ccc, LLL d')} – ${endIncl.toFormat('ccc, LLL d')} · All day`
+      ? t('calendar.detail.allDayOn', { date: start.toFormat('ccc, LLL d') })
+      : t('calendar.detail.allDayRange', { start: start.toFormat('ccc, LLL d'), end: endIncl.toFormat('ccc, LLL d') })
   }
   const start = DateTime.fromMillis(occ.start, { zone: timezone.value })
   const end = DateTime.fromMillis(occ.end, { zone: timezone.value })
@@ -175,9 +176,9 @@ const detailTimeLabel = computed(() => {
     <!-- controls: prev/today/next + member filter -->
     <div class="flex flex-wrap items-center gap-2">
       <div class="flex items-center gap-1">
-        <UButton icon="i-lucide-chevron-left" variant="ghost" color="neutral" aria-label="Previous" @click="prev" />
-        <UButton variant="soft" color="neutral" @click="today">Today</UButton>
-        <UButton icon="i-lucide-chevron-right" variant="ghost" color="neutral" aria-label="Next" @click="next" />
+        <UButton icon="i-lucide-chevron-left" variant="ghost" color="neutral" :aria-label="$t('calendar.nav.previous')" @click="prev" />
+        <UButton variant="soft" color="neutral" @click="today">{{ $t('common.actions.today') }}</UButton>
+        <UButton icon="i-lucide-chevron-right" variant="ghost" color="neutral" :aria-label="$t('calendar.nav.next')" @click="next" />
       </div>
 
       <div class="ml-auto flex flex-wrap items-center gap-1.5">
@@ -242,7 +243,7 @@ const detailTimeLabel = computed(() => {
       icon="i-lucide-plus"
       size="xl"
       class="fixed bottom-24 right-4 md:bottom-8 md:right-8 z-40 size-14 justify-center rounded-full shadow-lg"
-      aria-label="Add event"
+      :aria-label="$t('calendar.actions.addEvent')"
       @click="openCreate"
     />
 
@@ -276,7 +277,7 @@ const detailTimeLabel = computed(() => {
           <template v-if="detailOcc.kind === 'meal'">
             <p class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
               <UIcon name="i-lucide-chef-hat" class="size-3.5" />
-              Cooking block from the meal planner — change the cook or meal there.
+              {{ $t('calendar.detail.cookingHint') }}
             </p>
             <UButton
               :to="detailOcc.recipeId ? `/recipes/${detailOcc.recipeId}` : '/meals'"
@@ -284,12 +285,12 @@ const detailTimeLabel = computed(() => {
               variant="soft"
               @click="detailOpen = false"
             >
-              {{ detailOcc.recipeId ? 'View recipe' : 'Open meal planner' }}
+              {{ detailOcc.recipeId ? $t('calendar.detail.viewRecipe') : $t('calendar.detail.openMealPlanner') }}
             </UButton>
           </template>
           <p v-else class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
             <UIcon name="i-lucide-rss" class="size-3.5" />
-            {{ detailFeedName ? `From ${detailFeedName} — imported events can't be edited here.` : `Imported from a calendar subscription — read-only.` }}
+            {{ detailFeedName ? $t('calendar.detail.fromFeed', { name: detailFeedName }) : $t('calendar.detail.imported') }}
           </p>
         </div>
       </template>

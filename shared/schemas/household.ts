@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { zIanaTimezone, zTimeString } from './common'
 import { customFontSchema, zFontChoice } from './fonts'
+import { zLocaleCode } from './locales'
 
 export const slideshowSettingsSchema = z.object({
   idleMinutes: z.number().min(0.1).max(240),
@@ -50,6 +51,14 @@ export const financeSettingsSchema = z.object({
  */
 export const householdSettingsSchema = z.object({
   weekStartsOn: z.union([z.literal(0), z.literal(1)]),
+  /**
+   * The board's language, household-wide rather than per-device.
+   *
+   * A kitchen wall tablet is shared, and a per-device language would mean the
+   * same board reads differently depending on who last touched which screen.
+   * Missing on rows created before the setting existed → English.
+   */
+  locale: zLocaleCode.optional(),
   /** Missing on rows created before the setting existed → treat as fahrenheit. */
   temperatureUnit: z.enum(['fahrenheit', 'celsius']).optional(),
   /** Pre-filled cook for newly planned meals; null = ask every time. */
@@ -79,6 +88,7 @@ export const householdPatchSchema = z.object({
   // route merges recursively, so a partial patch never clobbers siblings.
   settings: z.object({
     weekStartsOn: householdSettingsSchema.shape.weekStartsOn.optional(),
+    locale: zLocaleCode.optional(),
     temperatureUnit: z.enum(['fahrenheit', 'celsius']).optional(),
     defaultCookProfileId: z.string().min(1).nullable().optional(),
     mealTimes: z.object({

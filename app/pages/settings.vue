@@ -7,6 +7,7 @@ const { isAdmin } = useBoardState()
   <div class="space-y-6 max-w-3xl">
     <h1 class="text-2xl md:text-3xl font-bold">{{ $t('settings.title') }}</h1>
     <SettingsHousehold v-if="isAdmin" />
+    <SettingsLanguage />
     <SettingsProfiles v-if="isAdmin" />
     <SettingsAppearance />
     <SlideshowSettings />

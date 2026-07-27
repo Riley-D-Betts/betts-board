@@ -1,0 +1,175 @@
+{
+  "allDay": "All day",
+  "views": {
+    "month": "Month",
+    "week": "Week",
+    "day": "Day",
+    "agenda": "Agenda"
+  },
+  "nav": {
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "actions": {
+    "addEvent": "Add event"
+  },
+  "errors": {
+    "couldNotLoadEvent": "Could not load event"
+  },
+  "detail": {
+    "cookingTitle": "Cooking — {title}",
+    "allDayOn": "{date} · All day",
+    "allDayRange": "{start} – {end} · All day",
+    "cookingHint": "Cooking block from the meal planner — change the cook or meal there.",
+    "viewRecipe": "View recipe",
+    "openMealPlanner": "Open meal planner",
+    "fromFeed": "From {name} — imported events can't be edited here.",
+    "imported": "Imported from a calendar subscription — read-only."
+  },
+  "agenda": {
+    "empty": "Nothing scheduled in the next 30 days."
+  },
+  "month": {
+    "more": "+{n} more"
+  },
+  "week": {
+    "allDayRow": "all-day"
+  },
+  "editor": {
+    "titleNew": "New event",
+    "titleAll": "Edit event",
+    "titleThis": "Edit this occurrence",
+    "titleFuture": "Edit this and future events",
+    "limitedHint": "Only this occurrence changes — time, title, location and notes.",
+    "eventTitle": "Title",
+    "eventTitlePlaceholder": "Soccer practice",
+    "starts": "Starts",
+    "ends": "Ends",
+    "endBeforeStart": "Must end after it starts",
+    "location": "Location",
+    "notes": "Notes",
+    "optionalPlaceholder": "Optional",
+    "attendees": "Who's going",
+    "repeats": "Repeats",
+    "reminder": "Reminder",
+    "color": "Color",
+    "colorHelp": "Auto uses the first attendee's color.",
+    "colorAuto": "Auto",
+    "colorSwatch": "Color {color}",
+    "confirmDelete": "Confirm delete?",
+    "reminders": {
+      "none": "No reminder",
+      "min5": "5 minutes before",
+      "min15": "15 minutes before",
+      "min30": "30 minutes before",
+      "hour1": "1 hour before",
+      "day1": "1 day before"
+    },
+    "toast": {
+      "updated": "Event updated",
+      "added": "Event added",
+      "deleted": "Event deleted",
+      "couldNotSave": "Could not save event",
+      "couldNotDelete": "Could not delete event"
+    }
+  },
+  "scope": {
+    "title": "Edit recurring event",
+    "this": "This event",
+    "future": "This and future events",
+    "all": "All events"
+  },
+  "repeat": {
+    "every": "Every",
+    "times": "times",
+    "presets": {
+      "none": "Does not repeat",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "quarterly": "Quarterly",
+      "yearly": "Yearly",
+      "custom": "Custom…"
+    },
+    "freq": {
+      "daily": "day(s)",
+      "weekly": "week(s)",
+      "monthly": "month(s)",
+      "yearly": "year(s)"
+    },
+    "end": {
+      "never": "Never ends",
+      "until": "Ends on date",
+      "count": "Ends after…"
+    },
+    "weekdays": {
+      "su": "S",
+      "mo": "M",
+      "tu": "T",
+      "we": "W",
+      "th": "T",
+      "fr": "F",
+      "sa": "S"
+    }
+  },
+  "feeds": {
+    "title": "Calendar feeds",
+    "empty": "Subscribe to school, sports or work calendars — their events show up read-only on the board.",
+    "namePlaceholder": "Name (e.g. School)",
+    "urlPlaceholder": "https://… or webcal://… .ics URL",
+    "add": "Add feed",
+    "refreshNow": "Refresh now",
+    "remove": "Remove feed",
+    "confirmRemove": "Remove the \"{name}\" feed? Its imported events disappear from the calendar.",
+    "intervals": {
+      "min15": "Every 15 min",
+      "hourly": "Hourly",
+      "hours6": "Every 6 hours",
+      "daily": "Daily"
+    },
+    "status": {
+      "failed": "Last refresh failed",
+      "refreshedAt": "Last refreshed {when}",
+      "never": "Not fetched yet"
+    },
+    "subscribe": {
+      "title": "Subscribe on your phone",
+      "help": "Add this URL as a calendar subscription in Google Calendar or Apple Calendar to see the board's events everywhere. Keep it private — the link is the key.",
+      "copyUrl": "Copy URL",
+      "copyWebcal": "Copy webcal URL"
+    },
+    "toast": {
+      "couldNotAdd": "Could not add feed",
+      "couldNotAddHelp": "Check the URL and try again.",
+      "couldNotUpdate": "Could not update feed",
+      "refreshFailed": "Refresh failed",
+      "refreshed": "Feed refreshed",
+      "couldNotRemove": "Could not remove feed",
+      "copied": "Copied to clipboard",
+      "couldNotCopy": "Could not copy"
+    }
+  },
+  "tile": {
+    "moreToday": "+{n} more today",
+    "empty": "Nothing on the calendar today."
+  },
+  "recurrence": {
+    "none": "Does not repeat",
+    "daily": "Daily",
+    "dailyEvery": "Every {n} days",
+    "weekly": "Weekly",
+    "weeklyOn": "Weekly on {days}",
+    "weeklyEvery": "Every {n} weeks",
+    "weeklyEveryOn": "Every {n} weeks on {days}",
+    "monthly": "Monthly",
+    "monthlyOnDay": "Monthly on day {day}",
+    "monthlyEvery": "Every {n} months",
+    "monthlyEveryOnDay": "Every {n} months on day {day}",
+    "quarterly": "Quarterly",
+    "quarterlyOnDay": "Quarterly on day {day}",
+    "yearly": "Yearly",
+    "yearlyEvery": "Every {n} years",
+    "times": "{base}, {n} time | {base}, {n} times",
+    "until": "{base} until {date}"
+  }
+}

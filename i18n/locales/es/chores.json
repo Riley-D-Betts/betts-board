@@ -1,0 +1,23 @@
+{
+  "title": "Chores",
+  "leaderboard": "Leaderboard",
+  "manage": "Manage",
+  "byDay": "By day",
+  "byPerson": "By person",
+  "thisWeek": "This week",
+  "nextWeek": "Next week",
+  "lastWeek": "Last week",
+  "noneThisWeek": "No chores this week.",
+  "setUp": "Set up chores",
+  "noneToday": "Nothing due today — enjoy! 🎉",
+  "doneCount": "{done}/{total}",
+  "daysLate": "{n} day late | {n} days late",
+  "markDone": "Mark {title} done",
+  "markNotDone": "Mark {title} not done",
+  "couldNotUpdate": "Could not update chore",
+  "celebration": {
+    "stars": "+{n} star | +{n} stars",
+    "niceWork": "Nice work",
+    "streak": "{n} days in a row"
+  }
+}

@@ -1,4 +1,5 @@
 import { currencyExponent } from '#shared/utils/money'
+import { languageTag } from '#shared/schemas/locales'
 
 /**
  * Money formatting for DISPLAY.
@@ -11,17 +12,19 @@ import { currencyExponent } from '#shared/utils/money'
  */
 export function useMoney() {
   const { locale } = useI18n()
+  /** BCP 47, for the same reason useDateFormat pins it — see there. */
+  const tag = computed(() => languageTag(locale.value))
 
   const formatters = new Map<string, Intl.NumberFormat>()
   function formatter(currency: string, options: Intl.NumberFormatOptions = {}): Intl.NumberFormat {
-    const key = `${locale.value}|${currency}|${JSON.stringify(options)}`
+    const key = `${tag.value}|${currency}|${JSON.stringify(options)}`
     let cached = formatters.get(key)
     if (!cached) {
       const exponent = currencyExponent(currency)
       // A non-ISO code (SimpleFIN permits a URL for non-ISO assets) would make
       // Intl throw, which must not take out the whole page.
       const isIso = /^[A-Za-z]{3}$/.test(currency)
-      cached = new Intl.NumberFormat(locale.value, isIso
+      cached = new Intl.NumberFormat(tag.value, isIso
         ? { style: 'currency', currency: currency.toUpperCase(), minimumFractionDigits: exponent, maximumFractionDigits: exponent, ...options }
         : { style: 'decimal', minimumFractionDigits: exponent, maximumFractionDigits: exponent, ...options })
       formatters.set(key, cached)
@@ -83,7 +86,7 @@ export function useMoney() {
   /** "62%" for a budget bar. */
   function percent(value: number | null | undefined): string {
     if (value == null) return '—'
-    return new Intl.NumberFormat(locale.value, { style: 'percent', maximumFractionDigits: 0 }).format(value)
+    return new Intl.NumberFormat(tag.value, { style: 'percent', maximumFractionDigits: 0 }).format(value)
   }
 
   return { money, moneyShort, moneySigned, toInput, fromInput, percent }

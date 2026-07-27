@@ -22,6 +22,7 @@ const open = defineModel<boolean>('open', { required: true })
 const emit = defineEmits<{ saved: [] }>()
 
 const toast = useToast()
+const { t } = useI18n()
 const { state } = useBoardState()
 const weekStartsOn = computed(() => state.value?.settings?.weekStartsOn ?? 0)
 
@@ -95,7 +96,7 @@ async function save() {
     emit('saved')
   }
   catch {
-    toast.add({ title: 'Could not save chore', color: 'error' })
+    toast.add({ title: t('chores.editor.couldNotSave'), color: 'error' })
   }
   finally {
     busy.value = false
@@ -104,20 +105,20 @@ async function save() {
 </script>
 
 <template>
-  <UModal v-model:open="open" :title="chore ? 'Edit chore' : 'New chore'">
+  <UModal v-model:open="open" :title="chore ? $t('chores.editor.editTitle') : $t('chores.newChore')">
     <template #body>
       <div class="space-y-4">
-        <UFormField label="Title">
-          <UInput v-model="form.title" placeholder="Feed the chickens" class="w-full" size="lg" autofocus />
+        <UFormField :label="$t('chores.editor.title')">
+          <UInput v-model="form.title" :placeholder="$t('chores.editor.titlePlaceholder')" class="w-full" size="lg" autofocus />
         </UFormField>
 
         <EmojiField v-model="form.emoji" :presets="EMOJIS" />
 
-        <UFormField label="Description" hint="optional">
+        <UFormField :label="$t('chores.editor.description')" :hint="$t('common.state.optional')">
           <UTextarea v-model="form.description" :rows="2" class="w-full" />
         </UFormField>
 
-        <UFormField label="Points">
+        <UFormField :label="$t('chores.editor.points')">
           <div class="flex items-center gap-3">
             <UButton
               icon="i-lucide-minus"
@@ -139,7 +140,10 @@ async function save() {
           </div>
         </UFormField>
 
-        <UFormField label="Who does it" :error="form.assigneeProfileIds.length === 0 ? 'Pick at least one person' : undefined">
+        <UFormField
+          :label="$t('chores.editor.assignees')"
+          :error="form.assigneeProfileIds.length === 0 ? $t('chores.editor.assigneeRequired') : undefined"
+        >
           <div class="flex flex-wrap gap-2">
             <button
               v-for="p in profiles"
@@ -158,15 +162,15 @@ async function save() {
         </UFormField>
 
         <div class="grid grid-cols-2 gap-3">
-          <UFormField label="Starts">
+          <UFormField :label="$t('chores.editor.startDate')">
             <UInput v-model="form.startDate" type="date" class="w-full" />
           </UFormField>
-          <UFormField label="Due by" hint="optional">
+          <UFormField :label="$t('chores.editor.dueTime')" :hint="$t('common.state.optional')">
             <UInput v-model="form.dueTime" type="time" class="w-full" />
           </UFormField>
         </div>
 
-        <UFormField label="Repeats">
+        <UFormField :label="$t('chores.editor.repeats')">
           <RecurrenceEditor
             v-model="form.rrule"
             :start-date="form.startDate"
@@ -175,10 +179,10 @@ async function save() {
         </UFormField>
 
         <UFormField
-          label="Stacking"
+          :label="$t('chores.editor.stacking')"
           :help="form.stacking
-            ? 'Missed days pile up — two skipped days means two chores'
-            : 'Missed days merge into one'"
+            ? $t('chores.editor.stackingOn')
+            : $t('chores.editor.stackingOff')"
         >
           <USwitch v-model="form.stacking" />
         </UFormField>
@@ -187,9 +191,9 @@ async function save() {
 
     <template #footer>
       <div class="flex w-full justify-end gap-2">
-        <UButton variant="ghost" color="neutral" @click="open = false">Cancel</UButton>
+        <UButton variant="ghost" color="neutral" @click="open = false">{{ $t('common.actions.cancel') }}</UButton>
         <UButton :disabled="!valid" :loading="busy" @click="save">
-          {{ chore ? 'Save changes' : 'Add chore' }}
+          {{ chore ? $t('chores.editor.saveChanges') : $t('chores.editor.create') }}
         </UButton>
       </div>
     </template>

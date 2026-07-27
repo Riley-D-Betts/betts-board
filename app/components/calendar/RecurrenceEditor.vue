@@ -1,4 +1,7 @@
 <script setup lang="ts">
+// Sentence structure lives in the locale file, not in the code — see
+// shared/utils/recurrenceText.ts for why concatenating it cannot be translated.
+const { recurrenceText } = useRecurrenceText()
 const props = withDefaults(defineProps<{
   modelValue: string | null
   /** Event start date (YYYY-MM-DD) — default weekday for custom weekly rules. */

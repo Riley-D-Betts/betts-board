@@ -7,10 +7,16 @@ const props = withDefaults(defineProps<{
   label?: string
 }>(), {
   presets: () => [],
-  label: 'Emoji',
+  label: undefined,
 })
 
 const model = defineModel<string | null>({ required: true })
+
+const { t } = useI18n()
+
+// Default resolved here rather than in withDefaults: prop defaults are
+// evaluated outside setup, where useI18n() is unavailable.
+const fieldLabel = computed(() => props.label ?? t('common.emoji.label'))
 
 const typed = ref('')
 
@@ -35,12 +41,12 @@ function pick(emoji: string) {
 </script>
 
 <template>
-  <UFormField :label="props.label">
+  <UFormField :label="fieldLabel">
     <div class="space-y-2">
       <div class="flex items-center gap-2">
         <div
           class="flex size-11 shrink-0 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 text-2xl"
-          :aria-label="model ? `Selected ${model}` : 'No emoji selected'"
+          :aria-label="model ? $t('common.emoji.selected', { emoji: model }) : $t('common.emoji.noneSelected')"
         >
           <span v-if="model">{{ model }}</span>
           <UIcon v-else name="i-lucide-smile-plus" class="size-5 text-slate-400" />
@@ -48,7 +54,7 @@ function pick(emoji: string) {
         <UInput
           v-model="typed"
           class="flex-1"
-          placeholder="Type or paste any emoji"
+          :placeholder="$t('common.emoji.placeholder')"
           autocapitalize="off"
           autocomplete="off"
           @change="commitTyped"
@@ -60,7 +66,7 @@ function pick(emoji: string) {
           icon="i-lucide-x"
           variant="ghost"
           color="neutral"
-          aria-label="Clear emoji"
+          :aria-label="$t('common.emoji.clear')"
           @click="model = null"
         />
       </div>
