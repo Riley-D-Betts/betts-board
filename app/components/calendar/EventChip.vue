@@ -12,8 +12,10 @@ const props = withDefaults(defineProps<{
 
 defineEmits<{ select: [occurrence: CalendarOccurrence] }>()
 
+const { t } = useI18n()
+
 const timeLabel = computed(() => {
-  if (props.occurrence.isAllDay) return 'All day'
+  if (props.occurrence.isAllDay) return t('calendar.allDay')
   const start = DateTime.fromMillis(props.occurrence.start, { zone: props.timezone })
   if (props.variant === 'compact') return start.toFormat('h:mm')
   const end = DateTime.fromMillis(props.occurrence.end, { zone: props.timezone })

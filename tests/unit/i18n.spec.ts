@@ -84,6 +84,48 @@ describe('the locale registry', () => {
   })
 })
 
+/**
+ * The other half of the guard, and the one that catches an extraction pass
+ * that half-finished: a component saying $t('calendar.editor.title') for a key
+ * nobody ever wrote. vue-i18n renders the key path instead of throwing, so the
+ * screen quietly shows "calendar.editor.title" where a heading should be.
+ *
+ * Only literal keys are checkable — a computed key like $t(`x.${kind}`) is
+ * skipped, which is itself a reason to prefer literals.
+ */
+describe('keys referenced in the app', () => {
+  const appDir = fileURLToPath(new URL('../../app', import.meta.url))
+
+  function sourceFiles(dir: string): string[] {
+    return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+      const full = join(dir, entry.name)
+      if (entry.isDirectory()) return sourceFiles(full)
+      return /\.(vue|ts)$/.test(entry.name) ? [full] : []
+    })
+  }
+
+  const referenced = new Map<string, string>()
+  for (const file of sourceFiles(appDir)) {
+    const source = readFileSync(file, 'utf8')
+    for (const m of source.matchAll(/(?:\$t|\bt)\(\s*'([a-zA-Z][\w.]*)'/g)) {
+      referenced.set(m[1]!, file.slice(appDir.length + 1))
+    }
+  }
+
+  it('finds keys to check (the regex still matches this codebase)', () => {
+    expect(referenced.size).toBeGreaterThan(200)
+  })
+
+  it('resolves every literal key against the English messages', () => {
+    const missing = [...referenced.entries()]
+      .filter(([key]) => !english.has(key))
+      // A parent path used with a count, e.g. $t('a.b') where a.b is a plural
+      // string, still resolves; a path that is a whole OBJECT does not.
+      .map(([key, file]) => `${key}  (${file})`)
+    expect(missing).toEqual([])
+  })
+})
+
 describe.each(translated)('$name ($code)', ({ code }) => {
   const other = flatten(loadLocale(code))
 

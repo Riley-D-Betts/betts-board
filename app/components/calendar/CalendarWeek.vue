@@ -178,7 +178,7 @@ const nowLine = computed(() => {
       class="grid border-b border-slate-200 dark:border-slate-800"
       :style="{ gridTemplateColumns: `3rem repeat(${days}, minmax(0, 1fr))` }"
     >
-      <div class="py-1 pr-1 text-right text-[10px] text-slate-400">all-day</div>
+      <div class="py-1 pr-1 text-right text-[10px] text-slate-400">{{ $t('calendar.week.allDayRow') }}</div>
       <div v-for="col in columns" :key="col.date" class="min-w-0 space-y-px border-l border-slate-100 dark:border-slate-800 p-0.5">
         <button
           v-for="occ in col.allDay"

@@ -1,14 +1,15 @@
 <script setup lang="ts">
 const toast = useToast()
+const { t } = useI18n()
 const { data: feeds, refresh: reload } = await useFetch('/api/feeds')
 const { data: household } = await useFetch('/api/household')
 
-const intervals = [
-  { label: 'Every 15 min', value: 15 },
-  { label: 'Hourly', value: 60 },
-  { label: 'Every 6 hours', value: 360 },
-  { label: 'Daily', value: 1440 },
-]
+const intervals = computed(() => [
+  { label: t('calendar.feeds.intervals.min15'), value: 15 },
+  { label: t('calendar.feeds.intervals.hourly'), value: 60 },
+  { label: t('calendar.feeds.intervals.hours6'), value: 360 },
+  { label: t('calendar.feeds.intervals.daily'), value: 1440 },
+])
 
 const adding = ref(false)
 const saving = ref(false)
@@ -27,11 +28,11 @@ function statusIcon(feed: { lastStatus: string | null }) {
 }
 
 function statusText(feed: { lastStatus: string | null, lastError: string | null, lastFetchedAt?: string | Date | null }) {
-  if (feed.lastStatus === 'error') return feed.lastError || 'Last refresh failed'
+  if (feed.lastStatus === 'error') return feed.lastError || t('calendar.feeds.status.failed')
   if (feed.lastStatus === 'ok' && feed.lastFetchedAt) {
-    return `Last refreshed ${new Date(feed.lastFetchedAt).toLocaleString()}`
+    return t('calendar.feeds.status.refreshedAt', { when: new Date(feed.lastFetchedAt).toLocaleString() })
   }
-  return 'Not fetched yet'
+  return t('calendar.feeds.status.never')
 }
 
 async function addFeed() {
@@ -47,7 +48,7 @@ async function addFeed() {
     await reload()
   }
   catch {
-    toast.add({ title: 'Could not add feed', description: 'Check the URL and try again.', color: 'error' })
+    toast.add({ title: t('calendar.feeds.toast.couldNotAdd'), description: t('calendar.feeds.toast.couldNotAddHelp'), color: 'error' })
   }
   finally {
     saving.value = false
@@ -60,7 +61,7 @@ async function toggleFeed(id: string, enabled: boolean) {
     await reload()
   }
   catch {
-    toast.add({ title: 'Could not update feed', color: 'error' })
+    toast.add({ title: t('calendar.feeds.toast.couldNotUpdate'), color: 'error' })
   }
 }
 
@@ -70,14 +71,14 @@ async function refreshNow(id: string) {
     const updated = await $fetch(`/api/feeds/${id}/refresh`, { method: 'POST' })
     await reload()
     if (updated?.lastStatus === 'error') {
-      toast.add({ title: 'Refresh failed', description: updated.lastError ?? undefined, color: 'error' })
+      toast.add({ title: t('calendar.feeds.toast.refreshFailed'), description: updated.lastError ?? undefined, color: 'error' })
     }
     else {
-      toast.add({ title: 'Feed refreshed', color: 'success' })
+      toast.add({ title: t('calendar.feeds.toast.refreshed'), color: 'success' })
     }
   }
   catch {
-    toast.add({ title: 'Refresh failed', color: 'error' })
+    toast.add({ title: t('calendar.feeds.toast.refreshFailed'), color: 'error' })
   }
   finally {
     busyId.value = null
@@ -85,23 +86,23 @@ async function refreshNow(id: string) {
 }
 
 async function removeFeed(id: string, name: string) {
-  if (!confirm(`Remove the "${name}" feed? Its imported events disappear from the calendar.`)) return
+  if (!confirm(t('calendar.feeds.confirmRemove', { name }))) return
   try {
     await $fetch(`/api/feeds/${id}`, { method: 'DELETE' })
     await reload()
   }
   catch {
-    toast.add({ title: 'Could not remove feed', color: 'error' })
+    toast.add({ title: t('calendar.feeds.toast.couldNotRemove'), color: 'error' })
   }
 }
 
 async function copy(text: string) {
   try {
     await navigator.clipboard.writeText(text)
-    toast.add({ title: 'Copied to clipboard', color: 'success' })
+    toast.add({ title: t('calendar.feeds.toast.copied'), color: 'success' })
   }
   catch {
-    toast.add({ title: 'Could not copy', color: 'error' })
+    toast.add({ title: t('calendar.feeds.toast.couldNotCopy'), color: 'error' })
   }
 }
 </script>
@@ -111,13 +112,13 @@ async function copy(text: string) {
     <template #header>
       <div class="flex items-center gap-2 font-semibold">
         <UIcon name="i-lucide-calendar-sync" class="text-primary size-5" />
-        Calendar feeds
+        {{ $t('calendar.feeds.title') }}
       </div>
     </template>
 
     <div class="space-y-3">
       <p v-if="!feeds?.length && !adding" class="text-sm text-slate-500 dark:text-slate-400">
-        Subscribe to school, sports or work calendars — their events show up read-only on the board.
+        {{ $t('calendar.feeds.empty') }}
       </p>
 
       <div v-for="feed in feeds ?? []" :key="feed.id" class="flex items-center gap-3 min-h-11">
@@ -136,7 +137,7 @@ async function copy(text: string) {
           color="neutral"
           size="sm"
           :loading="busyId === feed.id"
-          aria-label="Refresh now"
+          :aria-label="$t('calendar.feeds.refreshNow')"
           @click="refreshNow(feed.id)"
         />
         <UButton
@@ -144,7 +145,7 @@ async function copy(text: string) {
           variant="ghost"
           color="neutral"
           size="sm"
-          aria-label="Remove feed"
+          :aria-label="$t('calendar.feeds.remove')"
           @click="removeFeed(feed.id, feed.name)"
         />
       </div>
@@ -152,33 +153,32 @@ async function copy(text: string) {
       <div v-if="adding" class="space-y-2 pt-2">
         <div class="flex items-center gap-2">
           <input v-model="newFeed.color" type="color" class="size-9 rounded cursor-pointer border-0 bg-transparent shrink-0">
-          <UInput v-model="newFeed.name" placeholder="Name (e.g. School)" class="flex-1" autofocus />
+          <UInput v-model="newFeed.name" :placeholder="$t('calendar.feeds.namePlaceholder')" class="flex-1" autofocus />
         </div>
-        <UInput v-model="newFeed.url" placeholder="https://… or webcal://… .ics URL" class="w-full" @keyup.enter="addFeed" />
+        <UInput v-model="newFeed.url" :placeholder="$t('calendar.feeds.urlPlaceholder')" class="w-full" @keyup.enter="addFeed" />
         <div class="flex items-center gap-2">
           <USelect v-model="newFeed.fetchIntervalMinutes" :items="intervals" class="w-40" />
-          <UButton icon="i-lucide-check" :loading="saving" @click="addFeed">Add feed</UButton>
-          <UButton variant="ghost" color="neutral" @click="adding = false">Cancel</UButton>
+          <UButton icon="i-lucide-check" :loading="saving" @click="addFeed">{{ $t('calendar.feeds.add') }}</UButton>
+          <UButton variant="ghost" color="neutral" @click="adding = false">{{ $t('common.actions.cancel') }}</UButton>
         </div>
       </div>
-      <UButton v-else variant="soft" icon="i-lucide-plus" @click="adding = true">Add feed</UButton>
+      <UButton v-else variant="soft" icon="i-lucide-plus" @click="adding = true">{{ $t('calendar.feeds.add') }}</UButton>
 
       <div v-if="icsUrl" class="pt-4 mt-4 border-t border-slate-200 dark:border-slate-700 space-y-2">
         <div class="flex items-center gap-2 font-medium text-sm">
           <UIcon name="i-lucide-smartphone" class="size-4 text-primary" />
-          Subscribe on your phone
+          {{ $t('calendar.feeds.subscribe.title') }}
         </div>
         <p class="text-xs text-slate-500 dark:text-slate-400">
-          Add this URL as a calendar subscription in Google Calendar or Apple Calendar
-          to see the board's events everywhere. Keep it private — the link is the key.
+          {{ $t('calendar.feeds.subscribe.help') }}
         </p>
         <div class="flex items-center gap-2">
           <code class="flex-1 min-w-0 truncate text-xs bg-slate-100 dark:bg-slate-800 rounded px-2 py-2.5">{{ icsUrl }}</code>
-          <UButton icon="i-lucide-copy" variant="soft" size="sm" aria-label="Copy URL" @click="copy(icsUrl)" />
+          <UButton icon="i-lucide-copy" variant="soft" size="sm" :aria-label="$t('calendar.feeds.subscribe.copyUrl')" @click="copy(icsUrl)" />
         </div>
         <div class="flex items-center gap-2">
           <code class="flex-1 min-w-0 truncate text-xs bg-slate-100 dark:bg-slate-800 rounded px-2 py-2.5">{{ webcalUrl }}</code>
-          <UButton icon="i-lucide-copy" variant="soft" size="sm" aria-label="Copy webcal URL" @click="copy(webcalUrl)" />
+          <UButton icon="i-lucide-copy" variant="soft" size="sm" :aria-label="$t('calendar.feeds.subscribe.copyWebcal')" @click="copy(webcalUrl)" />
         </div>
       </div>
     </div>

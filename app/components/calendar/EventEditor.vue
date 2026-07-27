@@ -18,16 +18,17 @@ const open = defineModel<boolean>('open', { required: true })
 const emit = defineEmits<{ saved: [] }>()
 
 const toast = useToast()
+const { t } = useI18n()
 
 const COLORS = ['#3b82f6', '#ec4899', '#22c55e', '#f97316', '#a855f7', '#14b8a6', '#eab308', '#ef4444']
-const REMINDER_ITEMS = [
-  { label: 'No reminder', value: 0 },
-  { label: '5 minutes before', value: 5 },
-  { label: '15 minutes before', value: 15 },
-  { label: '30 minutes before', value: 30 },
-  { label: '1 hour before', value: 60 },
-  { label: '1 day before', value: 1440 },
-]
+const REMINDER_ITEMS = computed(() => [
+  { label: t('calendar.editor.reminders.none'), value: 0 },
+  { label: t('calendar.editor.reminders.min5'), value: 5 },
+  { label: t('calendar.editor.reminders.min15'), value: 15 },
+  { label: t('calendar.editor.reminders.min30'), value: 30 },
+  { label: t('calendar.editor.reminders.hour1'), value: 60 },
+  { label: t('calendar.editor.reminders.day1'), value: 1440 },
+])
 
 const form = reactive({
   title: '',
@@ -197,10 +198,10 @@ async function save() {
     }
     open.value = false
     emit('saved')
-    toast.add({ title: props.editing ? 'Event updated' : 'Event added', color: 'success' })
+    toast.add({ title: props.editing ? t('calendar.editor.toast.updated') : t('calendar.editor.toast.added'), color: 'success' })
   }
   catch (err: unknown) {
-    const msg = (err as { data?: { message?: string } })?.data?.message ?? 'Could not save event'
+    const msg = (err as { data?: { message?: string } })?.data?.message ?? t('calendar.editor.toast.couldNotSave')
     toast.add({ title: msg, color: 'error' })
   }
   finally {
@@ -225,10 +226,10 @@ async function remove() {
     })
     open.value = false
     emit('saved')
-    toast.add({ title: 'Event deleted', color: 'success' })
+    toast.add({ title: t('calendar.editor.toast.deleted'), color: 'success' })
   }
   catch {
-    toast.add({ title: 'Could not delete event', color: 'error' })
+    toast.add({ title: t('calendar.editor.toast.couldNotDelete'), color: 'error' })
   }
   finally {
     busy.value = false
@@ -242,8 +243,12 @@ function toggleAttendee(id: string) {
 }
 
 const modalTitle = computed(() => {
-  if (!isEdit.value) return 'New event'
-  return { all: 'Edit event', this: 'Edit this occurrence', future: 'Edit this and future events' }[scope.value]
+  if (!isEdit.value) return t('calendar.editor.titleNew')
+  return {
+    all: t('calendar.editor.titleAll'),
+    this: t('calendar.editor.titleThis'),
+    future: t('calendar.editor.titleFuture'),
+  }[scope.value]
 })
 </script>
 
@@ -252,47 +257,47 @@ const modalTitle = computed(() => {
     <template #body>
       <div class="space-y-4">
         <p v-if="limitedFields" class="rounded-lg bg-slate-100 dark:bg-slate-800 px-3 py-2 text-xs text-slate-600 dark:text-slate-300">
-          Only this occurrence changes — time, title, location and notes.
+          {{ $t('calendar.editor.limitedHint') }}
         </p>
 
-        <UFormField label="Title">
-          <UInput v-model="form.title" placeholder="Soccer practice" class="w-full" size="lg" />
+        <UFormField :label="$t('calendar.editor.eventTitle')">
+          <UInput v-model="form.title" :placeholder="$t('calendar.editor.eventTitlePlaceholder')" class="w-full" size="lg" />
         </UFormField>
 
         <div v-if="!limitedFields" class="flex min-h-11 items-center justify-between">
-          <span class="text-sm font-medium">All day</span>
+          <span class="text-sm font-medium">{{ $t('calendar.allDay') }}</span>
           <USwitch v-model="form.isAllDay" />
         </div>
 
         <template v-if="form.isAllDay">
           <div v-if="!limitedFields" class="grid grid-cols-2 gap-3">
-            <UFormField label="Starts">
+            <UFormField :label="$t('calendar.editor.starts')">
               <UInput v-model="form.startDate" type="date" class="w-full" />
             </UFormField>
-            <UFormField label="Ends">
+            <UFormField :label="$t('calendar.editor.ends')">
               <UInput v-model="form.endDateIncl" type="date" :min="form.startDate" class="w-full" />
             </UFormField>
           </div>
         </template>
         <template v-else>
-          <UFormField label="Starts">
+          <UFormField :label="$t('calendar.editor.starts')">
             <UInput v-model="form.startLocal" type="datetime-local" class="w-full" />
           </UFormField>
-          <UFormField label="Ends" :error="form.startLocal && form.endLocal && localToMs(form.endLocal) <= localToMs(form.startLocal) ? 'Must end after it starts' : undefined">
+          <UFormField :label="$t('calendar.editor.ends')" :error="form.startLocal && form.endLocal && localToMs(form.endLocal) <= localToMs(form.startLocal) ? $t('calendar.editor.endBeforeStart') : undefined">
             <UInput v-model="form.endLocal" type="datetime-local" class="w-full" />
           </UFormField>
         </template>
 
-        <UFormField label="Location">
-          <UInput v-model="form.location" placeholder="Optional" icon="i-lucide-map-pin" class="w-full" />
+        <UFormField :label="$t('calendar.editor.location')">
+          <UInput v-model="form.location" :placeholder="$t('calendar.editor.optionalPlaceholder')" icon="i-lucide-map-pin" class="w-full" />
         </UFormField>
 
-        <UFormField label="Notes">
-          <UTextarea v-model="form.description" :rows="2" placeholder="Optional" class="w-full" />
+        <UFormField :label="$t('calendar.editor.notes')">
+          <UTextarea v-model="form.description" :rows="2" :placeholder="$t('calendar.editor.optionalPlaceholder')" class="w-full" />
         </UFormField>
 
         <template v-if="!limitedFields">
-          <UFormField label="Who's going">
+          <UFormField :label="$t('calendar.editor.attendees')">
             <div class="flex flex-wrap gap-2">
               <button
                 v-for="p in profiles"
@@ -310,7 +315,7 @@ const modalTitle = computed(() => {
             </div>
           </UFormField>
 
-          <UFormField label="Repeats">
+          <UFormField :label="$t('calendar.editor.repeats')">
             <RecurrenceEditor
               v-model="form.rrule"
               :start-date="form.isAllDay ? form.startDate : form.startLocal.slice(0, 10)"
@@ -318,11 +323,11 @@ const modalTitle = computed(() => {
             />
           </UFormField>
 
-          <UFormField v-if="!form.isAllDay" label="Reminder">
+          <UFormField v-if="!form.isAllDay" :label="$t('calendar.editor.reminder')">
             <USelect v-model="form.reminder" :items="REMINDER_ITEMS" class="w-full" />
           </UFormField>
 
-          <UFormField label="Color" help="Auto uses the first attendee's color.">
+          <UFormField :label="$t('calendar.editor.color')" :help="$t('calendar.editor.colorHelp')">
             <div class="flex flex-wrap items-center gap-2">
               <button
                 type="button"
@@ -332,7 +337,7 @@ const modalTitle = computed(() => {
                   : 'border-slate-200 dark:border-slate-700 text-slate-500'"
                 @click="form.color = null"
               >
-                Auto
+                {{ $t('calendar.editor.colorAuto') }}
               </button>
               <button
                 v-for="c in COLORS"
@@ -341,7 +346,7 @@ const modalTitle = computed(() => {
                 class="size-8 rounded-full transition-transform"
                 :class="form.color === c ? 'ring-2 ring-offset-2 ring-slate-400 dark:ring-offset-slate-900 scale-110' : ''"
                 :style="{ backgroundColor: c }"
-                :aria-label="`Color ${c}`"
+                :aria-label="$t('calendar.editor.colorSwatch', { color: c })"
                 @click="form.color = c"
               />
             </div>
@@ -360,12 +365,12 @@ const modalTitle = computed(() => {
           :loading="busy && confirmingDelete"
           @click="remove"
         >
-          {{ confirmingDelete ? 'Confirm delete?' : 'Delete' }}
+          {{ confirmingDelete ? $t('calendar.editor.confirmDelete') : $t('common.actions.delete') }}
         </UButton>
         <div class="flex-1" />
-        <UButton variant="ghost" color="neutral" @click="open = false">Cancel</UButton>
+        <UButton variant="ghost" color="neutral" @click="open = false">{{ $t('common.actions.cancel') }}</UButton>
         <UButton :disabled="!valid" :loading="busy && !confirmingDelete" @click="save">
-          {{ isEdit ? 'Save' : 'Add event' }}
+          {{ isEdit ? $t('common.actions.save') : $t('calendar.actions.addEvent') }}
         </UButton>
       </div>
     </template>
