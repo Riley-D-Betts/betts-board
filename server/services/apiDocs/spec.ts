@@ -15,6 +15,7 @@ const AUTH_NOTES: Record<AuthLevel, string> = {
   unlocked: 'Auth: any unlocked session or API key (no acting profile needed).',
   profile: 'Auth: needs an acting profile — a profile-bound API key, or a session with a profile selected. Unbound keys get `403 No acting profile`.',
   admin: 'Auth: admin — the acting profile (or the key\'s bound profile) must have the admin role.',
+  finance: 'Auth: **session only** — bearer API keys are rejected outright, whatever profile they are bound to. Needs an acting profile that is a finance member AND a finance PIN unlocked within the last 15 minutes.',
 }
 
 const INFO_DESCRIPTION = `Everything the board can do, an API client can do too — every screen in the
@@ -37,6 +38,9 @@ Authorization: Bearer bb_your_token_here
   acting profile (auth level *unlocked*). Routes marked *profile* return
   \`403 No acting profile\`.
 - Revoked keys, and keys bound to an archived profile, get \`401 Invalid API key\`.
+- **Finance routes are unreachable with an API key at all.** They need a browser
+  session whose acting profile is a finance member and has entered its finance
+  PIN in the last 15 minutes. See the *Finance* tag.
 
 ## Errors
 
@@ -130,7 +134,11 @@ function buildOperation(route: RouteDoc): Record<string, unknown> {
     description: AUTH_NOTES[route.auth],
     tags: route.tags,
     // Public routes explicitly opt out of the (empty) document-level default.
-    security: route.auth === 'public' ? [] : [{ bearerAuth: [] }],
+    // Finance routes reject bearer tokens by design, so documenting them as
+    // bearerAuth would be false. They get their own scheme instead.
+    security: route.auth === 'public'
+      ? []
+      : route.auth === 'finance' ? [{ cookieAuth: [] }] : [{ bearerAuth: [] }],
     ...(parameters.length ? { parameters } : {}),
     ...(requestBody ? { requestBody } : {}),
     responses: {
@@ -166,6 +174,12 @@ export function buildOpenApiSpec(): Record<string, unknown> {
           type: 'http',
           scheme: 'bearer',
           description: 'API key from Settings → API access (`bb_…`). Session cookies work too — the interactive docs use yours automatically.',
+        },
+        cookieAuth: {
+          type: 'apiKey',
+          in: 'cookie',
+          name: 'nuxt-session',
+          description: 'Browser session only. Finance routes deliberately reject API keys: a key is a long-lived token that lives in Home Assistant YAML and shell scripts, has no PIN, and is minted by an admin — which is not a boundary that should reach bank data.',
         },
       },
     },

@@ -10,6 +10,12 @@ export interface NavItem {
   exact?: boolean
   /** Only for profiles that can manage chores (admin/adult). */
   requiresManage?: boolean
+  /**
+   * Only for profiles with money access, and never on a wall-display device.
+   * Cosmetic only — the server rejects every finance request without a live
+   * finance session regardless of what the nav shows.
+   */
+  requiresFinance?: boolean
 }
 
 export interface NavGroup {
@@ -30,6 +36,14 @@ export function useNavItems() {
 
   const canManage = computed(() =>
     activeProfile.value?.role === 'admin' || activeProfile.value?.role === 'adult')
+
+  // Money is hidden from profiles that have no access, and from any device
+  // flagged as a wall display — a kitchen tablet shouldn't even advertise the
+  // section. Both are cosmetic; the real gate is server-side.
+  const { state: financeState } = useFinanceSession()
+  const { isDisplayDevice } = useDeviceMode()
+  const canSeeFinance = computed(() =>
+    financeState.value?.enrolled === true && !isDisplayDevice.value)
 
   const groups = computed<NavGroup[]>(() => [
     {
@@ -60,6 +74,7 @@ export function useNavItems() {
         { to: '/chores/leaderboard', label: t('common.nav.leaderboard'), icon: 'i-lucide-trophy', phoneMenuOnly: true },
         { to: '/wishlists', label: t('common.nav.wishlists'), icon: 'i-lucide-gift' },
         { to: '/photos', label: t('common.nav.photos'), icon: 'i-lucide-image' },
+        { to: '/finance', label: t('common.nav.money'), icon: 'i-lucide-wallet', requiresFinance: true },
       ],
     },
     {
@@ -77,7 +92,9 @@ export function useNavItems() {
   const allItems = computed(() => groups.value.flatMap(g => g.items))
 
   function permitted(item: NavItem) {
-    return !item.requiresManage || canManage.value
+    if (item.requiresManage && !canManage.value) return false
+    if (item.requiresFinance && !canSeeFinance.value) return false
+    return true
   }
 
   /** Menu groups, with role-gated entries and now-empty groups removed. */
@@ -88,8 +105,8 @@ export function useNavItems() {
   /** The four phone tabs, in bar order. */
   const tabs = computed(() => allItems.value.filter(i => i.tab))
 
-  /** Desktop sidebar — the same 13 destinations it has always shown. */
-  const sidebarItems = computed(() => allItems.value.filter(i => !i.phoneMenuOnly))
+  /** Desktop sidebar — everything except the phone-menu-only extras. */
+  const sidebarItems = computed(() => allItems.value.filter(i => !i.phoneMenuOnly && permitted(i)))
 
   /** Tab bar: prefix match, so the Chores tab stays lit on /chores/leaderboard. */
   function isTabActive(item: NavItem) {

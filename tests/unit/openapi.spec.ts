@@ -109,17 +109,23 @@ describe('buildOpenApiSpec', () => {
     }
   })
 
-  it('puts bearer security on every non-public operation', () => {
+  it('declares the right security scheme for every operation', () => {
     for (const route of routeRegistry) {
       const op = spec.paths[route.path]?.[route.method]
       expect(op, key(route)).toBeDefined()
       if (route.auth === 'public') {
         expect(op.security, `${key(route)} should opt out of auth`).toEqual([])
       }
+      else if (route.auth === 'finance') {
+        // Finance rejects bearer tokens outright, so documenting it as
+        // bearerAuth would be a lie an API client would act on.
+        expect(op.security, `${key(route)} should require cookieAuth`).toEqual([{ cookieAuth: [] }])
+      }
       else {
         expect(op.security, `${key(route)} should require bearerAuth`).toEqual([{ bearerAuth: [] }])
       }
     }
+    expect(spec.components.securitySchemes.cookieAuth).toMatchObject({ type: 'apiKey', in: 'cookie' })
   })
 
   it('documents at least one response per operation', () => {

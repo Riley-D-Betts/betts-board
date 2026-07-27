@@ -3,6 +3,13 @@ const { activeProfile, lock } = useBoardState()
 const route = useRoute()
 const { tabs, sidebarItems, isTabActive } = useNavItems()
 
+// Whether the Money item appears at all. Cheap (no financial data — just
+// "does this profile have access"), and the nav needs the answer everywhere.
+const { ensureLoaded: ensureFinanceLoaded, refresh: refreshFinance } = useFinanceSession()
+await ensureFinanceLoaded()
+// The acting profile decides who may see Money, so re-ask on every switch.
+watch(() => activeProfile.value?.id, () => void refreshFinance())
+
 // Phone-only full-screen menu. The tab bar holds four destinations; the raised
 // centre button opens the complete map of the board.
 const menuOpen = ref(false)

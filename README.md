@@ -48,6 +48,11 @@ your own server.
   Google Font by name — it's downloaded once and served from your own server
   afterwards, so no page view is ever reported to Google and it still works
   offline
+- 💰 **Money** — accounts, transactions, budgets, bills, savings goals, and a
+  cash-flow forecast, behind its own PIN. Connect a bank through
+  [SimpleFIN](https://beta-bridge.simplefin.org/) or import OFX/QFX/CSV
+  statements. Deliberately never shown on the dashboard, the wall display, or
+  the shared calendar — see [Money and privacy](#money-and-privacy)
 - 🔌 **Public API** — token-authenticated REST API for Home Assistant, scripts,
   and anything else (see the [API reference](#api-reference) below); keys
   managed in Settings
@@ -120,12 +125,106 @@ and the unlock screen lets you set a new one.
 | `BETTS_DATA_DIR` | `/data` | Where the database and uploads live |
 | `NUXT_SESSION_PASSWORD` | auto-generated | Cookie-sealing secret; created and persisted in the data volume automatically |
 | `BETTS_RESET_PASSWORD` | unset | Set to `1` for one boot to reset the household password |
+| `BETTS_RESET_FINANCE_PIN` | unset | Set to `1` for one boot to clear every Money PIN. Bank connections and history are untouched; whoever sets a PIN first afterwards becomes the Money owner |
+| `BETTS_SIMPLEFIN_HOSTS` | `bridge.simplefin.org` | Comma-separated hosts the server may fetch bank data from. Only change this if you run your own SimpleFIN bridge |
 | `NUXT_SESSION_COOKIE_SECURE` | `false` | Session cookies work over plain HTTP by default (LAN deployments). Set to `true` when serving behind HTTPS so the cookie is only ever sent encrypted |
 | `PORT` | `3000` | HTTP port inside the container |
 
 Everything else — weather location, temperature unit, week start, meal times,
 default cook, appearance, slideshow behavior, feeds, notifications, API keys —
 is configured in the app under **Settings**.
+
+## Money and privacy
+
+The Money section is the one part of Betts Board that isn't shared with the
+whole house, so it works differently from everything else. This section says
+exactly what it does and doesn't protect — please read it before connecting a
+bank.
+
+### Why it needs its own PIN
+
+Everywhere else, the household password is the boundary: anyone who can unlock
+the board is family, and family sees everything. That's the right model for
+chores and dinner. It doesn't work for bank balances, because **switching
+profiles takes no password** — anyone at the tablet can tap any profile,
+including an admin one. So the "admin" role protects against accidents and
+stray API keys, not against a person standing at the device.
+
+Money therefore has a second, independent lock:
+
+- Each person with access has their own **PIN** (6+ characters), separate from
+  the household password.
+- Unlocking lasts **15 minutes of activity**, with an 8-hour hard limit — not
+  the 90 days the rest of the board uses.
+- Switching profiles drops it. Dad unlocking Money and walking away does not
+  leave it unlocked for the next person who taps their own face.
+- Failed attempts are counted and shown to you next time you unlock, and
+  repeated failures lock that profile out for 5 minutes, then an hour, then a
+  day. The counter survives restarts.
+- **API keys can never reach Money**, whatever profile they're bound to. A key
+  lives in a Home Assistant config file and has no PIN; that's not a boundary
+  that should reach bank data.
+- **Settings → Money** lists every device that currently has Money unlocked,
+  with a button to lock any of them.
+
+Forgotten the PIN? Set `BETTS_RESET_FINANCE_PIN=1` for one boot. That needs
+access to the server itself, which is the point.
+
+### Where Money never appears
+
+By design, and verified by tests that fail the build if it stops being true:
+
+- **Not on the dashboard.** No tile, not even a collapsed one.
+- **Not on TV mode.** `/tv/*` pages run without an acting profile and are
+  refused by the server outright.
+- **Not on the shared calendar or the iCal feed.** Bills live only inside
+  Money. The calendar export URL is handed to every unlocked client, so a bill
+  on the family calendar would be a bill published to anyone holding that link.
+- **Not in push notifications.** Notification text renders on a phone's lock
+  screen, and "Chase connection failed" is a disclosure.
+- The Money item is hidden from navigation entirely on devices flagged as a
+  wall display.
+
+### What the encryption does and doesn't protect
+
+Connecting a bank stores a SimpleFIN access URL that contains live credentials
+for reading your accounts. It's encrypted at rest with AES-256-GCM, using a key
+generated on first use and stored at `${BETTS_DATA_DIR}/.finance-key`.
+
+**This protects a stray copy of the database.** Copying `betts.db` is the
+documented backup path (see [Backup & restore](#backup--restore)), and those
+copies end up on laptops and in cloud drives. A copy of the database alone
+reveals nothing.
+
+**It does not protect against someone who has the server.** The key file lives
+in the same volume as the database, so anyone who takes the whole volume, or
+who gets into the container or the host, has both halves. Self-hosting can't do
+better than that without asking you for a passphrase on every reboot, which
+would also mean bank sync stops whenever nobody's looking at the screen. The
+app says this plainly on screen rather than implying more.
+
+If you back up the data volume, `.finance-key` is in it — treat that backup as
+sensitive. If you restore `betts.db` **without** `.finance-key`, Money still
+works and your history is intact; you'll be asked to reconnect the bank.
+
+### Connecting a bank
+
+Betts Board speaks [SimpleFIN](https://beta-bridge.simplefin.org/), which is a
+read-only, paid bridge to most US and Canadian banks. You paste a setup token;
+it's exchanged once, immediately, and never stored. The server will only ever
+fetch from `bridge.simplefin.org` (override with `BETTS_SIMPLEFIN_HOSTS`) over
+HTTPS, refuses redirects, and refuses to fetch private or link-local addresses
+— a setup token is a URL your server is asked to call, and that shouldn't be a
+way to point it at your router.
+
+Connections sync every 6 hours by default. A bank that fails backs off
+exponentially rather than retrying every tick, and one bank having a bad day
+never stops the others.
+
+**No bank connection required.** Money works perfectly well with accounts you
+keep by hand, or by importing OFX/QFX/CSV statements — likely duplicates are
+always shown to you for review, never dropped silently, and any import can be
+undone in one click.
 
 ## Tech stack
 

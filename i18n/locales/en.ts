@@ -1,5 +1,6 @@
 import chores from './en/chores.json'
 import common from './en/common.json'
+import finance from './en/finance.json'
 import recipes from './en/recipes.json'
 import settings from './en/settings.json'
 import shopping from './en/shopping.json'
@@ -16,6 +17,7 @@ import wishlists from './en/wishlists.json'
 export default defineI18nLocale(() => ({
   common,
   chores,
+  finance,
   wishlists,
   settings,
   shopping,

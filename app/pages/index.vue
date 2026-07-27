@@ -15,6 +15,12 @@ const greeting = computed(() => {
       <WeatherBadge />
     </div>
 
+    <!--
+      There is deliberately NO money tile here, and adding one is a one-line
+      change that would undo the point of the whole finance slice. This page is
+      where the kitchen wall tablet sits, live-polling every 10 seconds, for
+      everyone who walks past. Money lives behind its own PIN at /finance.
+    -->
     <div class="grid gap-4 md:grid-cols-2">
       <TodayAgendaTile />
       <ChoresTodayTile />

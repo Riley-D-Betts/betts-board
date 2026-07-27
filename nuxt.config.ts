@@ -63,6 +63,9 @@ export default defineNuxtConfig({
       // In-process croner scheduling — fine for a single long-running container.
       '*/15 * * * *': ['ics:refresh'],
       '* * * * *': ['notify:dispatch'],
+      // Hourly tick; each bank connection has its own interval (6h default)
+      // and its own exponential backoff, so this only wakes what is due.
+      '0 * * * *': ['finance:sync'],
     },
   },
 

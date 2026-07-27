@@ -55,6 +55,16 @@ export function useDateFormat() {
     return withLocale(toDateTime(date)).toLocaleString({ month: 'long', year: 'numeric' })
   }
 
+  /**
+   * "3 minutes ago" / "yesterday". Luxon's toRelative, which delegates to
+   * Intl.RelativeTimeFormat — so it stays display-only like everything else
+   * here. Falls back to an absolute date if Luxon declines to produce one.
+   */
+  function formatRelative(ms: number): string {
+    const dt = withLocale(DateTime.fromMillis(ms))
+    return dt.toRelative() ?? dt.toLocaleString(DateTime.DATETIME_MED)
+  }
+
   /** Localised weekday names, Sunday first — replaces hardcoded arrays. */
   function weekdayNames(format: 'short' | 'long' = 'short'): string[] {
     // Luxon returns Monday-first; rotate so index 0 is Sunday, matching the
@@ -70,6 +80,7 @@ export function useDateFormat() {
     formatWeekdayShort,
     formatWeekdayDate,
     formatMonthYear,
+    formatRelative,
     weekdayNames,
   }
 }
