@@ -108,7 +108,11 @@
     "kind": "Kind",
     "archived": "Archived",
     "inUse": "Archived instead of deleted — {n} transaction still uses it. | Archived instead of deleted — {n} transactions still use it.",
-    "kinds": { "expense": "Spending", "income": "Income", "transfer": "Transfer" }
+    "kinds": {
+      "expense": "Spending",
+      "income": "Income",
+      "transfer": "Transfer"
+    }
   },
   "rules": {
     "title": "Auto-categorise",
@@ -124,8 +128,16 @@
     "runNow": "Run on existing transactions",
     "ran": "Updated {n} transaction. | Updated {n} transactions.",
     "neverOverwrites": "Rules never change a category you set yourself.",
-    "fields": { "description": "Description", "payee": "Paid to", "memo": "Memo" },
-    "types": { "contains": "contains", "startsWith": "starts with", "equals": "is exactly" }
+    "fields": {
+      "description": "Description",
+      "payee": "Paid to",
+      "memo": "Memo"
+    },
+    "types": {
+      "contains": "contains",
+      "startsWith": "starts with",
+      "equals": "is exactly"
+    }
   },
   "connections": {
     "title": "Bank connections",
@@ -164,7 +176,12 @@
     "intoAccount": "Import into",
     "columns": "Which column is which",
     "dateFormat": "Date order",
-    "dateFormats": { "auto": "Work it out", "MDY": "Month/Day/Year", "DMY": "Day/Month/Year", "YMD": "Year-Month-Day" },
+    "dateFormats": {
+      "auto": "Work it out",
+      "MDY": "Month/Day/Year",
+      "DMY": "Day/Month/Year",
+      "YMD": "Year-Month-Day"
+    },
     "hasHeader": "First row is a header",
     "preview": "Preview",
     "rowsFound": "{n} row found | {n} rows found",
@@ -199,7 +216,10 @@
     "addIncome": "Add income",
     "name": "What is it",
     "kind": "Kind",
-    "kinds": { "expense": "Bill", "income": "Income" },
+    "kinds": {
+      "expense": "Bill",
+      "income": "Income"
+    },
     "amount": "Usual amount",
     "startDate": "First due date",
     "repeats": "Repeats",
@@ -238,7 +258,7 @@
   },
   "forecast": {
     "title": "Cash flow",
-    "days": "{n} days",
+    "days": "{n} day | {n} days",
     "explain": "Today's spendable balance, plus your bills and income, minus what you usually spend day to day.",
     "basedOn": "Everyday spending is averaged from the last 90 days."
   },
@@ -246,7 +266,10 @@
     "title": "Who can see money",
     "add": "Give someone access",
     "role": "Role",
-    "roles": { "owner": "Owner", "member": "Member" },
+    "roles": {
+      "owner": "Owner",
+      "member": "Member"
+    },
     "roleHelp": "Owners can connect banks and manage who has access. Members can see and edit everything else.",
     "choosePin": "Choose their PIN",
     "choosePinHelp": "Tell them the PIN — they can change it themselves afterwards.",
