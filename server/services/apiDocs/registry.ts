@@ -127,7 +127,7 @@ export const routeRegistry: RouteDoc[] = [
     summary: 'App stage + profile roster — what the client needs before unlocking.',
     tags: ['System'],
     auth: 'public',
-    responseDescription: 'Either `{ needsSetup: true }` or household name, unlock state, active profile, profile roster, settings, and timezone. Never leaks secrets.',
+    responseDescription: 'Either `{ needsSetup: true }` or household name, unlock state and settings — what the lock screen needs. The profile roster, active profile and timezone are added only once the request carries an unlocked session.',
   },
   {
     method: 'post',
@@ -199,7 +199,7 @@ export const routeRegistry: RouteDoc[] = [
     summary: 'Household details: name, timezone, location, and settings.',
     tags: ['Household'],
     auth: 'unlocked',
-    responseDescription: 'The single household row (without the password hash).',
+    responseDescription: 'Name, timezone, location and settings. `icsToken` is included for admins only — it is the only credential on the ungated `/feeds/{token}.ics` route.',
   },
   {
     method: 'patch',
@@ -209,6 +209,14 @@ export const routeRegistry: RouteDoc[] = [
     auth: 'admin',
     requestSchema: householdPatchSchema,
     responseDescription: 'The updated household.',
+  },
+  {
+    method: 'post',
+    path: '/api/household/ics-token',
+    summary: 'Rotate the calendar subscription token, revoking the old link.',
+    tags: ['Household'],
+    auth: 'admin',
+    responseDescription: 'The new `{ icsToken }`. Existing `/feeds/{token}.ics` subscriptions stop working immediately — that is the point: it is the only way to revoke a leaked link.',
   },
   {
     method: 'post',
@@ -244,7 +252,7 @@ export const routeRegistry: RouteDoc[] = [
     summary: 'List family member profiles.',
     tags: ['Profiles'],
     auth: 'unlocked',
-    responseDescription: 'All profiles, including archived ones.',
+    responseDescription: 'The active (non-archived) profiles. Never the Money PIN hash — see server/utils/dto.ts.',
   },
   {
     method: 'post',
@@ -342,7 +350,7 @@ export const routeRegistry: RouteDoc[] = [
     summary: 'List subscribed ICS feeds.',
     tags: ['Feeds'],
     auth: 'unlocked',
-    responseDescription: 'All feeds with their fetch status.',
+    responseDescription: 'All feeds with their fetch status. The subscription URL is reduced to its host (`urlHost`): a private calendar URL is itself the credential.',
   },
   {
     method: 'post',
@@ -351,7 +359,7 @@ export const routeRegistry: RouteDoc[] = [
     tags: ['Feeds'],
     auth: 'admin',
     requestSchema: feedCreateSchema,
-    responseDescription: 'The created feed after its first fetch.',
+    responseDescription: 'The created feed after its first fetch, with the subscription URL reduced to its host (`urlHost`).',
   },
   {
     method: 'patch',
@@ -361,7 +369,7 @@ export const routeRegistry: RouteDoc[] = [
     auth: 'admin',
     requestSchema: feedPatchSchema,
     pathParams: ['id'],
-    responseDescription: 'The updated feed.',
+    responseDescription: 'The updated feed, with the subscription URL reduced to its host (`urlHost`).',
   },
   {
     method: 'delete',

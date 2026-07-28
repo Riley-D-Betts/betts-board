@@ -1,22 +1,13 @@
-import { eq } from 'drizzle-orm'
 import { profilePatchSchema } from '#shared/schemas/profiles'
 import { useDb } from '../../db/client'
-import { profiles } from '../../db/schema'
+import { updateProfile } from '../../services/profiles/store'
 import { requireAdmin } from '../../utils/session'
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event)
   const id = getRouterParam(event, 'id')!
   const patch = await readValidatedBody(event, profilePatchSchema.parse)
-
-  const existing = useDb().select().from(profiles).where(eq(profiles.id, id)).get()
-  if (!existing) throw createError({ statusCode: 404, statusMessage: 'Profile not found' })
-
-  return useDb().update(profiles).set({
-    ...(patch.name !== undefined && { name: patch.name }),
-    ...(patch.color !== undefined && { color: patch.color }),
-    ...(patch.role !== undefined && { role: patch.role }),
-    ...(patch.sortOrder !== undefined && { sortOrder: patch.sortOrder }),
-    ...(patch.archived !== undefined && { archivedAt: patch.archived ? new Date() : null }),
-  }).where(eq(profiles.id, id)).returning().get()
+  // Used to return the raw updated row — including pinHash, the argon2 hash of
+  // the Money PIN — to anyone who could make themselves admin, which is a tap.
+  return updateProfile(useDb(), id, patch)
 })

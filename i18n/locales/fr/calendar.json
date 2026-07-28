@@ -139,7 +139,9 @@
       "title": "S'abonner sur votre téléphone",
       "help": "Ajoutez cette URL comme abonnement dans Google Agenda ou Calendrier Apple pour retrouver vos événements partout. Gardez-la privée — ce lien fait office de clé.",
       "copyUrl": "Copier l'URL",
-      "copyWebcal": "Copier l'URL webcal"
+      "copyWebcal": "Copier l'URL webcal",
+      "rotate": "Réinitialiser le lien",
+      "rotateConfirm": "Réinitialiser le lien d'abonnement ? Les agendas abonnés à l'ancien lien cessent de se mettre à jour et chacun devra ajouter le nouveau."
     },
     "toast": {
       "couldNotAdd": "Impossible d'ajouter le flux",
@@ -147,6 +149,8 @@
       "couldNotUpdate": "Impossible de modifier le flux",
       "refreshFailed": "Échec de l'actualisation",
       "refreshed": "Flux actualisé",
+      "rotated": "Lien d'abonnement réinitialisé",
+      "couldNotRotate": "Impossible de réinitialiser le lien",
       "couldNotRemove": "Impossible de supprimer le flux",
       "copied": "Copié dans le presse-papiers",
       "couldNotCopy": "Impossible de copier"

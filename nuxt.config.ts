@@ -80,6 +80,10 @@ export default defineNuxtConfig({
   runtimeConfig: {
     // Overridable via BETTS_DATA_DIR (compose sets /data)
     dataDir: '.data',
+    // Overridable via BETTS_TRUSTED_PROXY. Off by default: X-Forwarded-For is
+    // client-writable, and rate limits keyed on it are trivially bypassed.
+    // Set it to "1" ONLY when a reverse proxy you control is the only way in.
+    trustedProxy: '',
     public: {
       // Baked at build time; the answer to "is this server running my change?"
       build: buildInfo(),

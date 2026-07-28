@@ -139,7 +139,9 @@
       "title": "Suscríbete desde el móvil",
       "help": "Añade esta URL como suscripción en Google Calendar o Apple Calendar para ver los eventos del tablero en cualquier dispositivo. No la compartas: el enlace es la llave.",
       "copyUrl": "Copiar URL",
-      "copyWebcal": "Copiar URL webcal"
+      "copyWebcal": "Copiar URL webcal",
+      "rotate": "Restablecer el enlace",
+      "rotateConfirm": "¿Restablecer el enlace de suscripción? Los calendarios suscritos al enlace anterior dejarán de actualizarse y todos tendrán que añadir el nuevo."
     },
     "toast": {
       "couldNotAdd": "No se pudo añadir el calendario",
@@ -147,6 +149,8 @@
       "couldNotUpdate": "No se pudo actualizar el calendario",
       "refreshFailed": "La actualización ha fallado",
       "refreshed": "Calendario actualizado",
+      "rotated": "Enlace de suscripción restablecido",
+      "couldNotRotate": "No se pudo restablecer el enlace",
       "couldNotRemove": "No se pudo quitar el calendario",
       "copied": "Copiado al portapapeles",
       "couldNotCopy": "No se pudo copiar"

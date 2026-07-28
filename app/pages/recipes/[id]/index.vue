@@ -39,15 +39,20 @@ const metaChips = computed(() => {
   return chips
 })
 
+/**
+ * The source link, or undefined when the stored value is not an http(s) URL.
+ *
+ * Recipes imported or typed in before the schema pinned the scheme can still
+ * hold `javascript:…`, and this value goes straight into an href — one tap and
+ * it runs on the board's origin with the session cookie. Both the link and its
+ * label derive from this, so there is no path where the anchor renders and the
+ * check did not.
+ */
+const sourceLink = computed(() => safeExternalUrl(recipe.value?.sourceUrl))
+
 const sourceHost = computed(() => {
-  const src = recipe.value?.sourceUrl
-  if (!src) return null
-  try {
-    return new URL(src).hostname.replace(/^www\./, '')
-  }
-  catch {
-    return null
-  }
+  if (!sourceLink.value) return null
+  return new URL(sourceLink.value).hostname.replace(/^www\./, '')
 })
 
 async function rate(value: number) {
@@ -131,8 +136,8 @@ async function deleteRecipe() {
       </p>
 
       <a
-        v-if="recipe.sourceUrl"
-        :href="recipe.sourceUrl"
+        v-if="sourceLink"
+        :href="sourceLink"
         target="_blank"
         rel="noopener noreferrer"
         class="inline-flex items-center gap-1 text-sm text-primary hover:underline"

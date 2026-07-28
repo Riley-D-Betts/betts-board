@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { zHttpUrl } from './common'
 
 export const recipeIngredientInputSchema = z.object({
   raw: z.string().trim().min(1).max(500),
@@ -12,7 +13,9 @@ export const recipeIngredientInputSchema = z.object({
 export const recipeCreateSchema = z.object({
   title: z.string().trim().min(1).max(300),
   description: z.string().max(5000).nullish(),
-  sourceUrl: z.string().url().nullish(),
+  /** Shown as the "source" link on the recipe page — see zHttpUrl for why
+   *  `z.string().url()` is not enough to put a stored value in an href. */
+  sourceUrl: zHttpUrl.max(2000).nullish(),
   prepMinutes: z.number().int().min(0).max(10080).nullish(),
   cookMinutes: z.number().int().min(0).max(10080).nullish(),
   totalMinutes: z.number().int().min(0).max(10080).nullish(),
@@ -25,7 +28,12 @@ export const recipeCreateSchema = z.object({
 export const recipePatchSchema = recipeCreateSchema.partial()
 
 export const recipeImportSchema = z.object({
-  url: z.string().url().max(2000),
+  /**
+   * The server fetches this one. Restricting the scheme keeps `file:///etc/…`
+   * and `gopher://127.0.0.1:11211/` out of fetch(), and the imported value is
+   * also stored as the recipe's sourceUrl and rendered as a link afterwards.
+   */
+  url: zHttpUrl.max(2000),
 })
 
 export const recipeListQuerySchema = z.object({

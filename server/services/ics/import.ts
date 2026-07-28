@@ -5,6 +5,7 @@ import { IANAZone } from 'luxon'
 import { addDaysToDateString, toDateString } from '#shared/utils/dates'
 import type { Db } from '../../db/client'
 import { calendarFeeds, eventExceptions, events, households } from '../../db/schema'
+import { safeFetchText } from '../../utils/safeFetch'
 import { encodeDateKey } from '../calendar/expand'
 import { computeDateRecurrenceEnd, computeRecurrenceEnd } from '../calendar/recurrence'
 
@@ -29,13 +30,27 @@ export function normalizeFeedUrl(url: string): string {
   return url.replace(/^webcal:\/\//i, 'https://')
 }
 
+/**
+ * A subscribed feed is re-fetched on a schedule forever, so an SSRF planted
+ * here only has to be accepted once to keep hitting the LAN every 15 minutes.
+ * safeFetch() re-validates the host on every redirect hop, every refresh.
+ *
+ * A household subscribing to a feed on its OWN NAS is legitimate; that case is
+ * opened per-host with BETTS_ALLOW_PRIVATE_FETCH_HOSTS (see safeFetch), which
+ * takes an edit to the compose file rather than a click in the admin UI.
+ *
+ * Budget: school/sports calendars are big and served by slow municipal
+ * software, so 30 s and 10 MB — total, body included, not just headers.
+ */
 async function fetchIcsText(url: string): Promise<string> {
-  const res = await fetch(normalizeFeedUrl(url), {
-    signal: AbortSignal.timeout(15_000),
+  const res = await safeFetchText(normalizeFeedUrl(url), {
+    timeoutMs: 30_000,
+    maxBytes: 10_000_000,
+    maxRedirects: 5,
     headers: { accept: 'text/calendar, text/plain, */*' },
   })
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
-  return await res.text()
+  return res.text
 }
 
 /** node-ical returns plain values or { params, val } wrappers. */

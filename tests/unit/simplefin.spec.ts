@@ -18,14 +18,28 @@ let SimpleFinReauthError: SimpleFin['SimpleFinReauthError']
 let stub: Server
 let base: string
 let calls: { method: string, url: string, auth: string | undefined }[]
-/** Per-test behaviour: a response, or 'destroy' for a network failure. */
-let respond: (url: string) => { status: number, body: string, headers?: Record<string, string> } | 'destroy'
+/**
+ * Per-test behaviour: a response, 'destroy' for a network failure, or
+ * 'endless' — headers arrive immediately and the body never stops. 'endless'
+ * is the shape that used to walk straight past this client's timeout, because
+ * the abort timer was cleared the moment fetch() resolved.
+ */
+let respond: (url: string) => { status: number, body: string, headers?: Record<string, string> } | 'destroy' | 'endless'
 
 beforeAll(async () => {
   stub = createServer((req, res) => {
     calls.push({ method: req.method!, url: req.url!, auth: req.headers.authorization })
     const result = respond(req.url!)
     if (result === 'destroy') return req.destroy()
+    if (result === 'endless') {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      const pump = () => {
+        if (res.writableEnded || res.destroyed) return
+        if (res.write('x'.repeat(64 * 1024))) setTimeout(pump, 1)
+        else res.once('drain', pump)
+      }
+      return pump()
+    }
     res.writeHead(result.status, { 'Content-Type': 'application/json', ...result.headers })
     res.end(result.body)
   })
@@ -38,6 +52,9 @@ beforeAll(async () => {
 
 afterAll(async () => {
   delete process.env.BETTS_SIMPLEFIN_HOSTS
+  // The 'endless' case deliberately leaves a socket mid-response; without this
+  // the close() below waits on it forever.
+  stub.closeAllConnections()
   await new Promise<void>(resolve => stub.close(() => resolve()))
 })
 
@@ -258,5 +275,25 @@ describe('fetchAccounts', () => {
       const text = JSON.stringify(error, Object.getOwnPropertyNames(error))
       return !text.includes('somepass') && !text.includes('someuser')
     })
+  })
+
+  // A bridge that sends headers and then never stops used to walk right past
+  // the request timeout, because the abort timer was cleared as soon as
+  // fetch() resolved and res.json() then ran with nothing armed. Reverting to
+  // a live Response + res.json() makes this test buffer until it times out.
+  it('stops an endless response body instead of buffering it', async () => {
+    respond = () => 'endless'
+    const port = (stub.address() as AddressInfo).port
+    const started = Date.now()
+
+    await expect(fetchAccounts(ACCESS(port))).rejects.toMatchObject({ statusCode: 502 })
+
+    expect(Date.now() - started).toBeLessThan(15_000) // well inside the 20s budget
+  }, 20_000)
+
+  it('refuses a body whose declared length is over the cap', async () => {
+    respond = () => ({ status: 200, body: 'short', headers: { 'Content-Length': '999999999' } })
+    const port = (stub.address() as AddressInfo).port
+    await expect(fetchAccounts(ACCESS(port))).rejects.toMatchObject({ statusCode: 502 })
   })
 })

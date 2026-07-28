@@ -1,6 +1,7 @@
 import { isIP } from 'node:net'
 import { createError } from 'h3'
 import { parseDecimalToMinor, secondsToDate } from '#shared/utils/money'
+import { readCappedBody } from '../../utils/safeFetch'
 import { redactCredentials, sanitizeErrorList, sanitizeUpstreamMessage } from './redact'
 
 /**
@@ -30,8 +31,11 @@ const ALLOWED_HOSTS = new Set(
   (process.env.BETTS_SIMPLEFIN_HOSTS || DEFAULT_HOSTS)
     .split(',').map(h => h.trim().toLowerCase()).filter(Boolean),
 )
-/** Bank aggregation is genuinely slow; 10s would false-fail on real accounts. */
+/** Bank aggregation is genuinely slow; 10s would false-fail on real accounts.
+ *  This is a TOTAL budget — it covers reading the body, not just the headers. */
 const FETCH_TIMEOUT_MS = 20_000
+/** 90 days across several institutions is a few MB of JSON at most. */
+const MAX_RESPONSE_BYTES = 10_000_000
 /** SimpleFIN only guarantees a window of history — don't ask for the world. */
 export const INITIAL_HISTORY_DAYS = 90
 /** Re-fetch overlap, so amended and late-posting transactions are picked up. */
@@ -110,12 +114,26 @@ function splitCredentials(url: URL): { url: URL, authorization?: string } {
   }
 }
 
-async function simplefinFetch(target: URL, init: { method?: string } = {}): Promise<Response> {
+/**
+ * One request, read to completion here rather than handing a live `Response`
+ * back to the caller.
+ *
+ * The timeout is `AbortSignal.timeout` and not a `setTimeout` cleared once
+ * `fetch()` resolves. That older shape disarmed itself the instant the HEADERS
+ * arrived, so `res.json()` afterwards ran with nothing armed: a bridge that
+ * sends headers and then dribbles forever streamed straight into the memory of
+ * the single container this household runs, past any nominal timeout. The
+ * signal now covers the body, and `readCappedBody` stops the stream at the cap
+ * instead of buffering everything and checking the size afterwards.
+ */
+async function simplefinFetch(
+  target: URL,
+  init: { method?: string } = {},
+): Promise<{ ok: boolean, status: number, text: string }> {
   const { url, authorization } = splitCredentials(target)
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
+  let res: Response
   try {
-    return await fetch(url, {
+    res = await fetch(url, {
       method: init.method ?? 'GET',
       headers: {
         'User-Agent': 'betts-board',
@@ -124,16 +142,23 @@ async function simplefinFetch(target: URL, init: { method?: string } = {}): Prom
       },
       // Never follow a redirect: it would be a second, unvalidated hop.
       redirect: 'error',
-      signal: controller.signal,
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     })
   }
   catch {
     // Deliberately opaque: the underlying message can contain the access URL.
     throw createError({ statusCode: 502, statusMessage: 'Could not reach SimpleFIN' })
   }
-  finally {
-    clearTimeout(timer)
+
+  let bytes: Uint8Array
+  try {
+    bytes = await readCappedBody(res, MAX_RESPONSE_BYTES)
   }
+  catch {
+    // Same opaque text — a body-read failure must not describe the target either.
+    throw createError({ statusCode: 502, statusMessage: 'Could not reach SimpleFIN' })
+  }
+  return { ok: res.ok, status: res.status, text: new TextDecoder().decode(bytes) }
 }
 
 /**
@@ -167,7 +192,7 @@ export async function claimSetupToken(setupToken: string): Promise<string> {
     throw createError({ statusCode: 502, statusMessage: `SimpleFIN rejected the setup token (HTTP ${res.status})` })
   }
 
-  const accessUrl = (await res.text()).trim()
+  const accessUrl = res.text.trim()
   // Validate the URL we were handed with the same rules as the token's.
   assertFetchableUrl(accessUrl, 'The access URL SimpleFIN returned')
   return accessUrl
@@ -294,7 +319,7 @@ export async function fetchAccounts(accessUrl: string, opts: { startDate?: Date 
 
   let payload: Record<string, unknown>
   try {
-    payload = await res.json() as Record<string, unknown>
+    payload = JSON.parse(res.text) as Record<string, unknown>
   }
   catch {
     throw createError({ statusCode: 502, statusMessage: 'SimpleFIN returned a response we could not read' })

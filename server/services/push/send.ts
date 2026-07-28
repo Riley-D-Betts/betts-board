@@ -1,5 +1,6 @@
 import webpush from 'web-push'
 import { and, eq } from 'drizzle-orm'
+import { zHttpUrl } from '#shared/schemas/common'
 import type { Db } from '../../db/client'
 import { pushSubscriptions } from '../../db/schema'
 import { getVapidKeys } from './vapid'
@@ -20,6 +21,21 @@ const MAX_FAILURES = 5
 export async function sendToSubscription(db: Db, sub: SubscriptionRow, payload: PushPayload): Promise<boolean> {
   const keys = getVapidKeys(db)
   if (!keys) return false
+
+  // The endpoint is checked again on the way OUT, not only on the way in.
+  //
+  // `pushSubscribeSchema` pins the scheme now, but rows registered before it
+  // did still hold whatever `z.string().url()` accepted, and this is where
+  // they are used: web-push does not vet the scheme itself — hand it
+  // `gopher://127.0.0.1:11211/_x` and it opens a connection to that host and
+  // port. A subscription is re-used on every notification, so one bad row
+  // fires from inside the container forever. Every real push service
+  // (RFC 8030) is https, so this can only ever skip a hostile row.
+  if (!zHttpUrl.safeParse(sub.endpoint).success) {
+    console.warn('[push] skipping subscription with a non-http(s) endpoint')
+    return false
+  }
+
   try {
     await webpush.sendNotification(
       { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },

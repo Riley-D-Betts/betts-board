@@ -9,6 +9,18 @@ services:
       # NUXT_SESSION_PASSWORD: optional — auto-generated and persisted in the
       # data volume if unset, so sessions survive container recreation.
       # BETTS_RESET_PASSWORD: "1"  # uncomment for one boot to reset the household password
+      # BETTS_TRUSTED_PROXY: "1"   # ONLY if a reverse proxy you control is the sole way in.
+      #   The unlock rate limit then reads the client address from the last
+      #   X-Forwarded-For element instead of the socket. Leave it off when the
+      #   container is reachable directly: the header is client-writable, and an
+      #   attacker who can pick their own bucket key has no rate limit at all.
+      # BETTS_ALLOW_PRIVATE_FETCH_HOSTS: "nas.lan"
+      #   Hosts on YOUR network the board may fetch from — a calendar feed on
+      #   your own NAS, say. Everything the board fetches on someone's behalf
+      #   (recipe links, calendar feeds, fonts) otherwise refuses private,
+      #   loopback and link-local addresses, so a pasted link can't make the
+      #   board knock on your router, printer, or a cloud metadata endpoint.
+      #   Exact, per-host matching: listing the NAS does not open the router.
     volumes:
       # Everything lives here: /data/betts.db + /data/uploads/…
       # Backup = copy this volume (or `docker cp` betts.db out).
