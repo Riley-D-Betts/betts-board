@@ -13,8 +13,53 @@ export const zEpochMs = z.number().int().nonnegative()
 
 export const zId = z.string().min(1)
 
+/**
+ * An http(s) URL, for anything that will be put in an `href` or fetched.
+ *
+ * `z.string().url()` is NOT enough on its own: it accepts `javascript:` and
+ * `data:text/html,…`, both of which execute when a stored value is rendered
+ * into a link. Anyone in the household can save a wish-list item or a recipe
+ * source, so that is stored XSS on the board's own origin, with the session
+ * cookie, triggered by whoever clicks it next.
+ *
+ * The same rule protects the server: every URL the board FETCHES also comes
+ * through here, so `file://` and `gopher://` never reach fetch().
+ */
+export const zHttpUrl = z.string().trim().url().refine(
+  (value) => {
+    try {
+      const scheme = new URL(value).protocol
+      return scheme === 'http:' || scheme === 'https:'
+    }
+    catch {
+      return false
+    }
+  },
+  'expected an http:// or https:// link',
+)
+
+/**
+ * Frequencies the board can safely expand.
+ *
+ * SECONDLY and MINUTELY are deliberately absent. Nothing in the UI offers
+ * them, and a single "every second" rule expanded over a year is tens of
+ * millions of occurrences — enough to wedge the one container the whole
+ * household shares. An ICS feed publisher can plant one remotely, so this is
+ * not only about what a family member might type.
+ */
+export const RRULE_FREQUENCIES = ['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'] as const
+
 /** Bare RRULE body, e.g. "FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,WE" (no DTSTART line). */
-export const zRRule = z.string().regex(/^FREQ=/, 'expected an RRULE body starting with FREQ=')
+export const zRRule = z.string()
+  .regex(/^FREQ=/, 'expected an RRULE body starting with FREQ=')
+  .refine(
+    value => RRULE_FREQUENCIES.includes(
+      (/^FREQ=([A-Z]+)/i.exec(value)?.[1] ?? '').toUpperCase() as typeof RRULE_FREQUENCIES[number],
+    ),
+    `FREQ must be one of ${RRULE_FREQUENCIES.join(', ')}`,
+  )
+  // INTERVAL=0 is not a valid rule and makes rrule iterate without advancing.
+  .refine(value => !/;INTERVAL=0*(?:;|$)/i.test(value), 'INTERVAL must be at least 1')
 
 /**
  * A single typed-or-picked emoji.
