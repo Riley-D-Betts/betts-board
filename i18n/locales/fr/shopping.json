@@ -5,7 +5,7 @@
   "checked": "Cochés ({n})",
   "clear": "Vider",
   "nothingOnList": "Rien sur la liste — parfait.",
-  "moreOnList": "+{n} autres sur la liste",
+  "moreOnList": "+{n} de plus sur la liste",
   "toBuy": "{n} à acheter",
   "defaultBadge": "par défaut",
   "allLists": "Toutes les listes",
@@ -46,7 +46,7 @@
     "title": "Retirer les articles cochés",
     "confirm": "Ranger {n} article coché dans le garde-manger, pour que la planification des repas sache que vous l'avez ? | Ranger les {n} articles cochés dans le garde-manger, pour que la planification des repas sache que vous les avez ?",
     "putAway": "Ranger au garde-manger",
-    "justClear": "Juste retirer",
+    "justClear": "Retirer seulement",
     "putAwayDone": "{n} article rangé dans le garde-manger | {n} articles rangés dans le garde-manger"
   },
   "clearList": {

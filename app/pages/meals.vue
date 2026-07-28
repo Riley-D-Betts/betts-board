@@ -3,6 +3,7 @@ const { state } = useBoardState()
 const toast = useToast()
 const { t } = useI18n()
 const { formatDayMonth, formatWeekdayShort } = useDateFormat()
+const { decimal } = useMoney()
 
 interface PlanRecipe {
   id: string
@@ -171,7 +172,7 @@ const generateOpen = ref(false)
                     <p class="flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400">
                       <span v-if="entry.recipe.avgRating != null" class="inline-flex items-center gap-0.5">
                         <UIcon name="i-lucide-star" class="size-2.5 text-amber-500" />
-                        {{ entry.recipe.avgRating.toFixed(1) }}
+                        {{ decimal(entry.recipe.avgRating) }}
                       </span>
                       <span v-if="entry.servingsOverride">×{{ entry.servingsOverride }}</span>
                     </p>
@@ -191,7 +192,7 @@ const generateOpen = ref(false)
 
               <button
                 class="flex min-h-8 w-full items-center justify-center rounded-lg border border-dashed border-slate-300 dark:border-slate-700 text-slate-400 hover:border-primary hover:text-primary"
-                :aria-label="$t('meals.planSlot', { slot: slot.label, date })"
+                :aria-label="$t('meals.planSlot', { slot: slot.label, date: formatDayMonth(date) })"
                 @click="openPicker(date, slot.key)"
               >
                 <UIcon name="i-lucide-plus" class="size-4" />

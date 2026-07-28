@@ -36,7 +36,7 @@
     "transition": "Transición",
     "transitions": {
       "fade": "Fundido",
-      "kenburns": "Ken Burns (paneo y zoom lentos)"
+      "kenburns": "Ken Burns (panorámica y zoom lentos)"
     },
     "showClock": "Mostrar el reloj",
     "showWeather": "Mostrar el tiempo",

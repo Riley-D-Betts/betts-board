@@ -10,6 +10,7 @@ interface TileEntry {
 }
 
 const { t } = useI18n()
+const { decimal } = useMoney()
 
 const today = todayString()
 const { data: entries, refresh } = await useFetch<TileEntry[]>('/api/meal-plan', {
@@ -72,7 +73,7 @@ function imgSrc(recipe: NonNullable<TileEntry['recipe']>) {
         <p class="truncate font-medium">{{ tonight.recipe.title }}</p>
         <p v-if="tonight.recipe.avgRating != null" class="mt-0.5 flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
           <UIcon name="i-lucide-star" class="size-3 text-amber-500" />
-          {{ tonight.recipe.avgRating.toFixed(1) }}
+          {{ decimal(tonight.recipe.avgRating) }}
         </p>
       </div>
     </NuxtLink>

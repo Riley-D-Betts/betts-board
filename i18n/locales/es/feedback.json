@@ -21,7 +21,7 @@
     "bodyPlaceholderBug": "¿Qué estabas haciendo, qué ha pasado y qué esperabas que pasara?",
     "bodyPlaceholderFeature": "¿Qué debería hacer el tablero? ¿Quién de la familia lo usaría?",
     "includeDiagnostics": "Incluir datos del dispositivo",
-    "includeDiagnosticsHelp": "Añade tu navegador y el tamaño de la ventana al aviso: ayuda a dar con el fallo.",
+    "includeDiagnosticsHelp": "Añade tu navegador y el tamaño de la ventana al informe: ayuda a dar con el fallo.",
     "submitBug": "Enviar el fallo",
     "submitFeature": "Enviar la idea"
   },

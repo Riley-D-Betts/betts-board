@@ -14,6 +14,7 @@ interface PantryRow {
 
 const toast = useToast()
 const { t } = useI18n()
+const { decimal } = useMoney()
 
 const q = ref('')
 const { data: items, refresh } = await useFetch<PantryRow[]>('/api/pantry', {
@@ -54,7 +55,11 @@ const groups = computed(() => {
 
 function qtyLabel(item: PantryRow) {
   if (item.quantity == null) return null
-  return item.unit ? `${item.quantity} ${item.unit}` : String(item.quantity)
+  // Two fraction digits covers the halves and quarters a pantry actually
+  // holds, and leaves a whole number as "2" rather than "2.0". The unit is
+  // free text the household typed, so it is never touched.
+  const qty = decimal(item.quantity, 2)
+  return item.unit ? `${qty} ${item.unit}` : qty
 }
 
 // -- add form (also the barcode-scan landing spot) ------------------------
