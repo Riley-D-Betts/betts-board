@@ -70,7 +70,7 @@ async function addMember() {
     await refreshMembers()
   }
   catch (e) {
-    error.value = (e as { statusMessage?: string }).statusMessage || 'Could not add them.'
+    error.value = (e as { statusMessage?: string }).statusMessage || t('finance.members.couldNotAdd')
   }
   finally {
     busy.value = false
@@ -88,6 +88,22 @@ async function removeMember(member: Member) {
       title: (e as { statusMessage?: string }).statusMessage || t('finance.members.lastOwner'),
       color: 'error',
     })
+  }
+}
+
+/**
+ * The lock screen stores a stable English token, so the same device reads
+ * correctly whatever language the list is being viewed in. Rows written by an
+ * older build hold the capitalised English word ('Phone'), and a hand-set label
+ * like "Kitchen tablet" is free text — show either verbatim rather than a key
+ * path.
+ */
+function deviceName(label: string): string {
+  switch (label) {
+    case 'phone': return t('finance.sessions.devices.phone')
+    case 'tablet': return t('finance.sessions.devices.tablet')
+    case 'computer': return t('finance.sessions.devices.computer')
+    default: return label
   }
 }
 
@@ -173,7 +189,7 @@ async function revokeSession(row: FinanceSessionRow) {
           <div class="min-w-0 flex-1">
             <p class="truncate text-sm font-medium">
               {{ row.name }}
-              <span v-if="row.deviceLabel" class="text-slate-500 dark:text-slate-400"> · {{ row.deviceLabel }}</span>
+              <span v-if="row.deviceLabel" class="text-slate-500 dark:text-slate-400"> · {{ deviceName(row.deviceLabel) }}</span>
               <UBadge v-if="row.isCurrent" size="sm" variant="subtle" class="ml-1">
                 {{ $t('finance.sessions.thisDevice') }}
               </UBadge>

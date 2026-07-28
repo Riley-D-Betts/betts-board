@@ -297,7 +297,12 @@
     "revoke": "Verrouiller cet appareil",
     "startedAt": "Déverrouillé {time}",
     "expiresAt": "Se verrouille à {time}",
-    "deviceLabel": "Nom de l'appareil"
+    "deviceLabel": "Nom de l'appareil",
+    "devices": {
+      "phone": "Téléphone",
+      "tablet": "Tablette",
+      "computer": "Ordinateur"
+    }
   },
   "settings": {
     "title": "Argent",

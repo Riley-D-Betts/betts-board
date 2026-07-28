@@ -8,6 +8,16 @@ const { recurrenceText } = useRecurrenceText()
 const { activeProfile } = useBoardState()
 const toast = useToast()
 const { t } = useI18n()
+const { formatTime } = useDateFormat()
+
+// dueTime is a bare "HH:MM" clock string; anchor it to today so the locale-aware
+// formatter can decide 12- vs 24-hour (same as ChoreCard).
+function dueTimeLabel(clock: string) {
+  const [h, m] = clock.split(':').map(Number)
+  const d = new Date()
+  d.setHours(h!, m!, 0, 0)
+  return formatTime(d.getTime())
+}
 
 const canManage = computed(() =>
   activeProfile.value?.role === 'admin' || activeProfile.value?.role === 'adult')
@@ -73,7 +83,7 @@ function assigneeProfiles(chore: ChoreDef) {
           <button type="button" class="min-w-0 flex-1 text-left py-2" @click="openEdit(chore)">
             <p class="font-medium truncate">{{ chore.title }}</p>
             <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
-              {{ recurrenceText(chore.rrule) }}<template v-if="chore.dueTime"> · {{ $t('chores.dueByTime', { time: chore.dueTime }) }}</template>
+              {{ recurrenceText(chore.rrule) }}<template v-if="chore.dueTime"> · {{ $t('chores.dueByTime', { time: dueTimeLabel(chore.dueTime) }) }}</template>
             </p>
           </button>
           <div class="flex -space-x-2 shrink-0">

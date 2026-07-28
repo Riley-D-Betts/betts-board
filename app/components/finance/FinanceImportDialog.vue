@@ -74,7 +74,7 @@ async function runPreview() {
     step.value = 'review'
   }
   catch (e) {
-    error.value = (e as { statusMessage?: string }).statusMessage || 'Could not read that file.'
+    error.value = (e as { statusMessage?: string }).statusMessage || t('finance.import.couldNotRead')
   }
   finally {
     busy.value = false

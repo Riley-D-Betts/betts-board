@@ -4,6 +4,7 @@ import type { ApiKeyCreated, ApiKeyDto } from '#shared/schemas/apiKeys'
 const toast = useToast()
 const { t } = useI18n()
 const { state } = useBoardState()
+const { formatDayMonthYear } = useDateFormat()
 const { data: keys, refresh: reload } = await useFetch<ApiKeyDto[]>('/api/api-keys')
 
 const creating = ref(false)
@@ -71,7 +72,7 @@ function timeAgo(epochMs: number) {
   if (hours < 24) return t('settings.apiKeys.hoursAgo', { n: hours })
   const days = Math.round(hours / 24)
   if (days < 30) return t('settings.apiKeys.daysAgo', { n: days })
-  return new Date(epochMs).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+  return formatDayMonthYear(new Date(epochMs))
 }
 </script>
 

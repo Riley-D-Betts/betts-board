@@ -56,8 +56,8 @@
     "repeats": "Repetición",
     "reminder": "Recordatorio",
     "color": "Color",
-    "colorHelp": "Auto toma el color de la primera persona.",
-    "colorAuto": "Auto",
+    "colorHelp": "Automático toma el color de la primera persona.",
+    "colorAuto": "Automático",
     "colorSwatch": "Color {color}",
     "confirmDelete": "¿Confirmar?",
     "reminders": {
@@ -117,13 +117,13 @@
   },
   "feeds": {
     "title": "Calendarios externos",
-    "empty": "Suscríbete a los calendarios del colegio, del deporte o del trabajo: sus eventos aparecen en el tablón en modo solo lectura.",
+    "empty": "Suscríbete a los calendarios del colegio, del deporte o del trabajo: sus eventos aparecen en el tablero en modo solo lectura.",
     "namePlaceholder": "Nombre (p. ej. Colegio)",
     "urlPlaceholder": "URL .ics: https://… o webcal://…",
     "add": "Añadir calendario",
     "refreshNow": "Actualizar ahora",
     "remove": "Quitar calendario",
-    "confirmRemove": "¿Quitar el calendario «{name}»? Sus eventos importados desaparecerán del tablón.",
+    "confirmRemove": "¿Quitar el calendario «{name}»? Sus eventos importados desaparecerán del tablero.",
     "intervals": {
       "min15": "Cada 15 min",
       "hourly": "Cada hora",
@@ -131,13 +131,13 @@
       "daily": "Cada día"
     },
     "status": {
-      "failed": "Falló la última actualización",
+      "failed": "La última actualización ha fallado",
       "refreshedAt": "Última actualización: {when}",
       "never": "Todavía sin descargar"
     },
     "subscribe": {
       "title": "Suscríbete desde el móvil",
-      "help": "Añade esta URL como suscripción en Google Calendar o Apple Calendar para ver los eventos del tablón en cualquier dispositivo. No la compartas: el enlace es la llave.",
+      "help": "Añade esta URL como suscripción en Google Calendar o Apple Calendar para ver los eventos del tablero en cualquier dispositivo. No la compartas: el enlace es la llave.",
       "copyUrl": "Copiar URL",
       "copyWebcal": "Copiar URL webcal"
     },
@@ -145,7 +145,7 @@
       "couldNotAdd": "No se pudo añadir el calendario",
       "couldNotAddHelp": "Revisa la URL e inténtalo otra vez.",
       "couldNotUpdate": "No se pudo actualizar el calendario",
-      "refreshFailed": "Falló la actualización",
+      "refreshFailed": "La actualización ha fallado",
       "refreshed": "Calendario actualizado",
       "couldNotRemove": "No se pudo quitar el calendario",
       "copied": "Copiado al portapapeles",

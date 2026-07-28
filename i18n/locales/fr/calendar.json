@@ -33,7 +33,7 @@
     "empty": "Rien de prévu dans les 30 prochains jours."
   },
   "month": {
-    "more": "+{n} autres"
+    "more": "+{n} de plus"
   },
   "week": {
     "allDayRow": "journée"
@@ -153,7 +153,7 @@
     }
   },
   "tile": {
-    "moreToday": "+{n} autres aujourd'hui",
+    "moreToday": "+{n} de plus aujourd'hui",
     "empty": "Rien au calendrier aujourd'hui."
   },
   "recurrence": {

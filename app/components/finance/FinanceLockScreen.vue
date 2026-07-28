@@ -63,13 +63,20 @@ async function submitSetup() {
   }
 }
 
-/** Shown in the "unlocked right now" list, so a stray device is noticeable. */
-function deviceLabel(): string | undefined {
+/**
+ * Shown in the "unlocked right now" list, so a stray device is noticeable.
+ *
+ * This value is PERSISTED on the session row, so it stays a stable English
+ * token and is translated where it is rendered (FinanceMembers). Storing the
+ * translated word would write the unlocking device's language into the
+ * database and leave two sessions in the same list disagreeing with each other.
+ */
+function deviceLabel(): 'phone' | 'tablet' | 'computer' | undefined {
   if (import.meta.server) return undefined
   const ua = navigator.userAgent
-  if (/iPhone|Android.*Mobile/.test(ua)) return 'Phone'
-  if (/iPad|Tablet/.test(ua)) return 'Tablet'
-  return 'Computer'
+  if (/iPhone|Android.*Mobile/.test(ua)) return 'phone'
+  if (/iPad|Tablet/.test(ua)) return 'tablet'
+  return 'computer'
 }
 </script>
 

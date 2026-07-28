@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const { unlocked } = useFinanceSession()
 const { money, moneyShort, toInput, fromInput } = useMoney()
+const { formatMonthYear } = useDateFormat()
 
 interface BudgetLine {
   categoryId: string
@@ -67,6 +68,9 @@ async function save(line: BudgetLine) {
   }
 }
 
+/** `period` is a "YYYY-MM" machine key; anchor it to the 1st for display only. */
+const monthLabel = computed(() => formatMonthYear(`${data.value?.period ?? period.value}-01`))
+
 function shiftMonth(delta: number) {
   const [y, m] = period.value.split('-').map(Number)
   const date = new Date(y!, m! - 1 + delta, 1)
@@ -95,7 +99,7 @@ function barColor(line: BudgetLine) {
             :aria-label="$t('common.actions.back')"
             @click="shiftMonth(-1)"
           />
-          <span class="min-w-28 text-center font-medium tabular-nums">{{ data.period }}</span>
+          <span class="min-w-28 text-center font-medium tabular-nums">{{ monthLabel }}</span>
           <UButton
             icon="i-lucide-chevron-right"
             variant="ghost"
