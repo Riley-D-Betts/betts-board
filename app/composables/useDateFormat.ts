@@ -73,9 +73,15 @@ export function useDateFormat() {
       .toLocaleString({ weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
   }
 
-  /** "Thu, Jul 23, 7:30 AM" — one instant, spelled out. */
-  function formatDateTime(ms: number): string {
-    return withLocale(DateTime.fromMillis(ms))
+  /**
+   * "Thu, Jul 23, 7:30 AM" — one instant, spelled out.
+   *
+   * Takes a zone for the same reason formatTime does: an event belongs to the
+   * household's timezone, and rendering it in the device's would show a
+   * travelling parent the wrong time for their own calendar.
+   */
+  function formatDateTime(ms: number, zone?: string): string {
+    return withLocale(DateTime.fromMillis(ms, zone ? { zone } : undefined))
       .toLocaleString({ weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
   }
 

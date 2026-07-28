@@ -46,7 +46,7 @@
     "spentOf": "{spent} de {budget}",
     "overspentIn": "Te has pasado en {n} categoría | Te has pasado en {n} categorías",
     "uncategorized": "{amount} sin categoría",
-    "upcoming": "Próximamente",
+    "upcoming": "Próximos",
     "overdue": "Vencidos",
     "nothingDue": "Nada pendiente en los próximos 30 días.",
     "asOf": "actualizado {time}"
@@ -159,7 +159,7 @@
     "accountsCount": "{n} cuenta | {n} cuentas",
     "status": {
       "ok": "Funciona",
-      "partial": "Algunas cuentas no se actualizaron",
+      "partial": "Algunas cuentas no se han actualizado",
       "error": "No funciona",
       "needs_reauth": "Tu banco necesita que vuelvas a entrar",
       "disabled": "En pausa"
@@ -167,7 +167,8 @@
     "bankSays": "Tu banco dice: {message}",
     "credentialsUnreadable": "Esta conexión no se puede leer en este servidor: falta la clave de cifrado o ha cambiado. Vuelve a conectar el banco.",
     "firstSyncNote": "Los bancos suelen enviar unos 90 días de histórico en la primera sincronización.",
-    "encryptionNote": "Las credenciales de tu banco se guardan cifradas, con la clave en este servidor. Cualquiera con acceso al servidor puede leerlas."
+    "encryptionNote": "Las credenciales de tu banco se guardan cifradas, con la clave en este servidor. Cualquiera con acceso al servidor puede leerlas.",
+    "couldNotConnect": "No se ha podido conectar."
   },
   "import": {
     "title": "Importar un extracto",
@@ -195,7 +196,8 @@
     "undo": "Deshacer esta importación",
     "undone": "Deshecha: se ha quitado {n} movimiento. | Deshecha: se han quitado {n} movimientos.",
     "wasUndone": "Deshecha",
-    "noAutoDrop": "No se descarta nada automáticamente: tú decides con cada duplicado."
+    "noAutoDrop": "No se descarta nada automáticamente: tú decides con cada duplicado.",
+    "couldNotRead": "No se ha podido leer ese archivo."
   },
   "budgets": {
     "title": "Presupuestos",
@@ -234,10 +236,10 @@
     "account": "Se paga desde",
     "autoPay": "Pago automático",
     "markPaid": "Marcar pagada",
-    "markSkipped": "Saltar esta vez",
+    "markSkipped": "Omitir esta vez",
     "markDue": "Volver a pendiente",
     "paid": "Pagada",
-    "skipped": "Saltada",
+    "skipped": "Omitida",
     "due": "Pendiente",
     "dueOn": "Vence el {date}",
     "overdueBy": "{n} día de retraso | {n} días de retraso",
@@ -257,9 +259,9 @@
     "contributed": "Aportado",
     "saved": "{saved} de {target}",
     "remaining": "Faltan {amount}",
-    "perMonth": "{amount} al mes para llegar",
+    "perMonth": "{amount} al mes para conseguirlo",
     "reached": "¡Conseguido!",
-    "overdue": "Se pasó la fecha",
+    "overdue": "Se ha pasado la fecha",
     "empty": "Aún no hay objetivos. Un objetivo le da sentido al dinero que sobra.",
     "linkedNoManual": "Este objetivo sigue el saldo de una cuenta: mete el dinero en la cuenta."
   },
@@ -285,7 +287,8 @@
     "lastOwner": "No puedes quitar al último responsable.",
     "lastUnlock": "Último desbloqueo {time}",
     "neverUnlocked": "Aún no ha desbloqueado",
-    "lockedUntil": "Bloqueado hasta {time}"
+    "lockedUntil": "Bloqueado hasta {time}",
+    "couldNotAdd": "No se ha podido dar acceso."
   },
   "sessions": {
     "title": "Desbloqueado ahora mismo",
@@ -294,7 +297,12 @@
     "revoke": "Bloquear ese dispositivo",
     "startedAt": "Desbloqueado {time}",
     "expiresAt": "Se bloquea a las {time}",
-    "deviceLabel": "Nombre del dispositivo"
+    "deviceLabel": "Nombre del dispositivo",
+    "devices": {
+      "phone": "Teléfono",
+      "tablet": "Tablet",
+      "computer": "Ordenador"
+    }
   },
   "settings": {
     "title": "Dinero",

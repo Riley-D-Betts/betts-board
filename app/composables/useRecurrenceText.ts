@@ -14,7 +14,7 @@ import { describeRecurrence } from '#shared/utils/recurrenceText'
  */
 export function useRecurrenceText() {
   const { t } = useI18n()
-  const { weekdayNames } = useDateFormat()
+  const { weekdayNames, formatDayMonthYear } = useDateFormat()
 
   const INDEX: Record<string, number> = { SU: 0, MO: 1, TU: 2, WE: 3, TH: 4, FR: 5, SA: 6 }
 
@@ -33,9 +33,18 @@ export function useRecurrenceText() {
     const base = t(`calendar.recurrence.${d.key}`, params, Number(params.n ?? 1))
     if (!d.suffix) return base
 
+    // describeRecurrence hands UNTIL over as a bare YYYY-MM-DD calendar string
+    // and leaves the formatting here on purpose — it is a pure module with no
+    // locale. Formatting it is this function's job, and skipping it renders
+    // "Cada semana hasta el 2026-12-31" at somebody.
+    const suffixParams: Record<string, string | number> = { base, ...d.suffix.params }
+    if (typeof suffixParams.date === 'string') {
+      suffixParams.date = formatDayMonthYear(suffixParams.date)
+    }
+
     return t(
       `calendar.recurrence.${d.suffix.key}`,
-      { base, ...d.suffix.params },
+      suffixParams,
       Number(d.suffix.params.n ?? 1),
     )
   }

@@ -167,7 +167,8 @@
     "bankSays": "Your bank says: {message}",
     "credentialsUnreadable": "This connection can't be read on this server — the encryption key is missing or has changed. Reconnect the bank.",
     "firstSyncNote": "Banks usually send about 90 days of history on the first sync.",
-    "encryptionNote": "Your bank credentials are stored encrypted, with the key held on this server. Anyone with access to the server itself can read them."
+    "encryptionNote": "Your bank credentials are stored encrypted, with the key held on this server. Anyone with access to the server itself can read them.",
+    "couldNotConnect": "Could not connect."
   },
   "import": {
     "title": "Import a statement",
@@ -195,7 +196,8 @@
     "undo": "Undo this import",
     "undone": "Undone — removed {n} transaction. | Undone — removed {n} transactions.",
     "wasUndone": "Undone",
-    "noAutoDrop": "Nothing is dropped automatically — you decide on every duplicate."
+    "noAutoDrop": "Nothing is dropped automatically — you decide on every duplicate.",
+    "couldNotRead": "Could not read that file."
   },
   "budgets": {
     "title": "Budgets",
@@ -285,7 +287,8 @@
     "lastOwner": "You can't remove the last owner.",
     "lastUnlock": "Last unlocked {time}",
     "neverUnlocked": "Hasn't unlocked yet",
-    "lockedUntil": "Locked out until {time}"
+    "lockedUntil": "Locked out until {time}",
+    "couldNotAdd": "Could not add them."
   },
   "sessions": {
     "title": "Unlocked right now",
@@ -294,7 +297,12 @@
     "revoke": "Lock that device",
     "startedAt": "Unlocked {time}",
     "expiresAt": "Locks at {time}",
-    "deviceLabel": "Device name"
+    "deviceLabel": "Device name",
+    "devices": {
+      "phone": "Phone",
+      "tablet": "Tablet",
+      "computer": "Computer"
+    }
   },
   "settings": {
     "title": "Money",

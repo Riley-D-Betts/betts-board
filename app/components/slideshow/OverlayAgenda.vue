@@ -3,7 +3,7 @@
 import { DateTime } from 'luxon'
 import type { CalendarOccurrence } from '#shared/schemas/events'
 
-const { formatTime } = useDateFormat()
+const { formatTime, formatWeekdayShort } = useDateFormat()
 const { t } = useI18n()
 
 const { state } = useBoardState()
@@ -40,7 +40,11 @@ function timeLabel(occ: CalendarOccurrence) {
 }
 
 function dayLabel(occ: CalendarOccurrence) {
-  return DateTime.fromMillis(occ.start, { zone: timezone.value }).toFormat('ccc')
+  // Resolve the occurrence to a calendar key in the household's zone first, so
+  // the weekday is the household's day; toFormat here is a machine value, and
+  // only useDateFormat applies a locale.
+  const dateKey = DateTime.fromMillis(occ.start, { zone: timezone.value }).toFormat('yyyy-MM-dd')
+  return formatWeekdayShort(dateKey)
 }
 </script>
 

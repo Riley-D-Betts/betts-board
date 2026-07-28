@@ -148,7 +148,9 @@ const detailTimeLabel = computed(() => {
       ? t('calendar.detail.allDayOn', { date: formatDayMonth(start) })
       : t('calendar.detail.allDayRange', { start: formatDayMonth(start), end: formatDayMonth(endIncl) })
   }
-  return `${formatDateTime(occ.start)} – ${formatTime(occ.end)}`
+  // Both halves in the household's zone — passing it to only one end would
+  // render a range that disagrees with itself on a travelling device.
+  return `${formatDateTime(occ.start, timezone.value)} – ${formatTime(occ.end, timezone.value)}`
 })
 </script>
 

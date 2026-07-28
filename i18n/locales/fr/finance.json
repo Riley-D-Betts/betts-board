@@ -61,7 +61,7 @@
     "openingBalanceHelp": "Ce qu'il contient en ce moment. Tout ce que vous ajouterez ensuite viendra l'ajuster.",
     "empty": "Aucun compte pour l'instant. Connectez une banque ou créez-en un que vous tiendrez à la main.",
     "hidden": "Masqué",
-    "hide": "Masquer dans les totaux",
+    "hide": "Exclure des totaux",
     "archive": "Archiver",
     "includeInNetWorth": "Compter dans le patrimoine net",
     "fromBank": "Depuis votre banque",
@@ -167,7 +167,8 @@
     "bankSays": "Votre banque indique : {message}",
     "credentialsUnreadable": "Cette connexion est illisible sur ce serveur — la clé de chiffrement est absente ou a changé. Reconnectez la banque.",
     "firstSyncNote": "Les banques envoient en général environ 90 jours d'historique à la première synchro.",
-    "encryptionNote": "Vos identifiants bancaires sont conservés chiffrés, la clé restant sur ce serveur. Toute personne ayant accès au serveur peut les lire."
+    "encryptionNote": "Vos identifiants bancaires sont conservés chiffrés, la clé restant sur ce serveur. Toute personne ayant accès au serveur peut les lire.",
+    "couldNotConnect": "Connexion impossible."
   },
   "import": {
     "title": "Importer un relevé",
@@ -195,7 +196,8 @@
     "undo": "Annuler cet import",
     "undone": "Annulé — {n} transaction retirée. | Annulé — {n} transactions retirées.",
     "wasUndone": "Annulé",
-    "noAutoDrop": "Rien n'est écarté automatiquement — vous décidez pour chaque doublon."
+    "noAutoDrop": "Rien n'est écarté automatiquement — vous décidez pour chaque doublon.",
+    "couldNotRead": "Impossible de lire ce fichier."
   },
   "budgets": {
     "title": "Budgets",
@@ -224,11 +226,11 @@
     "startDate": "Première échéance",
     "repeats": "Répétition",
     "frequencies": {
-      "monthly": "Récurrence : tous les mois",
-      "weekly": "Récurrence : toutes les semaines",
-      "biweekly": "Récurrence : toutes les 2 semaines",
-      "yearly": "Récurrence : tous les ans",
-      "once": "Récurrence : une seule fois"
+      "monthly": "Répétition : tous les mois",
+      "weekly": "Répétition : toutes les semaines",
+      "biweekly": "Répétition : toutes les 2 semaines",
+      "yearly": "Répétition : tous les ans",
+      "once": "Répétition : une seule fois"
     },
     "until": "Jusqu'au",
     "account": "Payée depuis",
@@ -285,7 +287,8 @@
     "lastOwner": "Impossible de retirer le dernier propriétaire.",
     "lastUnlock": "Dernier déverrouillage {time}",
     "neverUnlocked": "Jamais déverrouillé",
-    "lockedUntil": "Bloqué jusqu'à {time}"
+    "lockedUntil": "Bloqué jusqu'à {time}",
+    "couldNotAdd": "Impossible de donner l'accès."
   },
   "sessions": {
     "title": "Déverrouillé en ce moment",
@@ -323,7 +326,7 @@
     "note": "Note",
     "notePlaceholder": "Chaussures d'Emma",
     "remaining": "{amount} encore à répartir",
-    "over": "{amount} de trop réparti",
+    "over": "{amount} réparti en trop",
     "balanced": "Le compte est bon",
     "assign": "Utiliser le reste",
     "badge": "{n} catégories",
