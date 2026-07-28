@@ -52,7 +52,7 @@
   "ranking": {
     "periodMonth": "Ce mois-ci",
     "periodAll": "Depuis le début",
-    "rewardsStore": "Boutique des récompenses",
+    "rewardsStore": "Boutique",
     "empty": "Aucun membre de la famille pour l'instant.",
     "choresDone": "{n} tâche faite | {n} tâches faites",
     "streak": "Série de {n} jours"

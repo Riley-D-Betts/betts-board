@@ -83,11 +83,24 @@ export function useMoney() {
     return sign === '-' ? -minor : minor
   }
 
+  /**
+   * "4.5" / "4,5" — a plain number in the household's language.
+   *
+   * `toFixed()` always emits an ASCII decimal point, so a recipe rating or a
+   * pantry quantity written with it reads as foreign in every language that
+   * uses a comma. Lives here rather than in a composable of its own because
+   * this file is already the place a locale is allowed to touch a number.
+   */
+  function decimal(value: number | null | undefined, maxFractionDigits = 1): string {
+    if (value == null) return '—'
+    return new Intl.NumberFormat(tag.value, { maximumFractionDigits: maxFractionDigits }).format(value)
+  }
+
   /** "62%" for a budget bar. */
   function percent(value: number | null | undefined): string {
     if (value == null) return '—'
     return new Intl.NumberFormat(tag.value, { style: 'percent', maximumFractionDigits: 0 }).format(value)
   }
 
-  return { money, moneyShort, moneySigned, toInput, fromInput, percent }
+  return { money, moneyShort, moneySigned, toInput, fromInput, decimal, percent }
 }

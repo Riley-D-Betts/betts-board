@@ -23,6 +23,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 const { formatWeekdayDate } = useDateFormat()
+const { decimal } = useMoney()
 
 const { state } = useBoardState()
 const cookItems = computed(() => [
@@ -133,7 +134,7 @@ function imgSrc(recipe: PickerRecipe) {
               <p class="text-xs text-slate-500 dark:text-slate-400">
                 <span v-if="recipe.avgRating != null" class="inline-flex items-center gap-0.5">
                   <UIcon name="i-lucide-star" class="size-3 text-amber-500" />
-                  {{ recipe.avgRating.toFixed(1) }}
+                  {{ decimal(recipe.avgRating) }}
                 </span>
                 <span v-if="recipe.servings"> · {{ $t('meals.picker.servingsCount', { n: recipe.servings }) }}</span>
               </p>

@@ -12,6 +12,8 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits<{ rate: [value: number] }>()
 
+const { decimal } = useMoney()
+
 /** What the stars depict: my rating when I have one, else the average. */
 const shown = computed(() => props.modelValue ?? props.avg ?? 0)
 
@@ -57,7 +59,7 @@ function filled(i: number) {
     </div>
 
     <span v-if="count > 0" class="text-sm text-slate-500 dark:text-slate-400 tabular-nums">
-      {{ avg?.toFixed(1) }} ({{ count }})
+      {{ decimal(avg) }} ({{ count }})
     </span>
   </div>
 </template>
