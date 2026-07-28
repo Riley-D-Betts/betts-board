@@ -10,7 +10,8 @@ import {
   deletePhoto, getPhoto, isHeifContainer, listPhotos, listSlideshowPhotos,
   parseExifTakenAt, savePhoto, setInSlideshow, shuffle, toPhotoDto,
 } from '../../server/services/photos/store'
-import { describeWeatherCode } from '../../server/services/weather/forecast'
+import { WEATHER_CONDITION_KEYS, describeWeatherCode } from '../../server/services/weather/forecast'
+import { LOCALE_DEFS } from '#shared/schemas/locales'
 
 // Point uploadsDir() at a throwaway directory before any service call.
 const TEST_DATA_DIR = join(tmpdir(), `betts-photos-spec-${process.pid}`)
@@ -209,7 +210,7 @@ describe('shuffle', () => {
 
 describe('describeWeatherCode', () => {
   it('maps WMO codes to icon + label buckets', () => {
-    expect(describeWeatherCode(0)).toEqual({ icon: 'i-lucide-sun', label: 'Clear' })
+    expect(describeWeatherCode(0)).toEqual({ icon: 'i-lucide-sun', conditionKey: 'clear', label: 'Clear' })
     expect(describeWeatherCode(2).icon).toBe('i-lucide-cloud-sun')
     expect(describeWeatherCode(3).icon).toBe('i-lucide-cloud')
     expect(describeWeatherCode(45).icon).toBe('i-lucide-cloud-fog')
@@ -220,5 +221,34 @@ describe('describeWeatherCode', () => {
     expect(describeWeatherCode(86).label).toBe('Snow')
     expect(describeWeatherCode(95).label).toBe('Thunderstorm')
     expect(describeWeatherCode(42).icon).toBe('i-lucide-cloud') // unknown → cloudy
+  })
+
+  it('gives every bucket a language-neutral key for the client to translate', () => {
+    const seen = new Set<string>()
+    // Every code open-meteo can send, plus the gaps between the documented ones.
+    for (let code = 0; code <= 99; code++) {
+      const { conditionKey } = describeWeatherCode(code)
+      expect(WEATHER_CONDITION_KEYS, `code ${code}`).toContain(conditionKey)
+      seen.add(conditionKey)
+    }
+    expect([...seen].sort()).toEqual([...WEATHER_CONDITION_KEYS].sort())
+  })
+
+  /**
+   * The screens translate `common.weather.<conditionKey>`, and a computed key
+   * like that is invisible to the literal-key sweep in i18n.spec.ts — a bucket
+   * added without messages would render "common.weather.hail" on the wall
+   * display in every language. So the keys are checked against the files here.
+   */
+  it('has a translation for every bucket in every language', () => {
+    const missing: string[] = []
+    for (const { code } of LOCALE_DEFS) {
+      const file = new URL(`../../i18n/locales/${code}/common.json`, import.meta.url)
+      const messages = JSON.parse(readFileSync(file, 'utf8')) as { weather?: Record<string, string> }
+      for (const key of WEATHER_CONDITION_KEYS) {
+        if (!messages.weather?.[key]?.trim()) missing.push(`${code}: common.weather.${key}`)
+      }
+    }
+    expect(missing).toEqual([])
   })
 })

@@ -5,7 +5,7 @@
   "topRated": "Mejor valoradas",
   "aToZ": "De la A a la Z",
   "none": "Todavía no hay recetas.",
-  "importFromLink": "Importar de un enlace",
+  "importFromLink": "Importar desde un enlace",
   "createManually": "Crear a mano",
   "defaultTitle": "Receta nueva",
   "notFound": "No se encontró la receta",
@@ -58,7 +58,7 @@
   },
   "import": {
     "title": "Importar una receta",
-    "intro": "Pega el enlace de cualquier página de receta y traemos el título, los ingredientes, los pasos y la foto.",
+    "intro": "Pega el enlace de cualquier página de recetas y sacamos el título, los ingredientes, los pasos y la foto.",
     "linkLabel": "Enlace de la receta",
     "linkPlaceholder": "https://example.com/mejor-lasana",
     "fetching": "Buscando la receta…",
@@ -66,7 +66,7 @@
     "submit": "Importar receta",
     "footnote": "Funciona mejor con webs que publican el marcado estándar de recetas: casi todos los blogs de cocina lo hacen.",
     "imported": "Receta importada",
-    "failed": "Algo salió mal al importar esa receta."
+    "failed": "Algo ha salido mal al importar esa receta."
   },
   "edit": {
     "title": "Editar receta",

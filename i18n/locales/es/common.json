@@ -64,6 +64,16 @@
       "eveningNamed": "Buenas noches, {name}"
     }
   },
+  "weather": {
+    "clear": "Despejado",
+    "partlyCloudy": "Parcialmente nublado",
+    "cloudy": "Nublado",
+    "fog": "Niebla",
+    "drizzle": "Llovizna",
+    "rain": "Lluvia",
+    "snow": "Nieve",
+    "thunderstorm": "Tormenta"
+  },
   "emoji": {
     "label": "Emoji",
     "placeholder": "Escribe o pega cualquier emoji",

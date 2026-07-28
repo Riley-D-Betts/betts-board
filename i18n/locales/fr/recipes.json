@@ -45,7 +45,7 @@
     "title": "Notes de la famille",
     "empty": "Aucune note pour l'instant. C'est ici qu'on écrit « doubler la sauce la prochaine fois ».",
     "placeholder": "Une note pour la prochaine fois…",
-    "addAria": "Ajouter la note",
+    "addAria": "Ajouter une note",
     "deleteAria": "Supprimer la note",
     "confirmDelete": "Supprimer cette note ?",
     "couldNotAdd": "Impossible d'ajouter la note",
@@ -64,7 +64,7 @@
     "fetching": "Récupération de la recette…",
     "manualInstead": "Plutôt la saisir à la main",
     "submit": "Importer la recette",
-    "footnote": "Ça marche mieux avec les sites qui publient un balisage de recette standard — la plupart des blogs cuisine le font.",
+    "footnote": "Ça marche mieux avec les sites qui publient un balisage de recette standard — la plupart des blogs de cuisine le font.",
     "imported": "Recette importée",
     "failed": "L'import de cette recette a échoué."
   },
@@ -85,7 +85,7 @@
       "total": "Total (min)",
       "servings": "Portions",
       "tags": "Tags",
-      "tagsHelp": "Séparez par des virgules — ex. dîner, pâtes, en semaine",
+      "tagsHelp": "Séparez-les par des virgules — ex. dîner, pâtes, en semaine",
       "tagsPlaceholder": "dîner, pâtes"
     },
     "ingredients": {

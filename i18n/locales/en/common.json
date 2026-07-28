@@ -64,6 +64,16 @@
       "eveningNamed": "Good evening, {name}"
     }
   },
+  "weather": {
+    "clear": "Clear",
+    "partlyCloudy": "Partly cloudy",
+    "cloudy": "Cloudy",
+    "fog": "Fog",
+    "drizzle": "Drizzle",
+    "rain": "Rain",
+    "snow": "Snow",
+    "thunderstorm": "Thunderstorm"
+  },
   "emoji": {
     "label": "Emoji",
     "placeholder": "Type or paste any emoji",

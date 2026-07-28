@@ -64,6 +64,16 @@
       "eveningNamed": "Bonsoir {name}"
     }
   },
+  "weather": {
+    "clear": "Ciel dégagé",
+    "partlyCloudy": "Partiellement nuageux",
+    "cloudy": "Nuageux",
+    "fog": "Brouillard",
+    "drizzle": "Bruine",
+    "rain": "Pluie",
+    "snow": "Neige",
+    "thunderstorm": "Orage"
+  },
   "emoji": {
     "label": "Émoji",
     "placeholder": "Tapez ou collez un émoji",

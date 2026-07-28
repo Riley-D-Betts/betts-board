@@ -4,6 +4,7 @@
 import type { WeatherReport } from '~~/server/services/weather/forecast'
 
 const { state } = useBoardState()
+const { weatherLabel } = useWeatherLabel()
 const hasLocation = computed(() => state.value?.hasLocation ?? false)
 
 const weather = ref<WeatherReport | null>(null)
@@ -30,7 +31,7 @@ watch(useWeatherTick(), load) // settings changed (unit/location) → refetch no
   <div
     v-if="weather"
     class="flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-sm dark:bg-slate-800"
-    :title="weather.current.label"
+    :title="weatherLabel(weather.current)"
   >
     <UIcon :name="weather.current.icon" class="text-primary size-5 shrink-0" />
     <span class="font-semibold tabular-nums">{{ Math.round(weather.current.temperature) }}°</span>

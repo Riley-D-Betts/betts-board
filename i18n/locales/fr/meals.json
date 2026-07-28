@@ -21,7 +21,7 @@
   "tile": {
     "tonight": "Ce soir",
     "nothingPlanned": "Rien de prévu ce soir.",
-    "planTonight": "Planifier ce soir"
+    "planTonight": "Planifier le dîner"
   },
   "picker": {
     "title": "{slot} · {day}",
@@ -30,8 +30,8 @@
     "servingsOverride": "Nombre de portions",
     "servingsCount": "{n} portion(s)",
     "whosCooking": "Qui cuisine ?",
-    "cook": "Cuisinier",
-    "noCook": "Aucun cuisinier",
+    "cook": "Qui cuisine",
+    "noCook": "Personne",
     "noMatches": "Aucune recette ne correspond.",
     "empty": "Aucune recette pour l'instant.",
     "orTypeIt": "ou saisissez-le",
@@ -44,7 +44,7 @@
     "defaultList": "Liste par défaut",
     "listIsDefault": "{name} (par défaut)",
     "checkPantry": "Vérifier le garde-manger",
-    "checkPantryHint": "Signale les ingrédients que vous avez déjà à la maison.",
+    "checkPantryHint": "Signalez les ingrédients que vous avez déjà à la maison.",
     "submit": "Générer",
     "summary": "{created} ajoutés, {merged} fusionnés avec des articles existants.",
     "inPantry": "Déjà dans votre garde-manger — touchez pour retirer :",

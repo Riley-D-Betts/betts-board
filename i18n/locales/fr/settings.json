@@ -144,17 +144,17 @@
     "title": "Notifications",
     "unsupported": "Les notifications push ne sont pas disponibles ici. Il faut une connexion sécurisée (HTTPS) et un navigateur compatible avec le web push.",
     "iosInstall": "Sur iPhone et iPad, ajoutez d'abord Betts Board à votre écran d'accueil (Partager → Sur l'écran d'accueil), puis activez les notifications depuis l'appli installée.",
-    "notifyOnDevice": "Notifier sur cet appareil",
+    "notifyOnDevice": "Notifications sur cet appareil",
     "notifyOnDeviceHelp": "Les rappels d'événements et les échéances de tâches de votre profil arrivent en notifications push.",
     "blockedHelp": "Les notifications sont bloquées pour ce site. Autorisez-les dans les réglages du site de votre navigateur (le cadenas dans la barre d'adresse), puis réessayez.",
     "iosHomeScreen": "Sur iPhone et iPad, cela ne marche que depuis l'appli de l'écran d'accueil (Partager → Sur l'écran d'accueil).",
-    "sendTest": "Envoyer une notification test",
+    "sendTest": "Envoyer une notification de test",
     "enabled": "Notifications activées sur cet appareil",
     "disabled": "Notifications désactivées sur cet appareil",
     "blocked": "Les notifications sont bloquées dans les réglages de votre navigateur",
     "updateFailed": "Impossible de mettre à jour les notifications",
     "noDevices": "Aucun appareil abonné pour votre profil",
     "testSent": "Test envoyé à {sent} appareil sur {total} | Test envoyé à {sent} appareils sur {total}",
-    "testFailed": "Impossible d'envoyer la notification test"
+    "testFailed": "Impossible d'envoyer la notification de test"
   }
 }

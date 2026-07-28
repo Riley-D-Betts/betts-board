@@ -43,15 +43,15 @@
     "dueTime": "Hora límite",
     "repeats": "Repetición",
     "stacking": "Acumular",
-    "stackingOn": "Los días perdidos se acumulan: dos días sin hacerla son dos tareas",
-    "stackingOff": "Los días perdidos se juntan en una sola",
+    "stackingOn": "Los días que te saltes se acumulan: dos días sin hacerla son dos tareas",
+    "stackingOff": "Los días que te saltes se juntan en una sola tarea",
     "saveChanges": "Guardar cambios",
     "create": "Añadir tarea",
     "couldNotSave": "No se pudo guardar la tarea"
   },
   "ranking": {
     "periodMonth": "Este mes",
-    "periodAll": "Siempre",
+    "periodAll": "Histórico",
     "rewardsStore": "Recompensas",
     "empty": "Aún no hay nadie en la familia.",
     "choresDone": "{n} tarea hecha | {n} tareas hechas",

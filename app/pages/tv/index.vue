@@ -5,6 +5,7 @@ import type { ChoreInstance } from '#shared/schemas/chores'
 import type { WeatherReport } from '~~/server/services/weather/forecast'
 
 const { formatTime, formatWeekdayShort } = useDateFormat()
+const { weatherLabel } = useWeatherLabel()
 const { t } = useI18n()
 
 definePageMeta({ layout: 'tv' })
@@ -76,7 +77,7 @@ function weekdayLabel(date: string) {
               <p class="text-4xl font-bold leading-none tabular-nums">
                 {{ Math.round(weather.current.temperature) }}°
               </p>
-              <p class="tv-muted mt-1 text-sm">{{ weather.current.label }}</p>
+              <p class="tv-muted mt-1 text-sm">{{ weatherLabel(weather.current) }}</p>
             </div>
           </div>
           <div class="grid grid-cols-3 gap-3">
@@ -88,7 +89,7 @@ function weekdayLabel(date: string) {
               <p class="tv-muted text-xs font-medium">
                 {{ day.date === today ? $t('common.actions.today') : weekdayLabel(day.date) }}
               </p>
-              <UIcon :name="day.icon" class="my-1 size-7" :title="day.label" />
+              <UIcon :name="day.icon" class="my-1 size-7" :title="weatherLabel(day)" />
               <p class="text-sm tabular-nums">
                 {{ Math.round(day.tempMax) }}° <span class="tv-muted">{{ Math.round(day.tempMin) }}°</span>
               </p>
