@@ -20,10 +20,31 @@ export interface ParsedRow {
   externalId?: string | null
 }
 
+/**
+ * A non-fatal problem worth telling the user about, as a code plus its
+ * parameters rather than a finished sentence.
+ *
+ * These are payload data, not `statusMessage` strings — they land in the
+ * import review step and get read by whoever is importing, so they have to
+ * arrive in the board's language. The server has no idea what that is, so it
+ * ships the code and the client renders `finance.import.warnings.<code>`.
+ */
+export interface ImportWarning {
+  code:
+    | 'noDateOrAmount' // OFX transaction missing DTPOSTED or TRNAMT
+    | 'unreadableAmount' // OFX TRNAMT that is not a number
+    | 'badDate' // CSV row whose date cell would not parse
+    | 'badAmount' // CSV row whose amount cell(s) would not parse
+  /** 1-based line number as the user's spreadsheet shows it. CSV codes only. */
+  row?: number
+  /** The cell text that could not be read. `unreadableAmount` only. */
+  amount?: string
+}
+
 export interface ParseResult {
   rows: ParsedRow[]
   /** Non-fatal problems worth telling the user about. */
-  warnings: string[]
+  warnings: ImportWarning[]
   currency?: string
   accountHint?: string
 }
@@ -92,7 +113,7 @@ export function parseOfx(content: string): ParseResult {
     throw new ImportParseError('That file does not look like an OFX or QFX statement.')
   }
 
-  const warnings: string[] = []
+  const warnings: ImportWarning[] = []
   const currency = ofxValue(content, 'CURDEF') ?? undefined
   const accountHint = ofxValue(content, 'ACCTID') ?? undefined
 
@@ -119,7 +140,7 @@ export function parseOfx(content: string): ParseResult {
     const postedDate = ofxDate(ofxValue(block, 'DTPOSTED') ?? ofxValue(block, 'DTUSER'))
     const amountRaw = ofxValue(block, 'TRNAMT')
     if (!postedDate || !amountRaw) {
-      warnings.push('Skipped a transaction with no date or amount.')
+      warnings.push({ code: 'noDateOrAmount' })
       continue
     }
 
@@ -128,7 +149,7 @@ export function parseOfx(content: string): ParseResult {
       amountMinor = parseDecimalToMinor(amountRaw, currency ?? 'USD')
     }
     catch {
-      warnings.push(`Skipped a transaction with an unreadable amount (${amountRaw}).`)
+      warnings.push({ code: 'unreadableAmount', amount: amountRaw })
       continue
     }
 
@@ -324,7 +345,7 @@ export function parseCsvStatement(content: string, opts: {
     throw new ImportParseError('Those column names are not in this file.')
   }
 
-  const warnings: string[] = []
+  const warnings: ImportWarning[] = []
   const rows: ParsedRow[] = []
   const currency = opts.currency ?? 'USD'
 
@@ -340,7 +361,7 @@ export function parseCsvStatement(content: string, opts: {
     const cell = (i: number) => (i >= 0 ? (cells[i] ?? '').trim() : '')
     const postedDate = parseCsvDate(cell(cols.date), dateOrder)
     if (!postedDate) {
-      warnings.push(`Row ${n + (hasHeader ? 2 : 1)}: could not read the date.`)
+      warnings.push({ code: 'badDate', row: n + (hasHeader ? 2 : 1) })
       continue
     }
 
@@ -369,7 +390,7 @@ export function parseCsvStatement(content: string, opts: {
       amountMinor = null
     }
     if (amountMinor === null) {
-      warnings.push(`Row ${n + (hasHeader ? 2 : 1)}: could not read the amount.`)
+      warnings.push({ code: 'badAmount', row: n + (hasHeader ? 2 : 1) })
       continue
     }
 

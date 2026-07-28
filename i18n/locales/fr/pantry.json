@@ -1,0 +1,47 @@
+{
+  "title": "Garde-manger",
+  "scanBarcode": "Scanner un code-barres",
+  "searchPlaceholder": "Rechercher dans le garde-manger…",
+  "editAria": "Modifier {name}",
+  "deleteAria": "Supprimer {name}",
+  "addForm": {
+    "namePlaceholder": "Ajouter au garde-manger — « huile d'olive »…",
+    "quantityPlaceholder": "Qté",
+    "unitPlaceholder": "Unité",
+    "aislePlaceholder": "Rayon"
+  },
+  "empty": {
+    "noMatches": "Aucun résultat pour cette recherche.",
+    "none": "Le garde-manger est vide — ajoutez des articles ou rangez les courses depuis une liste."
+  },
+  "scan": {
+    "found": "Trouvé : {name}",
+    "foundWithBrand": "Trouvé : {name} ({brand})",
+    "notRecognized": "Produit inconnu — donnez-lui un nom, on s'en souviendra la prochaine fois."
+  },
+  "editor": {
+    "title": "Modifier l'article",
+    "name": "Nom",
+    "quantity": "Quantité",
+    "unit": "Unité",
+    "aisle": "Rayon"
+  },
+  "scanner": {
+    "title": "Scanner un code-barres",
+    "starting": "Démarrage de la caméra…",
+    "hint": "Visez le code-barres — la lecture est automatique.",
+    "manualPlaceholder": "…ou saisissez le numéro",
+    "lookUp": "Rechercher",
+    "errors": {
+      "insecureContext": "La caméra exige une connexion sécurisée (HTTPS) — saisissez plutôt le numéro ci-dessous.",
+      "cameraFailed": "Impossible d'ouvrir la caméra — saisissez plutôt le numéro ci-dessous.",
+      "invalidBarcode": "Un code-barres compte 6 à 14 chiffres."
+    }
+  },
+  "errors": {
+    "couldNotAdd": "Impossible d'ajouter l'article",
+    "couldNotSave": "Impossible d'enregistrer l'article",
+    "couldNotDelete": "Impossible de supprimer l'article",
+    "lookupFailed": "Échec de la recherche du code-barres"
+  }
+}

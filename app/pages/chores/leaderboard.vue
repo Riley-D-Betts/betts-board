@@ -1,11 +1,13 @@
 <script setup lang="ts">
 const period = ref<'week' | 'month' | 'all'>('week')
 
-const periods = [
-  { label: 'This week', value: 'week' as const },
-  { label: 'This month', value: 'month' as const },
-  { label: 'All time', value: 'all' as const },
-]
+const { t } = useI18n()
+
+const periods = computed(() => [
+  { label: t('chores.thisWeek'), value: 'week' as const },
+  { label: t('chores.ranking.periodMonth'), value: 'month' as const },
+  { label: t('chores.ranking.periodAll'), value: 'all' as const },
+])
 
 const { data: rows } = await useFetch('/api/chores/leaderboard', {
   query: { period },
@@ -28,10 +30,10 @@ const podium = computed(() => {
 <template>
   <div class="space-y-6 max-w-2xl">
     <div class="flex items-center gap-2">
-      <UButton to="/chores" icon="i-lucide-arrow-left" variant="ghost" color="neutral" aria-label="Back to chores" />
-      <h1 class="text-2xl md:text-3xl font-bold flex-1">Leaderboard</h1>
+      <UButton to="/chores" icon="i-lucide-arrow-left" variant="ghost" color="neutral" :aria-label="$t('chores.backToChores')" />
+      <h1 class="text-2xl md:text-3xl font-bold flex-1">{{ $t('chores.leaderboard') }}</h1>
       <UButton to="/rewards" icon="i-lucide-gift" variant="soft" color="warning">
-        Rewards store
+        {{ $t('chores.ranking.rewardsStore') }}
       </UButton>
       <UIcon name="i-lucide-trophy" class="size-7 text-amber-500" />
     </div>
@@ -53,7 +55,7 @@ const podium = computed(() => {
     </div>
 
     <div v-if="!rows?.length" class="text-center py-12 text-slate-500 dark:text-slate-400">
-      <p>No family members yet.</p>
+      <p>{{ $t('chores.ranking.empty') }}</p>
     </div>
 
     <template v-else>
@@ -85,13 +87,13 @@ const podium = computed(() => {
             <div class="min-w-0 flex-1">
               <p class="font-medium truncate">{{ row.name }}</p>
               <p class="text-xs text-slate-500 dark:text-slate-400">
-                {{ row.completedCount }} {{ row.completedCount === 1 ? 'chore' : 'chores' }} done
+                {{ $t('chores.ranking.choresDone', row.completedCount) }}
               </p>
             </div>
             <span
               v-if="row.currentStreak > 0"
               class="flex items-center gap-0.5 text-sm font-semibold text-orange-500"
-              :title="`${row.currentStreak}-day streak`"
+              :title="$t('chores.ranking.streak', { n: row.currentStreak })"
             >
               <UIcon name="i-lucide-flame" class="size-4" />
               {{ row.currentStreak }}

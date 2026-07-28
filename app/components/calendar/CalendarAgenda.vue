@@ -12,6 +12,9 @@ const emit = defineEmits<{
   select: [occurrence: CalendarOccurrence]
 }>()
 
+const { t } = useI18n()
+const { formatDayMonth, formatWeekdayLong } = useDateFormat()
+
 const groups = computed(() => {
   const zone = props.timezone
   const todayStr = DateTime.now().setZone(zone).toISODate()
@@ -30,16 +33,13 @@ const groups = computed(() => {
 
   return [...byDate.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, items]) => {
-      const dt = DateTime.fromISO(date, { zone })
-      return {
-        date,
-        isToday: date === todayStr,
-        label: date === todayStr ? 'Today' : dt.toFormat('cccc'),
-        sub: dt.toFormat('LLL d'),
-        items,
-      }
-    })
+    .map(([date, items]) => ({
+      date,
+      isToday: date === todayStr,
+      label: date === todayStr ? t('common.actions.today') : formatWeekdayLong(date),
+      sub: formatDayMonth(date),
+      items,
+    }))
 })
 </script>
 
@@ -65,6 +65,6 @@ const groups = computed(() => {
 
   <div v-else class="rounded-xl border border-dashed border-slate-300 dark:border-slate-700 py-12 text-center">
     <UIcon name="i-lucide-calendar-off" class="mx-auto size-8 text-slate-400" />
-    <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Nothing scheduled in the next 30 days.</p>
+    <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">{{ $t('calendar.agenda.empty') }}</p>
   </div>
 </template>

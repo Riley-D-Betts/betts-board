@@ -4,6 +4,7 @@ import type { FeedbackResult, FeedbackStatus } from '#shared/schemas/feedback'
 const APP_VERSION = '1.0.0'
 
 const toast = useToast()
+const { t } = useI18n()
 const { data: status } = await useFetch<FeedbackStatus>('/api/feedback/status')
 
 const kind = ref<'bug' | 'feature' | null>(null)
@@ -11,27 +12,27 @@ const form = reactive({ title: '', body: '', includeDiagnostics: true })
 const sending = ref(false)
 const sent = ref<FeedbackResult | null>(null)
 
-const options = [
+const options = computed(() => [
   {
     value: 'bug' as const,
     icon: 'i-lucide-bug',
-    title: 'Something\'s broken',
-    blurb: 'A page errors, a button does nothing, the numbers look wrong…',
+    title: t('feedback.kinds.bugTitle'),
+    blurb: t('feedback.kinds.bugBlurb'),
   },
   {
     value: 'feature' as const,
     icon: 'i-lucide-lightbulb',
-    title: 'I have an idea',
-    blurb: 'Something the board should do, or do better.',
+    title: t('feedback.kinds.featureTitle'),
+    blurb: t('feedback.kinds.featureBlurb'),
   },
-]
+])
 
 const titlePlaceholder = computed(() =>
-  kind.value === 'bug' ? 'e.g. Chore board shows yesterday\'s chores' : 'e.g. Birthday countdowns on the dashboard')
+  kind.value === 'bug' ? t('feedback.form.titlePlaceholderBug') : t('feedback.form.titlePlaceholderFeature'))
 const bodyPlaceholder = computed(() =>
   kind.value === 'bug'
-    ? 'What were you doing, what happened, and what did you expect instead?'
-    : 'What should the board do? Who in the family would use it?')
+    ? t('feedback.form.bodyPlaceholderBug')
+    : t('feedback.form.bodyPlaceholderFeature'))
 
 const canSubmit = computed(() => form.title.trim().length >= 3 && form.body.trim().length >= 1)
 
@@ -73,20 +74,20 @@ async function submit() {
     const e = err as { statusCode?: number, data?: { statusMessage?: string } }
     if (e.statusCode === 409) {
       toast.add({
-        title: 'Not connected to GitHub yet',
-        description: 'Ask a parent to connect it under Settings → Feedback.',
+        title: t('feedback.errors.notConnectedTitle'),
+        description: t('feedback.errors.notConnectedBody'),
         color: 'error',
       })
     }
     else if (e.statusCode === 502) {
       toast.add({
-        title: 'GitHub didn\'t take it',
-        description: `${e.data?.statusMessage ?? 'Could not reach GitHub'} — your words aren't lost, try again in a bit.`,
+        title: t('feedback.errors.rejectedTitle'),
+        description: t('feedback.errors.rejectedBody', { reason: e.data?.statusMessage ?? t('feedback.errors.couldNotReach') }),
         color: 'error',
       })
     }
     else {
-      toast.add({ title: e.data?.statusMessage ?? 'Could not send feedback', color: 'error' })
+      toast.add({ title: e.data?.statusMessage ?? t('feedback.errors.couldNotSend'), color: 'error' })
     }
   }
   finally {
@@ -98,9 +99,9 @@ async function submit() {
 <template>
   <div class="space-y-6 max-w-2xl">
     <div>
-      <h1 class="text-2xl md:text-3xl font-bold">Feedback</h1>
+      <h1 class="text-2xl md:text-3xl font-bold">{{ $t('feedback.title') }}</h1>
       <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-        Spotted a bug? Wish the board did something new? Tell us — it goes straight to the family's fix-it list.
+        {{ $t('feedback.intro') }}
       </p>
     </div>
 
@@ -108,11 +109,18 @@ async function submit() {
     <UCard v-if="!status?.configured">
       <div class="flex flex-col items-center gap-3 py-8 text-center">
         <UIcon name="i-lucide-plug-zap" class="size-10 text-slate-400 dark:text-slate-500" />
-        <p class="font-semibold">Feedback isn't set up yet</p>
-        <p class="text-sm text-slate-500 dark:text-slate-400 max-w-sm">
-          Ask a parent to connect GitHub under <span class="font-medium">Settings → Feedback</span>.
-          Once that's done, anything you send here lands on the family's to-fix list.
-        </p>
+        <p class="font-semibold">{{ $t('feedback.notConfigured.title') }}</p>
+        <!-- i18n-t so the settings path keeps its emphasis inside one translatable sentence. -->
+        <i18n-t
+          keypath="feedback.notConfigured.body"
+          tag="p"
+          scope="global"
+          class="text-sm text-slate-500 dark:text-slate-400 max-w-sm"
+        >
+          <template #path>
+            <span class="font-medium">{{ $t('feedback.notConfigured.settingsPath') }}</span>
+          </template>
+        </i18n-t>
       </div>
     </UCard>
 
@@ -120,9 +128,9 @@ async function submit() {
     <UCard v-else-if="sent">
       <div class="flex flex-col items-center gap-3 py-8 text-center">
         <UIcon name="i-lucide-party-popper" class="size-10 text-primary" />
-        <p class="text-lg font-semibold">Sent! Issue #{{ sent.issueNumber }}</p>
+        <p class="text-lg font-semibold">{{ $t('feedback.sent.title', { number: sent.issueNumber }) }}</p>
         <p class="text-sm text-slate-500 dark:text-slate-400">
-          Thanks — it's on the list now.
+          {{ $t('feedback.sent.body') }}
         </p>
         <div class="flex flex-wrap justify-center gap-2 pt-1">
           <UButton
@@ -131,10 +139,10 @@ async function submit() {
             icon="i-lucide-external-link"
             variant="soft"
           >
-            View on GitHub
+            {{ $t('feedback.sent.view') }}
           </UButton>
           <UButton icon="i-lucide-plus" variant="ghost" color="neutral" @click="sendAnother">
-            Send another
+            {{ $t('feedback.sent.sendAnother') }}
           </UButton>
         </div>
       </div>
@@ -166,19 +174,19 @@ async function submit() {
       <!-- The form -->
       <UCard v-if="kind">
         <div class="space-y-4">
-          <UFormField label="Title" required>
+          <UFormField :label="$t('feedback.form.title')" required>
             <UInput v-model="form.title" :placeholder="titlePlaceholder" class="w-full" />
           </UFormField>
-          <UFormField :label="kind === 'bug' ? 'What happened?' : 'Tell us about it'" required>
+          <UFormField :label="kind === 'bug' ? $t('feedback.form.bodyLabelBug') : $t('feedback.form.bodyLabelFeature')" required>
             <UTextarea v-model="form.body" :rows="6" :placeholder="bodyPlaceholder" class="w-full" />
           </UFormField>
 
           <div v-if="kind === 'bug'" class="flex items-center gap-3 min-h-11">
             <USwitch v-model="form.includeDiagnostics" />
             <div>
-              <p class="text-sm font-medium">Include device info</p>
+              <p class="text-sm font-medium">{{ $t('feedback.form.includeDiagnostics') }}</p>
               <p class="text-xs text-slate-500 dark:text-slate-400">
-                Adds your browser and window size to the report — helps track it down.
+                {{ $t('feedback.form.includeDiagnosticsHelp') }}
               </p>
             </div>
           </div>
@@ -191,7 +199,7 @@ async function submit() {
             :disabled="!canSubmit"
             @click="submit"
           >
-            Send {{ kind === 'bug' ? 'bug report' : 'idea' }}
+            {{ kind === 'bug' ? $t('feedback.form.submitBug') : $t('feedback.form.submitFeature') }}
           </UButton>
         </div>
       </UCard>

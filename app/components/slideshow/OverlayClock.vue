@@ -5,6 +5,8 @@ const props = withDefaults(defineProps<{
   large?: boolean
 }>(), { large: false })
 
+const { formatTime, formatWeekdayDate } = useDateFormat()
+
 // Client-only clock: starts null so SSR and hydration agree.
 const now = ref<Date | null>(null)
 onMounted(() => {
@@ -15,9 +17,9 @@ useIntervalFn(() => {
 }, 1000)
 
 const time = computed(() =>
-  now.value?.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) ?? '')
+  now.value ? formatTime(now.value.getTime()) : '')
 const dateLabel = computed(() =>
-  now.value?.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }) ?? '')
+  now.value ? formatWeekdayDate(now.value) : '')
 </script>
 
 <template>

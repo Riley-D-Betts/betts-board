@@ -1,0 +1,110 @@
+{
+  "title": "Recetas",
+  "search": "Buscar recetas…",
+  "newest": "Más recientes",
+  "topRated": "Mejor valoradas",
+  "aToZ": "De la A a la Z",
+  "none": "Todavía no hay recetas.",
+  "importFromLink": "Importar desde un enlace",
+  "createManually": "Crear a mano",
+  "defaultTitle": "Receta nueva",
+  "notFound": "No se encontró la receta",
+  "backToList": "Volver a recetas",
+  "sortAria": "Ordenar recetas",
+  "noMatches": "Nada coincide: prueba con otra búsqueda.",
+  "couldNotCreate": "No se pudo crear la receta",
+  "duration": {
+    "minutes": "{n} min",
+    "hours": "{n} h",
+    "hoursMinutes": "{h} h {m} min"
+  },
+  "rating": {
+    "groupLabel": "Valora esta receta",
+    "starCount": "{n} estrella | {n} estrellas"
+  },
+  "detail": {
+    "deleteAria": "Eliminar receta",
+    "confirmDelete": "¿Eliminar «{title}»? No se puede deshacer.",
+    "deleted": "Receta eliminada",
+    "couldNotDelete": "No se pudo eliminar la receta",
+    "couldNotRate": "No se pudo guardar la valoración",
+    "tapToRate": "Toca una estrella para valorarla",
+    "source": "Fuente",
+    "serves": "Raciones: {n}",
+    "time": {
+      "total": "Total {duration}",
+      "prep": "Preparación {duration}",
+      "cook": "Cocción {duration}"
+    },
+    "ingredients": "Ingredientes",
+    "noIngredients": "No hay ingredientes.",
+    "steps": "Pasos",
+    "noSteps": "No hay pasos."
+  },
+  "notes": {
+    "title": "Notas de la familia",
+    "empty": "Todavía no hay notas. Aquí va lo de «la próxima vez, el doble de salsa».",
+    "placeholder": "Añade una nota para la próxima vez…",
+    "addAria": "Añadir nota",
+    "deleteAria": "Eliminar nota",
+    "confirmDelete": "¿Eliminar esta nota?",
+    "couldNotAdd": "No se pudo añadir la nota",
+    "couldNotDelete": "No se pudo eliminar la nota",
+    "unknownAuthor": "Alguien",
+    "justNow": "ahora mismo",
+    "minutesAgo": "hace {n} min",
+    "hoursAgo": "hace {n} h",
+    "daysAgo": "hace {n} d"
+  },
+  "import": {
+    "title": "Importar una receta",
+    "intro": "Pega el enlace de cualquier página de recetas y sacamos el título, los ingredientes, los pasos y la foto.",
+    "linkLabel": "Enlace de la receta",
+    "linkPlaceholder": "https://example.com/mejor-lasana",
+    "fetching": "Buscando la receta…",
+    "manualInstead": "Mejor escribirla a mano",
+    "submit": "Importar receta",
+    "footnote": "Funciona mejor con webs que publican el marcado estándar de recetas: casi todos los blogs de cocina lo hacen.",
+    "imported": "Receta importada",
+    "failed": "Algo ha salido mal al importar esa receta."
+  },
+  "edit": {
+    "title": "Editar receta",
+    "back": "Volver a la receta",
+    "save": "Guardar receta",
+    "saved": "Receta guardada",
+    "couldNotSave": "No se pudo guardar la receta",
+    "titleRequired": "Ponle un título a la receta primero",
+    "fields": {
+      "title": "Título",
+      "titlePlaceholder": "La lasaña de la abuela",
+      "description": "Descripción",
+      "descriptionPlaceholder": "¿Qué la hace especial?",
+      "prep": "Preparación (min)",
+      "cook": "Cocción (min)",
+      "total": "Total (min)",
+      "servings": "Raciones",
+      "tags": "Etiquetas",
+      "tagsHelp": "Sepáralas con comas: p. ej. cena, pasta, entre semana",
+      "tagsPlaceholder": "cena, pasta"
+    },
+    "ingredients": {
+      "title": "Ingredientes",
+      "empty": "Todavía no hay ingredientes.",
+      "placeholder": "200 g de harina",
+      "add": "Añadir ingrediente",
+      "moveUp": "Subir el ingrediente {n}",
+      "moveDown": "Bajar el ingrediente {n}",
+      "remove": "Quitar el ingrediente {n}"
+    },
+    "steps": {
+      "title": "Pasos",
+      "empty": "Todavía no hay pasos.",
+      "placeholder": "Precalienta el horno a 190 °C…",
+      "add": "Añadir paso",
+      "moveUp": "Subir el paso {n}",
+      "moveDown": "Bajar el paso {n}",
+      "remove": "Quitar el paso {n}"
+    }
+  }
+}

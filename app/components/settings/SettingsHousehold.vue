@@ -2,6 +2,7 @@
 import { DEFAULT_MEAL_TIMES } from '#shared/schemas/meals'
 
 const toast = useToast()
+const { t, locale } = useI18n()
 const { state, refresh } = useBoardState()
 
 const { data: household } = await useFetch('/api/household')
@@ -12,7 +13,7 @@ const { data: household } = await useFetch('/api/household')
 const NO_COOK = 'none'
 
 const cookItems = computed(() => [
-  { label: 'No default — ask each time', value: NO_COOK },
+  { label: t('settings.household.noDefaultCook'), value: NO_COOK },
   ...(state.value?.profiles ?? []).map(p => ({ label: p.name, value: p.id })),
 ])
 
@@ -26,14 +27,19 @@ const form = reactive({
   defaultCookProfileId: household.value?.settings?.defaultCookProfileId ?? NO_COOK,
 })
 
-const mealTimeFields = [
-  { key: 'breakfast', label: 'Breakfast' },
-  { key: 'lunch', label: 'Lunch' },
-  { key: 'dinner', label: 'Dinner' },
-  { key: 'snack', label: 'Snack' },
-] as const
+const mealTimeFields = computed(() => [
+  { key: 'breakfast', label: t('settings.household.meals.breakfast') },
+  { key: 'lunch', label: t('settings.household.meals.lunch') },
+  { key: 'dinner', label: t('settings.household.meals.dinner') },
+  { key: 'snack', label: t('settings.household.meals.snack') },
+] as const)
 
-// Open-Meteo geocoder for changing the weather location.
+// Open-Meteo geocoder for changing the weather location. Called straight from
+// the browser (no server route), so the household's language is right here.
+// The geocoder wants a bare two-letter code — `es`, not the `es-ES` BCP 47 tag
+// Intl gets — and the picked name is PERSISTED, so searching in the household's
+// language is what puts "Múnich, Baviera, Alemania" on the dashboard and the TV
+// board instead of "Munich, Bavaria, Germany".
 const locationQuery = ref('')
 const locationResults = ref<{ name: string, admin1?: string, country: string, latitude: number, longitude: number, timezone: string }[]>([])
 let searchTimer: ReturnType<typeof setTimeout> | undefined
@@ -49,7 +55,7 @@ watch(locationQuery, (q) => {
     try {
       const res = await $fetch<{ results?: typeof locationResults.value }>(
         'https://geocoding-api.open-meteo.com/v1/search',
-        { params: { name: q, count: 5 } },
+        { params: { name: q, count: 5, language: locale.value } },
       )
       locationResults.value = res.results ?? []
     }
@@ -88,10 +94,10 @@ async function save() {
     })
     await refresh()
     useWeatherTick().value++ // weather widgets refetch with the new unit/location
-    toast.add({ title: 'Settings saved', color: 'success' })
+    toast.add({ title: t('settings.household.saved'), color: 'success' })
   }
   catch {
-    toast.add({ title: 'Could not save settings', color: 'error' })
+    toast.add({ title: t('settings.household.saveFailed'), color: 'error' })
   }
   finally {
     busy.value = false
@@ -104,15 +110,15 @@ async function save() {
     <template #header>
       <div class="flex items-center gap-2 font-semibold">
         <UIcon name="i-lucide-house" class="text-primary size-5" />
-        Household
+        {{ $t('settings.household.title') }}
       </div>
     </template>
     <div class="space-y-4">
-      <UFormField label="Household name">
+      <UFormField :label="$t('settings.household.name')">
         <UInput v-model="form.name" class="w-full" />
       </UFormField>
-      <UFormField label="Weather location">
-        <UInput v-model="locationQuery" :placeholder="form.locationName || 'Search your town…'" icon="i-lucide-map-pin" class="w-full" />
+      <UFormField :label="$t('settings.household.weatherLocation')">
+        <UInput v-model="locationQuery" :placeholder="form.locationName || $t('settings.household.locationPlaceholder')" icon="i-lucide-map-pin" class="w-full" />
       </UFormField>
       <div v-if="locationResults.length" class="rounded-lg border border-slate-200 dark:border-slate-700 divide-y divide-slate-200 dark:divide-slate-700">
         <button
@@ -124,43 +130,43 @@ async function save() {
           {{ [r.name, r.admin1, r.country].filter(Boolean).join(', ') }}
         </button>
       </div>
-      <UFormField label="Timezone">
+      <UFormField :label="$t('settings.household.timezone')">
         <UInput v-model="form.timezone" class="w-full" />
       </UFormField>
-      <UFormField label="Week starts on">
+      <UFormField :label="$t('settings.household.weekStartsOn')">
         <USelect
           v-model="form.weekStartsOn"
-          :items="[{ label: 'Sunday', value: 0 }, { label: 'Monday', value: 1 }]"
+          :items="[{ label: $t('settings.household.sunday'), value: 0 }, { label: $t('settings.household.monday'), value: 1 }]"
           class="w-40"
         />
       </UFormField>
-      <UFormField label="Temperature" help="How the weather is shown everywhere on the board.">
+      <UFormField :label="$t('settings.household.temperature')" :help="$t('settings.household.temperatureHelp')">
         <USelect
           v-model="form.temperatureUnit"
           :items="[
-            { label: 'Fahrenheit (°F)', value: 'fahrenheit' },
-            { label: 'Celsius (°C)', value: 'celsius' },
+            { label: $t('settings.household.fahrenheit'), value: 'fahrenheit' },
+            { label: $t('settings.household.celsius'), value: 'celsius' },
           ]"
           class="w-48"
         />
       </UFormField>
-      <UFormField label="Meal times" help="When each meal is eaten — cooking blocks on the calendar end at these times.">
+      <UFormField :label="$t('settings.household.mealTimes')" :help="$t('settings.household.mealTimesHelp')">
         <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <label v-for="field in mealTimeFields" :key="field.key" class="block">
             <span class="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">{{ field.label }}</span>
             <input
               v-model="form.mealTimes[field.key]"
               type="time"
-              :aria-label="`${field.label} time`"
+              :aria-label="$t('settings.household.mealTimeLabel', { meal: field.label })"
               class="w-full min-h-11 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 text-sm tabular-nums focus:outline-none focus:ring-2 focus:ring-primary"
             >
           </label>
         </div>
       </UFormField>
-      <UFormField label="Default cook" help="Pre-filled when planning a meal; change it per meal anytime.">
+      <UFormField :label="$t('settings.household.defaultCook')" :help="$t('settings.household.defaultCookHelp')">
         <USelect v-model="form.defaultCookProfileId" :items="cookItems" class="w-64" />
       </UFormField>
-      <UButton :loading="busy" @click="save">Save</UButton>
+      <UButton :loading="busy" @click="save">{{ $t('common.actions.save') }}</UButton>
     </div>
   </UCard>
 </template>

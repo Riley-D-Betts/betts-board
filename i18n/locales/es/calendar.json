@@ -1,0 +1,178 @@
+{
+  "allDay": "Todo el día",
+  "cookingTitle": "Cocinar — {title}",
+  "views": {
+    "month": "Mes",
+    "week": "Semana",
+    "day": "Día",
+    "agenda": "Agenda"
+  },
+  "nav": {
+    "previous": "Anterior",
+    "next": "Siguiente"
+  },
+  "range": {
+    "nextDays": "Próximo {n} día | Próximos {n} días"
+  },
+  "actions": {
+    "addEvent": "Añadir evento"
+  },
+  "errors": {
+    "couldNotLoadEvent": "No se pudo cargar el evento"
+  },
+  "detail": {
+    "allDayOn": "{date} · Todo el día",
+    "allDayRange": "{start} – {end} · Todo el día",
+    "cookingHint": "Bloque de cocina del planificador de comidas: cambia allí el plato o quién cocina.",
+    "viewRecipe": "Ver receta",
+    "openMealPlanner": "Abrir el planificador",
+    "fromFeed": "De {name}: los eventos importados no se editan aquí.",
+    "imported": "Importado de una suscripción de calendario: solo lectura."
+  },
+  "agenda": {
+    "empty": "Nada previsto en los próximos 30 días."
+  },
+  "month": {
+    "more": "+{n} más"
+  },
+  "week": {
+    "allDayRow": "todo el día"
+  },
+  "editor": {
+    "titleNew": "Nuevo evento",
+    "titleAll": "Editar evento",
+    "titleThis": "Editar solo este evento",
+    "titleFuture": "Editar este y los siguientes",
+    "limitedHint": "Solo cambia este evento: hora, título, lugar y notas.",
+    "eventTitle": "Título",
+    "eventTitlePlaceholder": "Entrenamiento de fútbol",
+    "starts": "Empieza",
+    "ends": "Termina",
+    "endBeforeStart": "Debe terminar después de empezar",
+    "location": "Lugar",
+    "notes": "Notas",
+    "optionalPlaceholder": "Opcional",
+    "attendees": "Quién va",
+    "repeats": "Repetición",
+    "reminder": "Recordatorio",
+    "color": "Color",
+    "colorHelp": "Automático toma el color de la primera persona.",
+    "colorAuto": "Automático",
+    "colorSwatch": "Color {color}",
+    "confirmDelete": "¿Confirmar?",
+    "reminders": {
+      "none": "Sin recordatorio",
+      "min5": "5 minutos antes",
+      "min15": "15 minutos antes",
+      "min30": "30 minutos antes",
+      "hour1": "1 hora antes",
+      "day1": "1 día antes"
+    },
+    "toast": {
+      "updated": "Evento actualizado",
+      "added": "Evento añadido",
+      "deleted": "Evento eliminado",
+      "couldNotSave": "No se pudo guardar el evento",
+      "couldNotDelete": "No se pudo eliminar el evento"
+    }
+  },
+  "scope": {
+    "title": "Editar evento recurrente",
+    "this": "Este evento",
+    "future": "Este y los siguientes",
+    "all": "Todos los eventos"
+  },
+  "repeat": {
+    "every": "Cada",
+    "times": "veces",
+    "presets": {
+      "none": "No se repite",
+      "daily": "Cada día",
+      "weekly": "Cada semana",
+      "monthly": "Cada mes",
+      "quarterly": "Cada tres meses",
+      "yearly": "Cada año",
+      "custom": "Personalizado…"
+    },
+    "freq": {
+      "daily": "día(s)",
+      "weekly": "semana(s)",
+      "monthly": "mes(es)",
+      "yearly": "año(s)"
+    },
+    "end": {
+      "never": "No termina nunca",
+      "until": "Termina en una fecha",
+      "count": "Termina después de…"
+    },
+    "weekdays": {
+      "su": "D",
+      "mo": "L",
+      "tu": "M",
+      "we": "X",
+      "th": "J",
+      "fr": "V",
+      "sa": "S"
+    }
+  },
+  "feeds": {
+    "title": "Calendarios externos",
+    "empty": "Suscríbete a los calendarios del colegio, del deporte o del trabajo: sus eventos aparecen en el tablero en modo solo lectura.",
+    "namePlaceholder": "Nombre (p. ej. Colegio)",
+    "urlPlaceholder": "URL .ics: https://… o webcal://…",
+    "add": "Añadir calendario",
+    "refreshNow": "Actualizar ahora",
+    "remove": "Quitar calendario",
+    "confirmRemove": "¿Quitar el calendario «{name}»? Sus eventos importados desaparecerán del tablero.",
+    "intervals": {
+      "min15": "Cada 15 min",
+      "hourly": "Cada hora",
+      "hours6": "Cada 6 horas",
+      "daily": "Cada día"
+    },
+    "status": {
+      "failed": "La última actualización ha fallado",
+      "refreshedAt": "Última actualización: {when}",
+      "never": "Todavía sin descargar"
+    },
+    "subscribe": {
+      "title": "Suscríbete desde el móvil",
+      "help": "Añade esta URL como suscripción en Google Calendar o Apple Calendar para ver los eventos del tablero en cualquier dispositivo. No la compartas: el enlace es la llave.",
+      "copyUrl": "Copiar URL",
+      "copyWebcal": "Copiar URL webcal"
+    },
+    "toast": {
+      "couldNotAdd": "No se pudo añadir el calendario",
+      "couldNotAddHelp": "Revisa la URL e inténtalo otra vez.",
+      "couldNotUpdate": "No se pudo actualizar el calendario",
+      "refreshFailed": "La actualización ha fallado",
+      "refreshed": "Calendario actualizado",
+      "couldNotRemove": "No se pudo quitar el calendario",
+      "copied": "Copiado al portapapeles",
+      "couldNotCopy": "No se pudo copiar"
+    }
+  },
+  "tile": {
+    "moreToday": "+{n} más hoy",
+    "empty": "Hoy no hay nada en el calendario."
+  },
+  "recurrence": {
+    "none": "No se repite",
+    "daily": "Cada día",
+    "dailyEvery": "Cada {n} días",
+    "weekly": "Cada semana",
+    "weeklyOn": "Cada semana los {days}",
+    "weeklyEvery": "Cada {n} semanas",
+    "weeklyEveryOn": "Cada {n} semanas los {days}",
+    "monthly": "Cada mes",
+    "monthlyOnDay": "Cada mes el día {day}",
+    "monthlyEvery": "Cada {n} meses",
+    "monthlyEveryOnDay": "Cada {n} meses el día {day}",
+    "quarterly": "Cada tres meses",
+    "quarterlyOnDay": "Cada tres meses el día {day}",
+    "yearly": "Cada año",
+    "yearlyEvery": "Cada {n} años",
+    "times": "{base}, {n} vez | {base}, {n} veces",
+    "until": "{base} hasta el {date}"
+  }
+}

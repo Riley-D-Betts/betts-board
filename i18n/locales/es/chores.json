@@ -1,0 +1,65 @@
+{
+  "title": "Tareas",
+  "leaderboard": "Clasificación",
+  "manage": "Gestionar",
+  "byDay": "Por día",
+  "byPerson": "Por persona",
+  "thisWeek": "Esta semana",
+  "nextWeek": "Próxima semana",
+  "lastWeek": "Semana pasada",
+  "noneThisWeek": "No hay tareas esta semana.",
+  "setUp": "Configurar tareas",
+  "noneToday": "Hoy no toca nada. ¡A disfrutar! 🎉",
+  "doneCount": "{done}/{total}",
+  "daysLate": "{n} día de retraso | {n} días de retraso",
+  "markDone": "Marcar {title} como hecha",
+  "markNotDone": "Desmarcar {title}",
+  "couldNotUpdate": "No se pudo actualizar la tarea",
+  "dueByTime": "antes de las {time}",
+  "backToChores": "Volver a las tareas",
+  "newChore": "Nueva tarea",
+  "noPermission": "Pide a un adulto que cambie la lista de tareas.",
+  "noneYet": "Aún no hay tareas: añade la primera.",
+  "removeConfirm": "¿Quitar «{title}»? Los puntos ganados se conservan.",
+  "removeChore": "Quitar {title}",
+  "couldNotRemove": "No se pudo quitar la tarea",
+  "weekNav": {
+    "previous": "Semana anterior",
+    "next": "Semana siguiente"
+  },
+  "tile": {
+    "doneSummary": "{done}/{total} hechas",
+    "chooseProfile": "Elige un perfil para ver tus tareas."
+  },
+  "editor": {
+    "editTitle": "Editar tarea",
+    "title": "Título",
+    "titlePlaceholder": "Dar de comer a las gallinas",
+    "description": "Descripción",
+    "points": "Puntos",
+    "assignees": "Quién la hace",
+    "assigneeRequired": "Elige al menos a una persona",
+    "startDate": "Empieza",
+    "dueTime": "Hora límite",
+    "repeats": "Repetición",
+    "stacking": "Acumular",
+    "stackingOn": "Los días que te saltes se acumulan: dos días sin hacerla son dos tareas",
+    "stackingOff": "Los días que te saltes se juntan en una sola tarea",
+    "saveChanges": "Guardar cambios",
+    "create": "Añadir tarea",
+    "couldNotSave": "No se pudo guardar la tarea"
+  },
+  "ranking": {
+    "periodMonth": "Este mes",
+    "periodAll": "Histórico",
+    "rewardsStore": "Recompensas",
+    "empty": "Aún no hay nadie en la familia.",
+    "choresDone": "{n} tarea hecha | {n} tareas hechas",
+    "streak": "Racha de {n} días"
+  },
+  "celebration": {
+    "stars": "+{n} estrella | +{n} estrellas",
+    "niceWork": "¡Bien hecho!",
+    "streak": "{n} días seguidos"
+  }
+}

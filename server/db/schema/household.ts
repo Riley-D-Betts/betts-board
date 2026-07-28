@@ -1,5 +1,6 @@
 import { sqliteTable, text, real } from 'drizzle-orm/sqlite-core'
 import type { HouseholdSettings } from '#shared/schemas/household'
+import { DEFAULT_LOCALE } from '#shared/schemas/locales'
 import { id, createdAt } from './_helpers'
 
 // The settings shape lives in #shared/schemas/household (one source of truth for
@@ -8,6 +9,7 @@ export type { HouseholdSettings }
 
 export const defaultHouseholdSettings: HouseholdSettings = {
   weekStartsOn: 0,
+  locale: DEFAULT_LOCALE,
   temperatureUnit: 'fahrenheit',
   appearance: { font: 'rounded', accentLight: 'green', accentDark: 'green', customFont: null },
   mealTimes: { breakfast: '07:30', lunch: '12:00', dinner: '18:00', snack: '15:00' },

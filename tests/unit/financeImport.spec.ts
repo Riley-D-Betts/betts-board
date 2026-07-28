@@ -171,7 +171,9 @@ describe('parseCsvStatement', () => {
     const csv = 'Date,Description,Amount\nnope,x,5.00\n2026-01-02,y,6.00'
     const parsed = parseCsvStatement(csv, {})
     expect(parsed.rows).toHaveLength(1)
-    expect(parsed.warnings[0]).toMatch(/Row 2/)
+    // A code and its row, not a sentence — the screen writes the sentence in
+    // whichever language the board is set to.
+    expect(parsed.warnings[0]).toEqual({ code: 'badDate', row: 2 })
   })
 })
 

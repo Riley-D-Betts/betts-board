@@ -1,7 +1,7 @@
 import { and, asc, eq, gte, lt } from 'drizzle-orm'
 import { addDaysToDateString, dateStringDiffDays, todayString } from '#shared/utils/dates'
 import type { Db } from '../../db/client'
-import { financeCategories, financeTransactions } from '../../db/schema'
+import { financeCategories, financeTransactionSplits, financeTransactions } from '../../db/schema'
 import { listAccounts, netWorthByCurrency } from './accounts'
 import { expandBills } from './bills'
 import { budgetForMonth, currentMonth } from './budgets'
@@ -34,15 +34,21 @@ export function buildForecast(db: Db, householdId: string, args: {
   const cashAccountIds = new Set(
     accounts.filter(a => CASH_TYPES.has(a.type)).map(a => a.id),
   )
+  // One row per SPLIT LINE, not per transaction. A shop that was half groceries
+  // and half a utility bill has to be judged a line at a time — see the
+  // exclusion below, which would otherwise throw away the grocery half too.
+  // The lines of a transaction sum to it, so the total is unchanged for the
+  // ordinary single-line case.
   const trailing = db.select({
     accountId: financeTransactions.accountId,
-    amountMinor: financeTransactions.amountMinor,
+    amountMinor: financeTransactionSplits.amountMinor,
     currency: financeTransactions.currency,
-    categoryId: financeTransactions.categoryId,
+    categoryId: financeTransactionSplits.categoryId,
     categoryKind: financeCategories.kind,
   })
-    .from(financeTransactions)
-    .leftJoin(financeCategories, eq(financeCategories.id, financeTransactions.categoryId))
+    .from(financeTransactionSplits)
+    .innerJoin(financeTransactions, eq(financeTransactions.id, financeTransactionSplits.transactionId))
+    .leftJoin(financeCategories, eq(financeCategories.id, financeTransactionSplits.categoryId))
     .where(and(
       eq(financeTransactions.householdId, householdId),
       eq(financeTransactions.pending, false),
@@ -61,6 +67,11 @@ export function buildForecast(db: Db, householdId: string, args: {
   // with the monthly electric bill plus a one-off connection fee). That is the
   // right direction to err in: slightly under-counting discretionary spend
   // beats double-counting the mortgage.
+  //
+  // It drops the LINE in a bill category, not the transaction that line belongs
+  // to. A £180 shop with £20 of it filed under Utilities still contributes its
+  // £160 of groceries to the average; dropping the whole receipt would erase
+  // eight times the money the exclusion is meant to remove.
   const billCategoryIds = new Set(
     expandBills(db, householdId, trailingStart, today)
       .map(b => b.categoryId)

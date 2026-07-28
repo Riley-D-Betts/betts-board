@@ -2,6 +2,7 @@
 definePageMeta({ layout: 'bare' })
 
 const { state, refresh } = useBoardState()
+const { t } = useI18n()
 const password = ref('')
 const error = ref('')
 const busy = ref(false)
@@ -26,19 +27,19 @@ async function unlock() {
   catch (err: unknown) {
     const status = (err as { statusCode?: number })?.statusCode
     if (status === 429) {
-      error.value = 'Too many attempts — wait a minute.'
+      error.value = t('auth.unlock.errors.tooManyAttempts')
     }
     else if (status === 401) {
-      error.value = 'Wrong password.'
+      error.value = t('auth.unlock.errors.wrongPassword')
     }
     else if (status === 400) {
       error.value = resetMode.value
-        ? 'Could not set the password (6+ characters).'
-        : 'Wrong password.'
+        ? t('auth.unlock.errors.passwordTooShort')
+        : t('auth.unlock.errors.wrongPassword')
     }
     else {
       // Don't blame the user's typing for server/network failures.
-      error.value = `Something went wrong on the server (error ${status ?? 'network'}) — check the container logs.`
+      error.value = t('auth.unlock.errors.server', { code: status ?? t('auth.unlock.errors.networkFallback') })
     }
   }
   finally {
@@ -53,20 +54,20 @@ async function unlock() {
       <UIcon name="i-lucide-lock" class="text-primary size-10" />
       <h1 class="text-2xl font-bold">{{ state?.householdName ?? 'Betts Board' }}</h1>
       <p v-if="resetMode" class="text-sm text-amber-500">
-        Password reset is armed — choose a new household password.
+        {{ $t('auth.unlock.resetNotice') }}
       </p>
       <form class="space-y-3 max-w-xs mx-auto" @submit.prevent="unlock">
         <UInput
           v-model="password"
           type="password"
-          :placeholder="resetMode ? 'New household password' : 'Household password'"
+          :placeholder="resetMode ? $t('auth.unlock.newPasswordPlaceholder') : $t('auth.unlock.passwordPlaceholder')"
           size="xl"
           class="w-full"
           autofocus
         />
         <p v-if="error" class="text-sm text-red-500">{{ error }}</p>
         <UButton type="submit" block size="xl" :loading="busy">
-          {{ resetMode ? 'Set new password' : 'Unlock' }}
+          {{ resetMode ? $t('auth.unlock.submitReset') : $t('auth.unlock.submit') }}
         </UButton>
       </form>
     </div>

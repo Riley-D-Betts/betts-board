@@ -4,6 +4,8 @@ import { DateTime } from 'luxon'
 import type { CalendarOccurrence } from '#shared/schemas/events'
 
 const { formatTime } = useDateFormat()
+const { occurrenceTitle } = useOccurrenceTitle()
+const { t } = useI18n()
 
 const { state } = useBoardState()
 const timezone = computed(() => state.value?.timezone ?? 'UTC')
@@ -19,7 +21,7 @@ const { data: occurrences, refresh } = await useFetch<CalendarOccurrence[]>('/ap
 useLiveRefresh(refresh)
 
 function timeLabel(occ: CalendarOccurrence) {
-  if (occ.isAllDay) return 'All day'
+  if (occ.isAllDay) return t('calendar.allDay')
   return formatTime(occ.start, timezone.value)
 }
 </script>
@@ -29,7 +31,7 @@ function timeLabel(occ: CalendarOccurrence) {
     <template #header>
       <NuxtLink to="/calendar" class="flex items-center gap-2 font-semibold hover:text-primary">
         <UIcon name="i-lucide-calendar-days" class="text-primary size-5" />
-        Today
+        {{ $t('common.actions.today') }}
         <UIcon name="i-lucide-chevron-right" class="ml-auto size-4 text-slate-400" />
       </NuxtLink>
     </template>
@@ -43,7 +45,7 @@ function timeLabel(occ: CalendarOccurrence) {
       >
         <span class="w-1.5 self-stretch shrink-0 rounded-full" :style="{ backgroundColor: occ.color }" />
         <div class="min-w-0 flex-1">
-          <p class="truncate text-sm font-medium">{{ occ.title }}</p>
+          <p class="truncate text-sm font-medium">{{ occurrenceTitle(occ) }}</p>
           <p class="text-xs text-slate-500 dark:text-slate-400">
             {{ timeLabel(occ) }}<span v-if="occ.location"> · {{ occ.location }}</span>
           </p>
@@ -59,9 +61,9 @@ function timeLabel(occ: CalendarOccurrence) {
         </div>
       </NuxtLink>
       <p v-if="occurrences.length > 6" class="py-1.5 text-xs text-slate-500">
-        +{{ occurrences.length - 6 }} more today
+        {{ $t('calendar.tile.moreToday', { n: occurrences.length - 6 }) }}
       </p>
     </div>
-    <p v-else class="text-sm text-slate-500">Nothing on the calendar today.</p>
+    <p v-else class="text-sm text-slate-500">{{ $t('calendar.tile.empty') }}</p>
   </UCard>
 </template>

@@ -3,6 +3,8 @@ import type { RewardDef } from '~/components/rewards/RewardCard.vue'
 
 const { activeProfile } = useBoardState()
 const toast = useToast()
+const { t } = useI18n()
+const { formatDayMonthYear } = useDateFormat()
 
 const canManage = computed(() =>
   activeProfile.value?.role === 'admin' || activeProfile.value?.role === 'adult')
@@ -28,13 +30,13 @@ function openEdit(reward: RewardDef) {
 }
 
 async function archive(reward: RewardDef) {
-  if (!confirm(`Remove "${reward.title}"? Past redemptions are kept.`)) return
+  if (!confirm(t('rewards.removeConfirm', { title: reward.title }))) return
   try {
     await $fetch(`/api/rewards/${reward.id}`, { method: 'DELETE' })
     await refresh()
   }
   catch {
-    toast.add({ title: 'Could not remove reward', color: 'error' })
+    toast.add({ title: t('rewards.couldNotRemove'), color: 'error' })
   }
 }
 
@@ -56,15 +58,17 @@ async function confirmRedeem() {
     await $fetch(`/api/rewards/${reward.id}/redeem`, { method: 'POST', body: {} })
     confirmOpen.value = false
     toast.add({
-      title: `🎉 ${reward.emoji ?? '🎁'} ${reward.title} is yours!`,
-      description: `${reward.cost} star${reward.cost === 1 ? '' : 's'} well spent, ${activeProfile.value?.name}.`,
+      title: t('rewards.redeemed.title', { emoji: reward.emoji ?? '🎁', title: reward.title }),
+      description: t('rewards.redeemed.description', { name: activeProfile.value?.name }, reward.cost),
       icon: 'i-lucide-party-popper',
       color: 'success',
     })
     await refresh()
   }
   catch (err) {
-    const msg = (err as { statusCode?: number }).statusCode === 400 ? 'Not enough stars' : 'Could not redeem reward'
+    const msg = (err as { statusCode?: number }).statusCode === 400
+      ? t('rewards.notEnoughStars')
+      : t('rewards.couldNotRedeem')
     toast.add({ title: msg, color: 'error' })
   }
   finally {
@@ -77,22 +81,22 @@ const showRecent = ref(false)
 
 function timeAgo(epochMs: number) {
   const mins = Math.round((Date.now() - epochMs) / 60_000)
-  if (mins < 1) return 'just now'
-  if (mins < 60) return `${mins}m ago`
+  if (mins < 1) return t('rewards.recent.justNow')
+  if (mins < 60) return t('rewards.recent.minutesAgo', { n: mins })
   const hours = Math.round(mins / 60)
-  if (hours < 24) return `${hours}h ago`
+  if (hours < 24) return t('rewards.recent.hoursAgo', { n: hours })
   const days = Math.round(hours / 24)
-  if (days < 30) return `${days}d ago`
-  return new Date(epochMs).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+  if (days < 30) return t('rewards.recent.daysAgo', { n: days })
+  return formatDayMonthYear(new Date(epochMs))
 }
 </script>
 
 <template>
   <div class="space-y-6 max-w-2xl">
     <div class="flex flex-wrap items-center gap-2">
-      <h1 class="text-2xl md:text-3xl font-bold flex-1">Rewards</h1>
+      <h1 class="text-2xl md:text-3xl font-bold flex-1">{{ $t('rewards.title') }}</h1>
       <UButton to="/chores/leaderboard" icon="i-lucide-trophy" variant="soft" color="warning">
-        Leaderboard
+        {{ $t('common.nav.leaderboard') }}
       </UButton>
       <UButton
         v-if="canManage"
@@ -101,7 +105,7 @@ function timeAgo(epochMs: number) {
         color="neutral"
         @click="managing = !managing"
       >
-        {{ managing ? 'Done' : 'Manage' }}
+        {{ managing ? $t('rewards.done') : $t('rewards.manage') }}
       </UButton>
     </div>
 
@@ -112,7 +116,7 @@ function timeAgo(epochMs: number) {
     >
       <ProfileAvatar :profile="activeProfile" size="lg" />
       <div class="flex-1">
-        <p class="text-sm font-medium text-amber-800 dark:text-amber-200">{{ activeProfile.name }}'s stars</p>
+        <p class="text-sm font-medium text-amber-800 dark:text-amber-200">{{ $t('rewards.myStars', { name: activeProfile.name }) }}</p>
         <p class="flex items-center gap-2 text-4xl font-bold text-amber-700 dark:text-amber-300 tabular-nums">
           <UIcon name="i-lucide-star" class="size-8" />
           {{ myBalance }}
@@ -122,19 +126,19 @@ function timeAgo(epochMs: number) {
 
     <!-- Manage mode: add button -->
     <div v-if="managing" class="flex justify-end">
-      <UButton icon="i-lucide-plus" @click="openCreate">New reward</UButton>
+      <UButton icon="i-lucide-plus" @click="openCreate">{{ $t('rewards.newReward') }}</UButton>
     </div>
 
     <!-- Empty states -->
     <div v-if="!data?.rewards.length" class="text-center py-12 text-slate-500 dark:text-slate-400">
       <UIcon name="i-lucide-gift" class="size-10 mb-2" />
       <template v-if="canManage">
-        <p>No rewards yet — add something worth saving up for.</p>
+        <p>{{ $t('rewards.emptyManage') }}</p>
         <UButton variant="soft" class="mt-3" icon="i-lucide-plus" @click="openCreate">
-          Add the first reward
+          {{ $t('rewards.addFirst') }}
         </UButton>
       </template>
-      <p v-else>No rewards yet. Ask a parent to add some rewards!</p>
+      <p v-else>{{ $t('rewards.empty') }}</p>
     </div>
 
     <!-- Reward grid -->
@@ -159,7 +163,7 @@ function timeAgo(epochMs: number) {
         @click="showRecent = !showRecent"
       >
         <UIcon :name="showRecent ? 'i-lucide-chevron-down' : 'i-lucide-chevron-right'" class="size-4" />
-        Recent redemptions
+        {{ $t('rewards.recent.title') }}
         <UBadge variant="soft" color="neutral" size="sm">{{ data.recent.length }}</UBadge>
       </button>
       <UCard v-if="showRecent">
@@ -186,22 +190,22 @@ function timeAgo(epochMs: number) {
     </section>
 
     <!-- Redeem confirmation -->
-    <UModal v-model:open="confirmOpen" title="Redeem reward">
+    <UModal v-model:open="confirmOpen" :title="$t('rewards.confirm.title')">
       <template #body>
         <div v-if="confirming" class="flex flex-col items-center gap-3 py-2 text-center">
           <span class="text-6xl">{{ confirming.emoji ?? '🎁' }}</span>
           <p class="text-lg font-semibold">
-            Spend {{ confirming.cost }} star{{ confirming.cost === 1 ? '' : 's' }} on {{ confirming.title }}?
+            {{ $t('rewards.confirm.spend', { title: confirming.title }, confirming.cost) }}
           </p>
           <p class="text-sm text-slate-500 dark:text-slate-400">
-            You'll have {{ myBalance - confirming.cost }} ⭐ left.
+            {{ $t('rewards.confirm.remaining', { n: myBalance - confirming.cost }) }}
           </p>
         </div>
       </template>
       <template #footer>
         <div class="flex w-full justify-end gap-2">
-          <UButton variant="ghost" color="neutral" @click="confirmOpen = false">Cancel</UButton>
-          <UButton icon="i-lucide-gift" :loading="redeeming" @click="confirmRedeem">Redeem</UButton>
+          <UButton variant="ghost" color="neutral" @click="confirmOpen = false">{{ $t('common.actions.cancel') }}</UButton>
+          <UButton icon="i-lucide-gift" :loading="redeeming" @click="confirmRedeem">{{ $t('rewards.redeem') }}</UButton>
         </div>
       </template>
     </UModal>

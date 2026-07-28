@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const toast = useToast()
+const { t } = useI18n()
 
 const url = ref('')
 const importing = ref(false)
@@ -14,13 +15,13 @@ async function importRecipe() {
   errorMessage.value = null
   try {
     const recipe = await $fetch('/api/recipes/import', { method: 'POST', body: { url: target } })
-    toast.add({ title: 'Recipe imported', description: recipe.title, icon: 'i-lucide-chef-hat', color: 'success' })
+    toast.add({ title: t('recipes.import.imported'), description: recipe.title, icon: 'i-lucide-chef-hat', color: 'success' })
     await navigateTo(`/recipes/${recipe.id}/edit`)
   }
   catch (err: unknown) {
     const e = err as { data?: { statusMessage?: string }, statusMessage?: string }
     errorMessage.value = e.data?.statusMessage ?? e.statusMessage
-      ?? 'Something went wrong importing that recipe.'
+      ?? t('recipes.import.failed')
     importing.value = false
   }
 }
@@ -31,11 +32,11 @@ async function enterManually() {
   if (creating.value) return
   creating.value = true
   try {
-    const recipe = await $fetch('/api/recipes', { method: 'POST', body: { title: 'New recipe' } })
+    const recipe = await $fetch('/api/recipes', { method: 'POST', body: { title: t('recipes.defaultTitle') } })
     await navigateTo(`/recipes/${recipe.id}/edit`)
   }
   catch {
-    toast.add({ title: 'Could not create recipe', color: 'error' })
+    toast.add({ title: t('recipes.couldNotCreate'), color: 'error' })
     creating.value = false
   }
 }
@@ -44,21 +45,21 @@ async function enterManually() {
 <template>
   <div class="space-y-6 max-w-xl">
     <div class="flex items-center gap-2">
-      <UButton to="/recipes" icon="i-lucide-arrow-left" variant="ghost" color="neutral" aria-label="Back to recipes" />
-      <h1 class="text-2xl md:text-3xl font-bold">Import a recipe</h1>
+      <UButton to="/recipes" icon="i-lucide-arrow-left" variant="ghost" color="neutral" :aria-label="$t('recipes.backToList')" />
+      <h1 class="text-2xl md:text-3xl font-bold">{{ $t('recipes.import.title') }}</h1>
     </div>
 
     <UCard>
       <div class="space-y-4">
         <p class="text-sm text-slate-500 dark:text-slate-400">
-          Paste a link to any recipe page and we'll pull in the title, ingredients, steps, and photo.
+          {{ $t('recipes.import.intro') }}
         </p>
 
-        <UFormField label="Recipe link">
+        <UFormField :label="$t('recipes.import.linkLabel')">
           <UInput
             v-model="url"
             type="url"
-            placeholder="https://example.com/best-lasagna"
+            :placeholder="$t('recipes.import.linkPlaceholder')"
             icon="i-lucide-link"
             size="lg"
             class="w-full"
@@ -69,7 +70,7 @@ async function enterManually() {
 
         <div v-if="importing" class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
           <UIcon name="i-lucide-loader-circle" class="size-4 animate-spin" />
-          Fetching recipe…
+          {{ $t('recipes.import.fetching') }}
         </div>
 
         <div
@@ -78,7 +79,7 @@ async function enterManually() {
         >
           <p>{{ errorMessage }}</p>
           <UButton variant="link" color="error" size="sm" class="px-0" :loading="creating" @click="enterManually">
-            Enter it manually instead
+            {{ $t('recipes.import.manualInstead') }}
           </UButton>
         </div>
 
@@ -90,13 +91,13 @@ async function enterManually() {
           :disabled="!looksLikeUrl"
           @click="importRecipe"
         >
-          Import recipe
+          {{ $t('recipes.import.submit') }}
         </UButton>
       </div>
     </UCard>
 
     <p class="text-xs text-slate-400 dark:text-slate-500 text-center">
-      Works best with sites that publish standard recipe markup — most food blogs do.
+      {{ $t('recipes.import.footnote') }}
     </p>
   </div>
 </template>

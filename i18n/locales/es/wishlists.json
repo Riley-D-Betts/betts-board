@@ -1,0 +1,54 @@
+{
+  "title": "Listas de deseos",
+  "newList": "Nueva lista",
+  "createList": "Nueva lista de deseos",
+  "editList": "Editar la lista de deseos",
+  "notFound": "No se encontró la lista de deseos",
+  "backToLists": "Volver a las listas de deseos",
+  "empty": "Todavía no hay listas de deseos. Empieza una para un cumpleaños o para las fiestas.",
+  "emptyItems": "Todavía no hay nada en esta lista.",
+  "ideas": "{n} idea | {n} ideas",
+  "addIdea": "Añadir una idea",
+  "ideaPlaceholder": "Set de Lego Botanical",
+  "addToList": "Añadir a la lista",
+  "archive": "Archivar esta lista",
+  "name": "Nombre",
+  "namePlaceholder": "Cumpleaños de Emma",
+  "forWhom": "Para quién es",
+  "occasion": "Ocasión",
+  "occasionPlaceholder": "Cumpleaños",
+  "occasions": {
+    "birthday": "Cumpleaños",
+    "christmas": "Navidad",
+    "hanukkah": "Janucá",
+    "graduation": "Graduación",
+    "justBecause": "Porque sí"
+  },
+  "date": "Fecha",
+  "dateHelp": "Muestra una cuenta atrás en la lista.",
+  "link": "Enlace",
+  "roughPrice": "Precio aproximado",
+  "pricePlaceholder": "unos 30 €",
+  "notes": "Notas",
+  "notesPlaceholder": "Talla M, azul si lo tienen",
+  "wantLevel": "¿Cuánto lo quiere?",
+  "priority": {
+    "nice": "Estaría bien",
+    "love": "Le encantaría",
+    "really": "Lo quiere mucho"
+  },
+  "countdown": {
+    "inDays": "En {n} días",
+    "daysAgo": "Hace {n} días"
+  },
+  "removeItem": "Quitar {name}",
+  "confirmRemove": "¿Quitar «{name}» de esta lista?",
+  "confirmArchive": "¿Archivar esta lista de deseos?",
+  "errors": {
+    "nameRequired": "Ponle un nombre a la lista primero",
+    "couldNotSave": "No se pudo guardar la lista",
+    "couldNotAdd": "No se pudo añadir",
+    "couldNotRemove": "No se pudo quitar",
+    "couldNotArchive": "No se pudo archivar la lista"
+  }
+}

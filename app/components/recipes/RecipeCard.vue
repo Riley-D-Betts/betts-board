@@ -13,13 +13,15 @@ defineProps<{
   }
 }>()
 
+const { t } = useI18n()
+
 function timeLabel(r: { totalMinutes: number | null, prepMinutes: number | null, cookMinutes: number | null }) {
   const mins = r.totalMinutes ?? ((r.prepMinutes ?? 0) + (r.cookMinutes ?? 0) || null)
   if (!mins) return null
-  if (mins < 60) return `${mins} min`
+  if (mins < 60) return t('recipes.duration.minutes', { n: mins })
   const h = Math.floor(mins / 60)
   const m = mins % 60
-  return m ? `${h} hr ${m} min` : `${h} hr`
+  return m ? t('recipes.duration.hoursMinutes', { h, m }) : t('recipes.duration.hours', { n: h })
 }
 </script>
 

@@ -1,0 +1,84 @@
+{
+  "actions": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "remove": "Quitar",
+    "add": "Añadir",
+    "edit": "Editar",
+    "close": "Cerrar",
+    "confirm": "Confirmar",
+    "back": "Atrás",
+    "today": "Hoy",
+    "tomorrow": "Mañana",
+    "yesterday": "Ayer"
+  },
+  "state": {
+    "loading": "Cargando…",
+    "saved": "Guardado",
+    "nothingHere": "Aún no hay nada",
+    "optional": "opcional"
+  },
+  "errors": {
+    "generic": "Algo ha salido mal",
+    "couldNotSave": "No se pudo guardar",
+    "couldNotLoad": "No se pudo cargar"
+  },
+  "nav": {
+    "home": "Inicio",
+    "calendar": "Calendario",
+    "chores": "Tareas",
+    "meals": "Comidas",
+    "shopping": "Compra",
+    "recipes": "Recetas",
+    "rewards": "Recompensas",
+    "wishlists": "Listas de deseos",
+    "pantry": "Despensa",
+    "photos": "Fotos",
+    "money": "Dinero",
+    "tvMode": "Modo TV",
+    "feedback": "Sugerencias",
+    "settings": "Ajustes",
+    "lock": "Bloquear",
+    "chooseProfile": "Elegir perfil",
+    "all": "Todo",
+    "allSections": "Todas las secciones",
+    "closeMenu": "Cerrar el menú",
+    "openMenu": "Abrir el menú",
+    "leaderboard": "Clasificación",
+    "manageChores": "Gestionar tareas",
+    "groups": {
+      "everyday": "Día a día",
+      "kitchen": "Cocina",
+      "family": "Familia",
+      "board": "Este tablero"
+    }
+  },
+  "dashboard": {
+    "greeting": {
+      "morning": "Buenos días",
+      "afternoon": "Buenas tardes",
+      "evening": "Buenas noches",
+      "morningNamed": "Buenos días, {name}",
+      "afternoonNamed": "Buenas tardes, {name}",
+      "eveningNamed": "Buenas noches, {name}"
+    }
+  },
+  "weather": {
+    "clear": "Despejado",
+    "partlyCloudy": "Parcialmente nublado",
+    "cloudy": "Nublado",
+    "fog": "Niebla",
+    "drizzle": "Llovizna",
+    "rain": "Lluvia",
+    "snow": "Nieve",
+    "thunderstorm": "Tormenta"
+  },
+  "emoji": {
+    "label": "Emoji",
+    "placeholder": "Escribe o pega cualquier emoji",
+    "selected": "{emoji} seleccionado",
+    "noneSelected": "Ningún emoji seleccionado",
+    "clear": "Quitar el emoji"
+  }
+}

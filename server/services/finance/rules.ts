@@ -1,6 +1,6 @@
-import { and, asc, eq, isNull } from 'drizzle-orm'
+import { and, asc, eq, sql } from 'drizzle-orm'
 import type { Db } from '../../db/client'
-import { financeRules, financeTransactions } from '../../db/schema'
+import { financeRules, financeTransactionSplits, financeTransactions } from '../../db/schema'
 
 export type RuleRow = typeof financeRules.$inferSelect
 
@@ -78,31 +78,61 @@ export function deleteRule(db: Db, householdId: string, id: string): void {
  * Re-run rules over existing rows.
  *
  * `onlyUncategorized` defaults true and the sweep never overwrites a
- * `categorizedBy: 'user'` row even when false: someone hand-filing a
+ * `categorizedBy: 'user'` line even when false: someone hand-filing a
  * transaction is a stronger signal than any pattern, and silently undoing that
  * work is the fastest way to make people stop trusting the feature.
+ *
+ * A transaction SPLIT across categories is skipped outright. Dividing a receipt
+ * by hand is the strongest statement of intent there is, and a rule collapsing
+ * it back to one category would destroy that work with nothing on screen to say
+ * it happened.
  */
 export function runRules(db: Db, householdId: string, opts: { onlyUncategorized: boolean }): { updated: number } {
   const rules = listRules(db, householdId)
   if (!rules.length) return { updated: 0 }
 
-  const rows = db.select().from(financeTransactions)
+  const rows = db.select({
+    txn: financeTransactions,
+    splitCount: sql<number>`(
+      select count(*) from ${financeTransactionSplits}
+      where ${financeTransactionSplits.transactionId} = ${financeTransactions.id}
+    )`,
+  })
+    .from(financeTransactions)
     .where(opts.onlyUncategorized
-      ? and(eq(financeTransactions.householdId, householdId), isNull(financeTransactions.categoryId))
+      ? and(
+          eq(financeTransactions.householdId, householdId),
+          sql`exists (
+            select 1 from ${financeTransactionSplits}
+            where ${financeTransactionSplits.transactionId} = ${financeTransactions.id}
+              and ${financeTransactionSplits.categoryId} is null
+          )`,
+        )
       : eq(financeTransactions.householdId, householdId))
     .all()
 
   let updated = 0
-  for (const txn of rows) {
-    if (txn.categorizedBy === 'user') continue
+  for (const { txn, splitCount } of rows) {
+    if (splitCount > 1) continue // hand-split: leave it alone
+
+    const split = db.select().from(financeTransactionSplits)
+      .where(eq(financeTransactionSplits.transactionId, txn.id)).get()
+    if (split?.categorizedBy === 'user') continue
+
     const effect = applyRules(rules, txn)
     if (!effect) continue
-    if (effect.categoryId === txn.categoryId && (effect.payee ?? txn.payee) === txn.payee) continue
+    if (effect.categoryId === split?.categoryId && (effect.payee ?? txn.payee) === txn.payee) continue
 
-    db.update(financeTransactions).set({
-      ...(effect.categoryId !== undefined ? { categoryId: effect.categoryId, categorizedBy: 'rule' as const } : {}),
-      ...(effect.payee ? { payee: effect.payee } : {}),
-    }).where(eq(financeTransactions.id, txn.id)).run()
+    if (effect.categoryId !== undefined && split) {
+      db.update(financeTransactionSplits)
+        .set({ categoryId: effect.categoryId, categorizedBy: 'rule' })
+        .where(eq(financeTransactionSplits.id, split.id))
+        .run()
+    }
+    if (effect.payee) {
+      db.update(financeTransactions).set({ payee: effect.payee })
+        .where(eq(financeTransactions.id, txn.id)).run()
+    }
     updated++
   }
   return { updated }

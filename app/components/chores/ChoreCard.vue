@@ -14,11 +14,15 @@ withDefaults(defineProps<{
 
 const emit = defineEmits<{ toggle: [] }>()
 
-function formatTime(t: string) {
+const { formatTime } = useDateFormat()
+
+// dueTime is a bare "HH:MM" clock string; anchor it to today so the locale-aware
+// formatter can decide 12- vs 24-hour.
+function dueTimeLabel(t: string) {
   const [h, m] = t.split(':').map(Number)
   const d = new Date()
   d.setHours(h!, m!, 0, 0)
-  return d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+  return formatTime(d.getTime())
 }
 </script>
 
@@ -57,7 +61,7 @@ function formatTime(t: string) {
       <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
         <template v-if="dateLabel">{{ dateLabel }}</template>
         <template v-if="dateLabel && instance.dueTime"> · </template>
-        <template v-if="instance.dueTime">by {{ formatTime(instance.dueTime) }}</template>
+        <template v-if="instance.dueTime">{{ $t('chores.dueByTime', { time: dueTimeLabel(instance.dueTime) }) }}</template>
         <template v-if="(dateLabel || instance.dueTime) && !compact"> · </template>
         <template v-if="!compact">{{ instance.profileName }}</template>
       </p>

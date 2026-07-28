@@ -1,0 +1,58 @@
+{
+  "title": "Comidas",
+  "generateList": "Generar lista de la compra",
+  "thisWeek": "Esta semana",
+  "nextWeek": "Próxima semana",
+  "lastWeek": "Semana pasada",
+  "planSlot": "Planificar {slot} el {date}",
+  "removeEntry": "Quitar {title}",
+  "couldNotPlan": "No se pudo planificar la comida",
+  "couldNotRemove": "No se pudo quitar la comida",
+  "slots": {
+    "breakfast": "Desayuno",
+    "lunch": "Almuerzo",
+    "dinner": "Cena",
+    "snack": "Merienda"
+  },
+  "weekNav": {
+    "previous": "Semana anterior",
+    "next": "Semana siguiente"
+  },
+  "tile": {
+    "tonight": "Esta noche",
+    "nothingPlanned": "No hay nada previsto para esta noche.",
+    "planTonight": "Planificar la cena"
+  },
+  "picker": {
+    "title": "{slot} · {day}",
+    "search": "Buscar recetas…",
+    "servings": "Raciones",
+    "servingsOverride": "Ajustar raciones",
+    "servingsCount": "{n} raciones",
+    "whosCooking": "¿Quién cocina?",
+    "cook": "Quién cocina",
+    "noCook": "Nadie",
+    "noMatches": "Ninguna receta coincide con la búsqueda.",
+    "empty": "Todavía no hay recetas.",
+    "orTypeIt": "o escríbelo sin más",
+    "freeTextPlaceholder": "«Sobras», «Pizza fuera»…"
+  },
+  "generate": {
+    "from": "Desde",
+    "until": "Hasta (sin incluir)",
+    "addToList": "Añadir a la lista",
+    "defaultList": "Lista predeterminada",
+    "listIsDefault": "{name} (predeterminada)",
+    "checkPantry": "Revisar la despensa",
+    "checkPantryHint": "Marca los ingredientes que ya tienes en casa.",
+    "submit": "Generar",
+    "summary": "{created} añadidos, {merged} combinados con productos que ya estaban.",
+    "inPantry": "Ya en tu despensa — toca para quitar:",
+    "skippedFreeText": "Estas comidas escritas a mano no tienen ingredientes:",
+    "openList": "Abrir lista",
+    "done": "Listo",
+    "failed": "No se pudo generar la lista de la compra",
+    "removedItem": "Se ha quitado {name}",
+    "couldNotRemoveItem": "No se pudo quitar el producto"
+  }
+}

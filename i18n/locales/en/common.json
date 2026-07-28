@@ -53,5 +53,32 @@
       "family": "Family",
       "board": "This board"
     }
+  },
+  "dashboard": {
+    "greeting": {
+      "morning": "Good morning",
+      "afternoon": "Good afternoon",
+      "evening": "Good evening",
+      "morningNamed": "Good morning, {name}",
+      "afternoonNamed": "Good afternoon, {name}",
+      "eveningNamed": "Good evening, {name}"
+    }
+  },
+  "weather": {
+    "clear": "Clear",
+    "partlyCloudy": "Partly cloudy",
+    "cloudy": "Cloudy",
+    "fog": "Fog",
+    "drizzle": "Drizzle",
+    "rain": "Rain",
+    "snow": "Snow",
+    "thunderstorm": "Thunderstorm"
+  },
+  "emoji": {
+    "label": "Emoji",
+    "placeholder": "Type or paste any emoji",
+    "selected": "Selected {emoji}",
+    "noneSelected": "No emoji selected",
+    "clear": "Clear emoji"
   }
 }

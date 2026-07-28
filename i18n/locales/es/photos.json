@@ -1,0 +1,53 @@
+{
+  "title": "Fotos",
+  "add": "Añadir fotos",
+  "loadMore": "Cargar más",
+  "empty": "Aún no hay fotos. Añade algunas y saldrán en el pase de fotos.",
+  "deleted": "Foto eliminada",
+  "upload": {
+    "uploading": "Subiendo la foto… | Subiendo {n} fotos…",
+    "dropHint": "Suelta las fotos para subirlas",
+    "added": "Foto añadida | {n} fotos añadidas",
+    "onlyImages": "Solo se pueden subir imágenes",
+    "tooLarge": "{name} supera los 25 MB",
+    "failed": "No se pudo subir",
+    "failedWithStatus": "No se pudo subir ({status})"
+  },
+  "photo": {
+    "notInSlideshow": "Fuera del pase",
+    "includeInSlideshow": "Incluir en el pase",
+    "removeFromSlideshow": "Quitar del pase",
+    "delete": "Eliminar la foto"
+  },
+  "deleteConfirm": {
+    "title": "¿Eliminar la foto?",
+    "description": "La foto desaparecerá del tablero y del pase de fotos. No se puede deshacer."
+  },
+  "errors": {
+    "couldNotLoadMore": "No se pudieron cargar más fotos",
+    "couldNotUpdate": "No se pudo actualizar la foto",
+    "couldNotDelete": "No se pudo eliminar la foto"
+  },
+  "slideshow": {
+    "title": "Pase de fotos",
+    "description": "Las pantallas de pared muestran un pase de fotos cuando llevan un rato sin usarse. Toca la pantalla o pulsa cualquier tecla para volver al tablero.",
+    "idleMinutes": "Minutos de inactividad antes de empezar",
+    "secondsPerPhoto": "Segundos por foto",
+    "transition": "Transición",
+    "transitions": {
+      "fade": "Fundido",
+      "kenburns": "Ken Burns (panorámica y zoom lentos)"
+    },
+    "showClock": "Mostrar el reloj",
+    "showWeather": "Mostrar el tiempo",
+    "showAgenda": "Mostrar la agenda de hoy",
+    "preview": "Ver el pase",
+    "saved": "Ajustes del pase guardados",
+    "couldNotSave": "No se pudieron guardar los ajustes del pase"
+  },
+  "overlay": {
+    "allDay": "Todo el día",
+    "comingUp": "A continuación",
+    "hiLo": "Máx {high}° Mín {low}°"
+  }
+}

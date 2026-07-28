@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const { unlocked } = useFinanceSession()
 const { money, moneyShort, toInput, fromInput } = useMoney()
+const { formatMonthYear } = useDateFormat()
 
 interface BudgetLine {
   categoryId: string
@@ -67,6 +68,9 @@ async function save(line: BudgetLine) {
   }
 }
 
+/** `period` is a "YYYY-MM" machine key; anchor it to the 1st for display only. */
+const monthLabel = computed(() => formatMonthYear(`${data.value?.period ?? period.value}-01`))
+
 function shiftMonth(delta: number) {
   const [y, m] = period.value.split('-').map(Number)
   const date = new Date(y!, m! - 1 + delta, 1)
@@ -95,7 +99,7 @@ function barColor(line: BudgetLine) {
             :aria-label="$t('common.actions.back')"
             @click="shiftMonth(-1)"
           />
-          <span class="min-w-28 text-center font-medium tabular-nums">{{ data.period }}</span>
+          <span class="min-w-28 text-center font-medium tabular-nums">{{ monthLabel }}</span>
           <UButton
             icon="i-lucide-chevron-right"
             variant="ghost"
@@ -156,7 +160,7 @@ function barColor(line: BudgetLine) {
                 class="w-28 shrink-0"
                 :placeholder="$t('finance.budgets.noBudget')"
                 :loading="savingId === line.categoryId"
-                :aria-label="`${line.categoryName} ${$t('finance.budgets.setAmount')}`"
+                :aria-label="$t('finance.budgets.setAmountFor', { category: line.categoryName })"
                 @blur="save(line)"
                 @keyup.enter="save(line)"
               />
@@ -177,7 +181,7 @@ function barColor(line: BudgetLine) {
                   {{ $t('finance.budgets.over', { amount: money(-line.remainingMinor, data.currency) }) }}
                 </template>
                 <template v-else>
-                  {{ money(line.remainingMinor, data.currency) }} {{ $t('finance.budgets.remaining').toLowerCase() }}
+                  {{ $t('finance.budgets.remainingAmount', { amount: money(line.remainingMinor, data.currency) }) }}
                 </template>
               </span>
             </div>

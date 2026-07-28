@@ -1,0 +1,53 @@
+{
+  "title": "Photos",
+  "add": "Ajouter des photos",
+  "loadMore": "Voir plus",
+  "empty": "Aucune photo pour l'instant. Ajoutez-en et elles passeront dans le diaporama.",
+  "deleted": "Photo supprimée",
+  "upload": {
+    "uploading": "Envoi de la photo… | Envoi de {n} photos…",
+    "dropHint": "Déposez vos photos pour les envoyer",
+    "added": "Photo ajoutée | {n} photos ajoutées",
+    "onlyImages": "Seules les images peuvent être envoyées",
+    "tooLarge": "{name} dépasse 25 Mo",
+    "failed": "Échec de l'envoi",
+    "failedWithStatus": "Échec de l'envoi ({status})"
+  },
+  "photo": {
+    "notInSlideshow": "Hors diaporama",
+    "includeInSlideshow": "Ajouter au diaporama",
+    "removeFromSlideshow": "Retirer du diaporama",
+    "delete": "Supprimer la photo"
+  },
+  "deleteConfirm": {
+    "title": "Supprimer cette photo ?",
+    "description": "Elle disparaît du tableau et du diaporama. C'est définitif."
+  },
+  "errors": {
+    "couldNotLoadMore": "Impossible de charger d'autres photos",
+    "couldNotUpdate": "Impossible de modifier la photo",
+    "couldNotDelete": "Impossible de supprimer la photo"
+  },
+  "slideshow": {
+    "title": "Diaporama",
+    "description": "Les écrans muraux passent en diaporama après un moment d'inactivité. Touchez l'écran ou appuyez sur une touche pour revenir au tableau.",
+    "idleMinutes": "Démarrer après (minutes d'inactivité)",
+    "secondsPerPhoto": "Secondes par photo",
+    "transition": "Transition",
+    "transitions": {
+      "fade": "Fondu enchaîné",
+      "kenburns": "Ken Burns (panoramique et zoom lents)"
+    },
+    "showClock": "Afficher l'heure",
+    "showWeather": "Afficher la météo",
+    "showAgenda": "Afficher l'agenda du jour",
+    "preview": "Aperçu du diaporama",
+    "saved": "Réglages du diaporama enregistrés",
+    "couldNotSave": "Impossible d'enregistrer les réglages du diaporama"
+  },
+  "overlay": {
+    "allDay": "Toute la journée",
+    "comingUp": "À venir",
+    "hiLo": "Max {high}° Min {low}°"
+  }
+}

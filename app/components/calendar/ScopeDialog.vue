@@ -1,17 +1,21 @@
 <script setup lang="ts">
 const open = defineModel<boolean>('open', { required: true })
 
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   title?: string
-}>(), { title: 'Edit recurring event' })
+}>(), { title: undefined })
 
 const emit = defineEmits<{ select: [scope: 'this' | 'future' | 'all'] }>()
 
-const options = [
-  { scope: 'this' as const, label: 'This event', icon: 'i-lucide-calendar' },
-  { scope: 'future' as const, label: 'This and future events', icon: 'i-lucide-calendar-arrow-down' },
-  { scope: 'all' as const, label: 'All events', icon: 'i-lucide-calendar-days' },
-]
+const { t } = useI18n()
+
+const modalTitle = computed(() => props.title ?? t('calendar.scope.title'))
+
+const options = computed(() => [
+  { scope: 'this' as const, label: t('calendar.scope.this'), icon: 'i-lucide-calendar' },
+  { scope: 'future' as const, label: t('calendar.scope.future'), icon: 'i-lucide-calendar-arrow-down' },
+  { scope: 'all' as const, label: t('calendar.scope.all'), icon: 'i-lucide-calendar-days' },
+])
 
 function pick(scope: 'this' | 'future' | 'all') {
   open.value = false
@@ -20,7 +24,7 @@ function pick(scope: 'this' | 'future' | 'all') {
 </script>
 
 <template>
-  <UModal v-model:open="open" :title="title">
+  <UModal v-model:open="open" :title="modalTitle">
     <template #body>
       <div class="space-y-2">
         <button

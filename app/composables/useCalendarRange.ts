@@ -27,6 +27,8 @@ export function useCalendarRange(opts: {
   weekStartsOn: Ref<0 | 1>
 }) {
   const { view, anchor, timezone, weekStartsOn } = opts
+  const { t } = useI18n()
+  const { formatDayMonth, formatDayMonthYear, formatMonthYear, formatWeekdayDateYear } = useDateFormat()
 
   const anchorDt = computed(() =>
     DateTime.fromISO(anchor.value, { zone: timezone.value }).startOf('day'))
@@ -66,21 +68,25 @@ export function useCalendarRange(opts: {
   })
 
   const title = computed(() => {
+    // Headings are formatted from the YYYY-MM-DD calendar string, not the
+    // DateTime: the helpers are display-only and re-reading an instant in the
+    // device's zone could land on the previous day.
     const dt = anchorDt.value
     switch (view.value) {
       case 'month':
-        return dt.toFormat('LLLL yyyy')
+        return formatMonthYear(dt.toISODate()!)
       case 'week': {
         const start = startOfWeekDt(dt, weekStartsOn.value)
         const end = start.plus({ days: 6 })
-        return start.month === end.month
-          ? `${start.toFormat('LLL d')} – ${end.toFormat('d, yyyy')}`
-          : `${start.toFormat('LLL d')} – ${end.toFormat('LLL d, yyyy')}`
+        // Both ends carry their month: dropping it from the second half of a
+        // same-month range ("Jul 3 – 9") only reads correctly in languages that
+        // put the month first.
+        return `${formatDayMonth(start.toISODate()!)} – ${formatDayMonthYear(end.toISODate()!)}`
       }
       case 'day':
-        return dt.toFormat('ccc, LLL d, yyyy')
+        return formatWeekdayDateYear(dt.toISODate()!)
       default:
-        return `Next ${AGENDA_DAYS} days`
+        return t('calendar.range.nextDays', AGENDA_DAYS)
     }
   })
 

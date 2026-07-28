@@ -1,0 +1,46 @@
+{
+  "title": "Recompensas",
+  "manage": "Gestionar",
+  "done": "Listo",
+  "myStars": "Estrellas de {name}",
+  "newReward": "Nueva recompensa",
+  "redeem": "Canjear",
+  "emptyManage": "Aún no hay recompensas: añade algo por lo que merezca la pena ahorrar.",
+  "addFirst": "Añadir la primera recompensa",
+  "empty": "Aún no hay recompensas. ¡Pide a un adulto que añada alguna!",
+  "removeConfirm": "¿Quitar «{title}»? Los canjes anteriores se conservan.",
+  "couldNotRemove": "No se pudo quitar la recompensa",
+  "notEnoughStars": "No tienes estrellas suficientes",
+  "couldNotRedeem": "No se pudo canjear la recompensa",
+  "redeemed": {
+    "title": "🎉 {emoji} ¡{title} es para ti!",
+    "description": "{n} estrella bien gastada, {name}. | {n} estrellas bien gastadas, {name}."
+  },
+  "card": {
+    "remove": "Quitar {title}",
+    "needMore": "Te faltan {n} ⭐"
+  },
+  "recent": {
+    "title": "Canjes recientes",
+    "justNow": "ahora mismo",
+    "minutesAgo": "hace {n} min",
+    "hoursAgo": "hace {n} h",
+    "daysAgo": "hace {n} d"
+  },
+  "confirm": {
+    "title": "Canjear recompensa",
+    "spend": "¿Gastar {n} estrella en {title}? | ¿Gastar {n} estrellas en {title}?",
+    "remaining": "Te quedarán {n} ⭐."
+  },
+  "editor": {
+    "editTitle": "Editar recompensa",
+    "title": "Título",
+    "titlePlaceholder": "Ir a por un helado",
+    "cost": "Coste en estrellas",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Una bola en la heladería del centro",
+    "saveChanges": "Guardar cambios",
+    "create": "Añadir recompensa",
+    "couldNotSave": "No se pudo guardar la recompensa"
+  }
+}

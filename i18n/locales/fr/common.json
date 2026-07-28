@@ -1,0 +1,84 @@
+{
+  "actions": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "remove": "Retirer",
+    "add": "Ajouter",
+    "edit": "Modifier",
+    "close": "Fermer",
+    "confirm": "Confirmer",
+    "back": "Retour",
+    "today": "Aujourd'hui",
+    "tomorrow": "Demain",
+    "yesterday": "Hier"
+  },
+  "state": {
+    "loading": "Chargement…",
+    "saved": "Enregistré",
+    "nothingHere": "Rien pour l'instant",
+    "optional": "facultatif"
+  },
+  "errors": {
+    "generic": "Une erreur est survenue",
+    "couldNotSave": "Impossible d'enregistrer",
+    "couldNotLoad": "Impossible de charger"
+  },
+  "nav": {
+    "home": "Accueil",
+    "calendar": "Calendrier",
+    "chores": "Tâches",
+    "meals": "Repas",
+    "shopping": "Courses",
+    "recipes": "Recettes",
+    "rewards": "Récompenses",
+    "wishlists": "Listes d'envies",
+    "pantry": "Garde-manger",
+    "photos": "Photos",
+    "money": "Argent",
+    "tvMode": "Mode TV",
+    "feedback": "Retours",
+    "settings": "Réglages",
+    "lock": "Verrouiller",
+    "chooseProfile": "Choisir un profil",
+    "all": "Tout",
+    "allSections": "Toutes les sections",
+    "closeMenu": "Fermer le menu",
+    "openMenu": "Ouvrir le menu",
+    "leaderboard": "Classement",
+    "manageChores": "Gérer les tâches",
+    "groups": {
+      "everyday": "Au quotidien",
+      "kitchen": "Cuisine",
+      "family": "Famille",
+      "board": "Ce tableau"
+    }
+  },
+  "dashboard": {
+    "greeting": {
+      "morning": "Bonjour",
+      "afternoon": "Bon après-midi",
+      "evening": "Bonsoir",
+      "morningNamed": "Bonjour {name}",
+      "afternoonNamed": "Bon après-midi {name}",
+      "eveningNamed": "Bonsoir {name}"
+    }
+  },
+  "weather": {
+    "clear": "Ciel dégagé",
+    "partlyCloudy": "Partiellement nuageux",
+    "cloudy": "Nuageux",
+    "fog": "Brouillard",
+    "drizzle": "Bruine",
+    "rain": "Pluie",
+    "snow": "Neige",
+    "thunderstorm": "Orage"
+  },
+  "emoji": {
+    "label": "Émoji",
+    "placeholder": "Tapez ou collez un émoji",
+    "selected": "{emoji} sélectionné",
+    "noneSelected": "Aucun émoji sélectionné",
+    "clear": "Effacer l'émoji"
+  }
+}

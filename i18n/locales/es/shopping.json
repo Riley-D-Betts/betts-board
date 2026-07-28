@@ -1,0 +1,68 @@
+{
+  "title": "Compra",
+  "checkOff": "Marcar {name}",
+  "uncheck": "Desmarcar {name}",
+  "checked": "Marcados ({n})",
+  "clear": "Borrar",
+  "nothingOnList": "Nada en la lista. Qué bien.",
+  "moreOnList": "+{n} más en la lista",
+  "toBuy": "{n} por comprar",
+  "defaultBadge": "predeterminada",
+  "allLists": "Todas las listas",
+  "untitledList": "Lista",
+  "clearedCount": "{n} producto borrado | {n} productos borrados",
+  "aisles": {
+    "produce": "Frutas y verduras",
+    "bakery": "Panadería",
+    "meatSeafood": "Carne y pescado",
+    "dairy": "Lácteos",
+    "frozen": "Congelados",
+    "pantry": "Despensa",
+    "beverages": "Bebidas",
+    "household": "Hogar",
+    "other": "Otros"
+  },
+  "lists": {
+    "newPlaceholder": "Nueva lista — «Compra del súper»…",
+    "empty": "Todavía no hay listas: crea una arriba o planifica comidas y genera una.",
+    "planMeals": "Planificar comidas",
+    "deleteAria": "Eliminar {name}",
+    "uncheckedItems": "{n} producto sin marcar | {n} productos sin marcar",
+    "confirmDelete": "¿Eliminar «{name}»? Se borran también sus {items} (y los marcados)."
+  },
+  "items": {
+    "quickAddPlaceholder": "Añadir — «1 kg de pollo», «papel de cocina»…",
+    "empty": "Nada que comprar. Añade productos arriba o genéralos desde tu plan de comidas.",
+    "editAria": "Editar {name}"
+  },
+  "editor": {
+    "title": "Editar producto",
+    "name": "Nombre",
+    "quantity": "Cantidad",
+    "quantityHelp": "Texto libre — «1 kg», «1½ tazas + 2 cdas»",
+    "aisle": "Sección"
+  },
+  "clearChecked": {
+    "title": "Borrar los productos marcados",
+    "confirm": "¿Guardar {n} producto marcado en la despensa para tenerlo en cuenta al planificar comidas? | ¿Guardar {n} productos marcados en la despensa para tenerlos en cuenta al planificar comidas?",
+    "putAway": "Guardar en la despensa",
+    "justClear": "Solo borrar",
+    "putAwayDone": "{n} producto guardado en la despensa | {n} productos guardados en la despensa"
+  },
+  "clearList": {
+    "title": "Vaciar esta lista",
+    "confirm": "¿Quitar {n} producto de «{name}», marcado o no? La lista sigue ahí. | ¿Quitar los {n} productos de «{name}», marcados o no? La lista sigue ahí.",
+    "cta": "Borrar todo"
+  },
+  "errors": {
+    "couldNotCreateList": "No se pudo crear la lista",
+    "couldNotDeleteList": "No se pudo eliminar la lista",
+    "couldNotAddItem": "No se pudo añadir el producto",
+    "couldNotUpdateItem": "No se pudo actualizar el producto",
+    "couldNotSaveItem": "No se pudo guardar el producto",
+    "couldNotDeleteItem": "No se pudo eliminar el producto",
+    "couldNotCheckOff": "No se pudo marcar el producto",
+    "couldNotClearChecked": "No se pudieron borrar los productos marcados",
+    "couldNotClearList": "No se pudo vaciar la lista"
+  }
+}

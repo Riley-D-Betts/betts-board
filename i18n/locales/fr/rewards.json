@@ -1,0 +1,46 @@
+{
+  "title": "Récompenses",
+  "manage": "Gérer",
+  "done": "Terminé",
+  "myStars": "Étoiles de {name}",
+  "newReward": "Nouvelle récompense",
+  "redeem": "Échanger",
+  "emptyManage": "Aucune récompense pour l'instant — ajoutez de quoi donner envie d'économiser.",
+  "addFirst": "Ajouter la première récompense",
+  "empty": "Aucune récompense pour l'instant. Demandez à un parent d'en ajouter !",
+  "removeConfirm": "Supprimer « {title} » ? Les échanges déjà effectués sont conservés.",
+  "couldNotRemove": "Impossible de supprimer la récompense",
+  "notEnoughStars": "Pas assez d'étoiles",
+  "couldNotRedeem": "Impossible d'échanger la récompense",
+  "redeemed": {
+    "title": "🎉 {emoji} {title} est à vous !",
+    "description": "{n} étoile bien dépensée, {name}. | {n} étoiles bien dépensées, {name}."
+  },
+  "card": {
+    "remove": "Supprimer {title}",
+    "needMore": "Encore {n} ⭐"
+  },
+  "recent": {
+    "title": "Échanges récents",
+    "justNow": "à l'instant",
+    "minutesAgo": "il y a {n} min",
+    "hoursAgo": "il y a {n} h",
+    "daysAgo": "il y a {n} j"
+  },
+  "confirm": {
+    "title": "Échanger la récompense",
+    "spend": "Dépenser {n} étoile pour {title} ? | Dépenser {n} étoiles pour {title} ?",
+    "remaining": "Il vous restera {n} ⭐."
+  },
+  "editor": {
+    "editTitle": "Modifier la récompense",
+    "title": "Titre",
+    "titlePlaceholder": "Sortie glace",
+    "cost": "Coût en étoiles",
+    "description": "Description",
+    "descriptionPlaceholder": "Une boule au glacier du centre-ville",
+    "saveChanges": "Enregistrer",
+    "create": "Ajouter une récompense",
+    "couldNotSave": "Impossible d'enregistrer la récompense"
+  }
+}

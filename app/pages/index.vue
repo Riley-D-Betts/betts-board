@@ -1,10 +1,17 @@
 <script setup lang="ts">
 const { activeProfile } = useBoardState()
+const { t } = useI18n()
 
 const greeting = computed(() => {
   const h = new Date().getHours()
-  const part = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening'
-  return `Good ${part}${activeProfile.value ? `, ${activeProfile.value.name}` : ''}`
+  const name = activeProfile.value?.name ?? null
+  if (h < 12) {
+    return name === null ? t('common.dashboard.greeting.morning') : t('common.dashboard.greeting.morningNamed', { name })
+  }
+  if (h < 17) {
+    return name === null ? t('common.dashboard.greeting.afternoon') : t('common.dashboard.greeting.afternoonNamed', { name })
+  }
+  return name === null ? t('common.dashboard.greeting.evening') : t('common.dashboard.greeting.eveningNamed', { name })
 })
 </script>
 

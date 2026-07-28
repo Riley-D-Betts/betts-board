@@ -36,22 +36,22 @@ const shortBy = computed(() => Math.max(0, props.reward.cost - props.balance))
     <div class="mt-auto w-full pt-2">
       <div v-if="manage" class="flex gap-2">
         <UButton block variant="soft" color="neutral" icon="i-lucide-pencil" class="flex-1" @click="emit('edit')">
-          Edit
+          {{ $t('common.actions.edit') }}
         </UButton>
         <UButton
           icon="i-lucide-trash-2"
           variant="ghost"
           color="neutral"
-          :aria-label="`Remove ${reward.title}`"
+          :aria-label="$t('rewards.card.remove', { title: reward.title })"
           @click="emit('archive')"
         />
       </div>
       <template v-else>
         <UButton block size="lg" :disabled="shortBy > 0" icon="i-lucide-gift" @click="emit('redeem')">
-          Redeem
+          {{ $t('rewards.redeem') }}
         </UButton>
         <p v-if="shortBy > 0" class="mt-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
-          Need {{ shortBy }} more ⭐
+          {{ $t('rewards.card.needMore', { n: shortBy }) }}
         </p>
       </template>
     </div>

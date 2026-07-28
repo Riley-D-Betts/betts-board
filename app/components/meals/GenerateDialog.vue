@@ -9,6 +9,7 @@ const props = defineProps<{ start: string, end: string }>()
 const open = defineModel<boolean>('open', { required: true })
 
 const toast = useToast()
+const { t } = useI18n()
 
 interface ListRow { id: string, name: string, isDefault: boolean }
 const { data: lists, refresh: refreshLists } = await useFetch<ListRow[]>('/api/shopping-lists', {
@@ -36,8 +37,11 @@ watch(open, async (isOpen) => {
 })
 
 const listOptions = computed(() => [
-  { label: 'Default list', value: DEFAULT_LIST },
-  ...lists.value.map(l => ({ label: l.isDefault ? `${l.name} (default)` : l.name, value: l.id })),
+  { label: t('meals.generate.defaultList'), value: DEFAULT_LIST },
+  ...lists.value.map(l => ({
+    label: l.isDefault ? t('meals.generate.listIsDefault', { name: l.name }) : l.name,
+    value: l.id,
+  })),
 ])
 
 async function generate() {
@@ -54,7 +58,7 @@ async function generate() {
     })
   }
   catch {
-    toast.add({ title: 'Could not generate the shopping list', color: 'error' })
+    toast.add({ title: t('meals.generate.failed'), color: 'error' })
   }
   finally {
     busy.value = false
@@ -66,51 +70,56 @@ async function removeInPantry(entry: { name: string, itemId: string }) {
   try {
     await $fetch(`/api/shopping-lists/${result.value.listId}/items/${entry.itemId}`, { method: 'DELETE' })
     result.value.inPantry = result.value.inPantry.filter(p => p.itemId !== entry.itemId)
-    toast.add({ title: `Removed ${entry.name}`, color: 'success' })
+    toast.add({ title: t('meals.generate.removedItem', { name: entry.name }), color: 'success' })
   }
   catch {
-    toast.add({ title: 'Could not remove item', color: 'error' })
+    toast.add({ title: t('meals.generate.couldNotRemoveItem'), color: 'error' })
   }
 }
 </script>
 
 <template>
-  <UModal v-model:open="open" title="Generate shopping list">
+  <UModal v-model:open="open" :title="$t('meals.generateList')">
     <template #body>
       <div v-if="!result" class="space-y-4">
         <div class="grid grid-cols-2 gap-3">
-          <UFormField label="From">
+          <UFormField :label="$t('meals.generate.from')">
             <UInput v-model="form.start" type="date" class="w-full" />
           </UFormField>
-          <UFormField label="Until (exclusive)">
+          <UFormField :label="$t('meals.generate.until')">
             <UInput v-model="form.end" type="date" class="w-full" />
           </UFormField>
         </div>
-        <UFormField label="Add to list">
+        <UFormField :label="$t('meals.generate.addToList')">
           <USelect v-model="form.listId" :items="listOptions" class="w-full" />
         </UFormField>
         <div class="flex items-center justify-between gap-3">
           <div>
-            <p class="text-sm font-medium">Check the pantry</p>
+            <p class="text-sm font-medium">{{ $t('meals.generate.checkPantry') }}</p>
             <p class="text-xs text-slate-500 dark:text-slate-400">
-              Flag ingredients you already have at home.
+              {{ $t('meals.generate.checkPantryHint') }}
             </p>
           </div>
           <USwitch v-model="form.checkPantry" />
         </div>
         <UButton :loading="busy" icon="i-lucide-shopping-cart" block @click="generate">
-          Generate
+          {{ $t('meals.generate.submit') }}
         </UButton>
       </div>
 
       <div v-else class="space-y-4">
-        <p class="text-sm">
-          <span class="font-semibold">{{ result.created }}</span> added,
-          <span class="font-semibold">{{ result.merged }}</span> merged into existing items.
-        </p>
+        <!-- i18n-t so the two counts keep their bold spans inside one translatable sentence. -->
+        <i18n-t keypath="meals.generate.summary" tag="p" scope="global" class="text-sm">
+          <template #created>
+            <span class="font-semibold">{{ result.created }}</span>
+          </template>
+          <template #merged>
+            <span class="font-semibold">{{ result.merged }}</span>
+          </template>
+        </i18n-t>
 
         <div v-if="result.inPantry.length" class="space-y-2">
-          <p class="text-sm font-medium">Already in your pantry — tap to remove:</p>
+          <p class="text-sm font-medium">{{ $t('meals.generate.inPantry') }}</p>
           <div class="flex flex-wrap gap-2">
             <button
               v-for="entry in result.inPantry"
@@ -125,7 +134,7 @@ async function removeInPantry(entry: { name: string, itemId: string }) {
         </div>
 
         <div v-if="result.skippedFreeText.length" class="rounded-lg bg-slate-100 dark:bg-slate-800 p-3 text-sm text-slate-600 dark:text-slate-300">
-          <p class="font-medium">Couldn't shop for these free-text meals:</p>
+          <p class="font-medium">{{ $t('meals.generate.skippedFreeText') }}</p>
           <ul class="mt-1 list-inside list-disc">
             <li v-for="(text, i) in result.skippedFreeText" :key="i">{{ text }}</li>
           </ul>
@@ -133,9 +142,9 @@ async function removeInPantry(entry: { name: string, itemId: string }) {
 
         <div class="flex gap-2">
           <UButton :to="`/shopping/${result.listId}`" icon="i-lucide-shopping-cart" class="flex-1" block>
-            Open list
+            {{ $t('meals.generate.openList') }}
           </UButton>
-          <UButton variant="soft" color="neutral" @click="open = false">Done</UButton>
+          <UButton variant="soft" color="neutral" @click="open = false">{{ $t('meals.generate.done') }}</UButton>
         </div>
       </div>
     </template>

@@ -23,11 +23,16 @@ export interface CookingOccurrencesArgs {
 }
 
 /**
- * Synthesizes read-only "Cook: …" calendar blocks for meal-plan entries that
- * have a cook assigned. A block ENDS at the slot's mealtime on the entry's
- * date and STARTS recipe-total-time + COOK_PADDING_MINUTES earlier, so it
- * tells the cook when to start. Filtered to [windowStartMs, windowEndMs) by
- * the START instant.
+ * Synthesizes read-only cooking blocks for meal-plan entries that have a cook
+ * assigned. A block ENDS at the slot's mealtime on the entry's date and STARTS
+ * recipe-total-time + COOK_PADDING_MINUTES earlier, so it tells the cook when
+ * to start. Filtered to [windowStartMs, windowEndMs) by the START instant.
+ *
+ * `title` is the DISH, with no label baked in: `kind: 'meal'` already says the
+ * block is a cooking block, and only the client knows the board's language.
+ * Every render site composes the visible label from that pair (see
+ * `useOccurrenceTitle()`); a prefix here would ship English to a Spanish wall
+ * display and force each screen to strip it back off with a regex.
  */
 export function getCookingOccurrences(db: Db, args: CookingOccurrencesArgs): CalendarOccurrence[] {
   const { householdId, windowStartMs, windowEndMs, timezone } = args
@@ -80,7 +85,10 @@ export function getCookingOccurrences(db: Db, args: CookingOccurrencesArgs): Cal
       occurrenceId: `meal:${entry.id}`,
       eventId: entry.id,
       kind: 'meal',
-      title: `Cook: ${recipe?.title ?? entry.freeText}`,
+      // The table's check constraint guarantees exactly one of recipeId /
+      // freeText, so one of these is always there — the last `??` only
+      // satisfies the nullable column types.
+      title: recipe?.title ?? entry.freeText ?? '',
       isAllDay: false,
       start: startMs,
       end: endMs,

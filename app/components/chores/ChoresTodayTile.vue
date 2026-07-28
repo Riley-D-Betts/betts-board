@@ -21,19 +21,19 @@ useLiveRefresh(refresh)
     <template #header>
       <NuxtLink to="/chores" class="flex items-center gap-2 font-semibold">
         <UIcon name="i-lucide-list-checks" class="text-primary size-5" />
-        <span class="flex-1">Chores</span>
+        <span class="flex-1">{{ $t('chores.title') }}</span>
         <span v-if="mine.length" class="text-xs font-normal text-slate-500 dark:text-slate-400">
-          {{ doneCount }}/{{ mine.length }} done
+          {{ $t('chores.tile.doneSummary', { done: doneCount, total: mine.length }) }}
         </span>
         <UIcon name="i-lucide-chevron-right" class="size-4 text-slate-400" />
       </NuxtLink>
     </template>
 
     <p v-if="!activeProfile" class="text-sm text-slate-500 dark:text-slate-400">
-      Choose a profile to see your chores.
+      {{ $t('chores.tile.chooseProfile') }}
     </p>
     <p v-else-if="!mine.length" class="text-sm text-slate-500 dark:text-slate-400">
-      Nothing due today — enjoy! 🎉
+      {{ $t('chores.noneToday') }}
     </p>
     <div v-else class="space-y-2">
       <ChoreCard

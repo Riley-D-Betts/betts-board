@@ -1,0 +1,178 @@
+{
+  "allDay": "Toute la journée",
+  "cookingTitle": "Cuisine — {title}",
+  "views": {
+    "month": "Mois",
+    "week": "Semaine",
+    "day": "Jour",
+    "agenda": "Agenda"
+  },
+  "nav": {
+    "previous": "Précédent",
+    "next": "Suivant"
+  },
+  "range": {
+    "nextDays": "{n} prochain jour | {n} prochains jours"
+  },
+  "actions": {
+    "addEvent": "Ajouter un événement"
+  },
+  "errors": {
+    "couldNotLoadEvent": "Impossible de charger l'événement"
+  },
+  "detail": {
+    "allDayOn": "{date} · Toute la journée",
+    "allDayRange": "{start} – {end} · Toute la journée",
+    "cookingHint": "Créneau cuisine du planning des repas — c'est là qu'on change de plat ou de cuisinier.",
+    "viewRecipe": "Voir la recette",
+    "openMealPlanner": "Ouvrir le planning des repas",
+    "fromFeed": "Vient de {name} — les événements importés ne se modifient pas ici.",
+    "imported": "Importé depuis un abonnement calendrier — lecture seule."
+  },
+  "agenda": {
+    "empty": "Rien de prévu dans les 30 prochains jours."
+  },
+  "month": {
+    "more": "+{n} de plus"
+  },
+  "week": {
+    "allDayRow": "journée"
+  },
+  "editor": {
+    "titleNew": "Nouvel événement",
+    "titleAll": "Modifier l'événement",
+    "titleThis": "Modifier cette occurrence",
+    "titleFuture": "Modifier cet événement et les suivants",
+    "limitedHint": "Seule cette occurrence change — horaire, titre, lieu et notes.",
+    "eventTitle": "Titre",
+    "eventTitlePlaceholder": "Entraînement de foot",
+    "starts": "Début",
+    "ends": "Fin",
+    "endBeforeStart": "La fin doit être après le début",
+    "location": "Lieu",
+    "notes": "Notes",
+    "optionalPlaceholder": "Facultatif",
+    "attendees": "Qui y va ?",
+    "repeats": "Répétition",
+    "reminder": "Rappel",
+    "color": "Couleur",
+    "colorHelp": "Auto reprend la couleur du premier participant.",
+    "colorAuto": "Auto",
+    "colorSwatch": "Couleur {color}",
+    "confirmDelete": "Confirmer la suppression ?",
+    "reminders": {
+      "none": "Aucun rappel",
+      "min5": "5 minutes avant",
+      "min15": "15 minutes avant",
+      "min30": "30 minutes avant",
+      "hour1": "1 heure avant",
+      "day1": "1 jour avant"
+    },
+    "toast": {
+      "updated": "Événement mis à jour",
+      "added": "Événement ajouté",
+      "deleted": "Événement supprimé",
+      "couldNotSave": "Impossible d'enregistrer l'événement",
+      "couldNotDelete": "Impossible de supprimer l'événement"
+    }
+  },
+  "scope": {
+    "title": "Modifier un événement récurrent",
+    "this": "Cet événement",
+    "future": "Cet événement et les suivants",
+    "all": "Tous les événements"
+  },
+  "repeat": {
+    "every": "Tou(te)s les",
+    "times": "fois",
+    "presets": {
+      "none": "Ne se répète pas",
+      "daily": "Tous les jours",
+      "weekly": "Toutes les semaines",
+      "monthly": "Tous les mois",
+      "quarterly": "Tous les trimestres",
+      "yearly": "Tous les ans",
+      "custom": "Personnalisé…"
+    },
+    "freq": {
+      "daily": "jour(s)",
+      "weekly": "semaine(s)",
+      "monthly": "mois",
+      "yearly": "an(s)"
+    },
+    "end": {
+      "never": "Sans fin",
+      "until": "Fin le…",
+      "count": "Fin après…"
+    },
+    "weekdays": {
+      "su": "Di",
+      "mo": "Lu",
+      "tu": "Ma",
+      "we": "Me",
+      "th": "Je",
+      "fr": "Ve",
+      "sa": "Sa"
+    }
+  },
+  "feeds": {
+    "title": "Flux de calendrier",
+    "empty": "Abonnez-vous aux calendriers de l'école, du sport ou du travail — leurs événements apparaissent ici en lecture seule.",
+    "namePlaceholder": "Nom (ex. École)",
+    "urlPlaceholder": "URL .ics en https://… ou webcal://…",
+    "add": "Ajouter le flux",
+    "refreshNow": "Actualiser maintenant",
+    "remove": "Supprimer le flux",
+    "confirmRemove": "Supprimer le flux « {name} » ? Ses événements importés disparaîtront du calendrier.",
+    "intervals": {
+      "min15": "Toutes les 15 min",
+      "hourly": "Toutes les heures",
+      "hours6": "Toutes les 6 heures",
+      "daily": "Tous les jours"
+    },
+    "status": {
+      "failed": "Échec de la dernière actualisation",
+      "refreshedAt": "Actualisé le {when}",
+      "never": "Pas encore récupéré"
+    },
+    "subscribe": {
+      "title": "S'abonner sur votre téléphone",
+      "help": "Ajoutez cette URL comme abonnement dans Google Agenda ou Calendrier Apple pour retrouver vos événements partout. Gardez-la privée — ce lien fait office de clé.",
+      "copyUrl": "Copier l'URL",
+      "copyWebcal": "Copier l'URL webcal"
+    },
+    "toast": {
+      "couldNotAdd": "Impossible d'ajouter le flux",
+      "couldNotAddHelp": "Vérifiez l'URL et réessayez.",
+      "couldNotUpdate": "Impossible de modifier le flux",
+      "refreshFailed": "Échec de l'actualisation",
+      "refreshed": "Flux actualisé",
+      "couldNotRemove": "Impossible de supprimer le flux",
+      "copied": "Copié dans le presse-papiers",
+      "couldNotCopy": "Impossible de copier"
+    }
+  },
+  "tile": {
+    "moreToday": "+{n} de plus aujourd'hui",
+    "empty": "Rien au calendrier aujourd'hui."
+  },
+  "recurrence": {
+    "none": "Ne se répète pas",
+    "daily": "Tous les jours",
+    "dailyEvery": "Tous les {n} jours",
+    "weekly": "Toutes les semaines",
+    "weeklyOn": "Toutes les semaines le {days}",
+    "weeklyEvery": "Toutes les {n} semaines",
+    "weeklyEveryOn": "Toutes les {n} semaines le {days}",
+    "monthly": "Tous les mois",
+    "monthlyOnDay": "Tous les mois le {day}",
+    "monthlyEvery": "Tous les {n} mois",
+    "monthlyEveryOnDay": "Tous les {n} mois le {day}",
+    "quarterly": "Tous les trimestres",
+    "quarterlyOnDay": "Tous les trimestres le {day}",
+    "yearly": "Tous les ans",
+    "yearlyEvery": "Tous les {n} ans",
+    "times": "{base}, {n} fois | {base}, {n} fois",
+    "until": "{base} jusqu'au {date}"
+  }
+}

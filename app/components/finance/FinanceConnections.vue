@@ -64,7 +64,7 @@ async function connect() {
   }
   catch (e) {
     // The server has already mapped and sanitised this; never show a raw one.
-    error.value = (e as { statusMessage?: string }).statusMessage || 'Could not connect.'
+    error.value = (e as { statusMessage?: string }).statusMessage || t('finance.connections.couldNotConnect')
   }
   finally {
     busy.value = false

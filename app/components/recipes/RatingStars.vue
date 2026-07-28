@@ -12,6 +12,8 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits<{ rate: [value: number] }>()
 
+const { decimal } = useMoney()
+
 /** What the stars depict: my rating when I have one, else the average. */
 const shown = computed(() => props.modelValue ?? props.avg ?? 0)
 
@@ -35,7 +37,7 @@ function filled(i: number) {
     </div>
 
     <!-- Interactive: 44px tap targets -->
-    <div v-else class="flex items-center" role="radiogroup" aria-label="Rate this recipe">
+    <div v-else class="flex items-center" role="radiogroup" :aria-label="$t('recipes.rating.groupLabel')">
       <button
         v-for="i in 5"
         :key="i"
@@ -43,7 +45,7 @@ function filled(i: number) {
         class="size-11 flex items-center justify-center rounded-lg active:scale-90 transition-transform"
         role="radio"
         :aria-checked="modelValue === i"
-        :aria-label="`${i} star${i === 1 ? '' : 's'}`"
+        :aria-label="$t('recipes.rating.starCount', i)"
         @click="emit('rate', i)"
       >
         <UIcon
@@ -57,7 +59,7 @@ function filled(i: number) {
     </div>
 
     <span v-if="count > 0" class="text-sm text-slate-500 dark:text-slate-400 tabular-nums">
-      {{ avg?.toFixed(1) }} ({{ count }})
+      {{ decimal(avg) }} ({{ count }})
     </span>
   </div>
 </template>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { BarcodeLookupResult } from '#shared/schemas/pantry'
+import { AISLES, aisleLabelKey } from '#shared/schemas/shopping'
 
 interface PantryRow {
   id: string
@@ -12,6 +13,8 @@ interface PantryRow {
 }
 
 const toast = useToast()
+const { t } = useI18n()
+const { decimal } = useMoney()
 
 const q = ref('')
 const { data: items, refresh } = await useFetch<PantryRow[]>('/api/pantry', {
@@ -19,10 +22,15 @@ const { data: items, refresh } = await useFetch<PantryRow[]>('/api/pantry', {
   default: () => [],
 })
 
-const CATEGORY_ORDER = [
-  'Produce', 'Bakery', 'Meat & Seafood', 'Dairy', 'Frozen',
-  'Pantry', 'Beverages', 'Household', 'Other',
-]
+/** One aisle vocabulary for the pantry and the shopping list, so the stored
+ * value stays the English string the server's matcher assigns. */
+function aisleLabel(value: string) {
+  const key = aisleLabelKey(value)
+  return key ? t(key) : value
+}
+// `value: string`, not the literal union — an item can carry a custom aisle.
+const aisleItems = computed<{ label: string, value: string }[]>(() =>
+  AISLES.map(value => ({ label: aisleLabel(value), value })))
 
 const groups = computed(() => {
   const byCat = new Map<string, PantryRow[]>()
@@ -33,20 +41,25 @@ const groups = computed(() => {
     byCat.set(cat, bucket)
   }
   const orderOf = (cat: string) => {
-    const i = CATEGORY_ORDER.indexOf(cat)
-    return i === -1 ? CATEGORY_ORDER.length - 1.5 : i
+    const i = AISLES.indexOf(cat as typeof AISLES[number])
+    return i === -1 ? AISLES.length - 1.5 : i
   }
   return [...byCat.entries()]
     .sort(([a], [b]) => orderOf(a) - orderOf(b))
     .map(([category, rows]) => ({
       category,
+      label: aisleLabel(category),
       items: rows.sort((a, b) => a.name.localeCompare(b.name)),
     }))
 })
 
 function qtyLabel(item: PantryRow) {
   if (item.quantity == null) return null
-  return item.unit ? `${item.quantity} ${item.unit}` : String(item.quantity)
+  // Two fraction digits covers the halves and quarters a pantry actually
+  // holds, and leaves a whole number as "2" rather than "2.0". The unit is
+  // free text the household typed, so it is never touched.
+  const qty = decimal(item.quantity, 2)
+  return item.unit ? `${qty} ${item.unit}` : qty
 }
 
 // -- add form (also the barcode-scan landing spot) ------------------------
@@ -90,7 +103,7 @@ async function addItem() {
     await refresh()
   }
   catch {
-    toast.add({ title: 'Could not add the item', color: 'error' })
+    toast.add({ title: t('pantry.errors.couldNotAdd'), color: 'error' })
   }
   finally {
     addBusy.value = false
@@ -106,15 +119,17 @@ async function onDetected(code: string) {
     scanned.value = { barcode: code, found: res.found }
     if (res.found && res.productName) {
       addForm.name = res.productName
-      scanNote.value = res.brand ? `Found: ${res.productName} (${res.brand})` : `Found: ${res.productName}`
+      scanNote.value = res.brand
+        ? t('pantry.scan.foundWithBrand', { name: res.productName, brand: res.brand })
+        : t('pantry.scan.found', { name: res.productName })
     }
     else {
       addForm.name = ''
-      scanNote.value = 'Not recognized — name it and we\'ll remember it next time.'
+      scanNote.value = t('pantry.scan.notRecognized')
     }
   }
   catch {
-    toast.add({ title: 'Barcode lookup failed', color: 'error' })
+    toast.add({ title: t('pantry.errors.lookupFailed'), color: 'error' })
   }
 }
 
@@ -146,7 +161,7 @@ async function saveEdit() {
     await refresh()
   }
   catch {
-    toast.add({ title: 'Could not save the item', color: 'error' })
+    toast.add({ title: t('pantry.errors.couldNotSave'), color: 'error' })
   }
   finally {
     savingEdit.value = false
@@ -159,7 +174,7 @@ async function deleteItem(item: PantryRow) {
     await refresh()
   }
   catch {
-    toast.add({ title: 'Could not delete the item', color: 'error' })
+    toast.add({ title: t('pantry.errors.couldNotDelete'), color: 'error' })
   }
 }
 </script>
@@ -167,9 +182,9 @@ async function deleteItem(item: PantryRow) {
 <template>
   <div class="space-y-6">
     <div class="flex flex-wrap items-center gap-2">
-      <h1 class="text-2xl md:text-3xl font-bold flex-1">Pantry</h1>
+      <h1 class="text-2xl md:text-3xl font-bold flex-1">{{ $t('pantry.title') }}</h1>
       <UButton icon="i-lucide-scan-barcode" variant="soft" @click="scanOpen = true">
-        Scan barcode
+        {{ $t('pantry.scanBarcode') }}
       </UButton>
     </div>
 
@@ -184,27 +199,27 @@ async function deleteItem(item: PantryRow) {
           {{ scanNote }}
         </p>
         <div class="flex flex-wrap gap-2">
-          <UInput v-model="addForm.name" placeholder="Add to pantry — “olive oil”…" class="min-w-40 flex-1" />
-          <UInput v-model.number="addForm.quantity" type="number" min="0" step="any" placeholder="Qty" class="w-20" />
-          <UInput v-model="addForm.unit" placeholder="Unit" class="w-24" />
-          <USelect v-model="addForm.category" :items="CATEGORY_ORDER" placeholder="Aisle" class="w-32" />
+          <UInput v-model="addForm.name" :placeholder="$t('pantry.addForm.namePlaceholder')" class="min-w-40 flex-1" />
+          <UInput v-model.number="addForm.quantity" type="number" min="0" step="any" :placeholder="$t('pantry.addForm.quantityPlaceholder')" class="w-20" />
+          <UInput v-model="addForm.unit" :placeholder="$t('pantry.addForm.unitPlaceholder')" class="w-24" />
+          <USelect v-model="addForm.category" :items="aisleItems" :placeholder="$t('pantry.addForm.aislePlaceholder')" class="w-32" />
           <UButton type="submit" icon="i-lucide-plus" :loading="addBusy" :disabled="!addForm.name.trim()">
-            Add
+            {{ $t('common.actions.add') }}
           </UButton>
         </div>
       </form>
     </UCard>
 
-    <UInput v-model="q" icon="i-lucide-search" placeholder="Search the pantry…" class="w-full" />
+    <UInput v-model="q" icon="i-lucide-search" :placeholder="$t('pantry.searchPlaceholder')" class="w-full" />
 
     <div v-if="!items.length" class="py-12 text-center text-slate-500 dark:text-slate-400">
       <UIcon name="i-lucide-package-open" class="mb-2 size-10" />
-      <p>{{ q ? 'Nothing matches your search.' : 'Pantry is empty — add items or put away groceries from a shopping list.' }}</p>
+      <p>{{ q ? $t('pantry.empty.noMatches') : $t('pantry.empty.none') }}</p>
     </div>
 
     <section v-for="group in groups" :key="group.category" class="space-y-1">
       <h2 class="px-1 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-        {{ group.category }}
+        {{ group.label }}
       </h2>
       <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
         <div v-for="item in group.items" :key="item.id" class="flex min-h-12 items-center gap-2 px-3 py-2">
@@ -222,14 +237,14 @@ async function deleteItem(item: PantryRow) {
             icon="i-lucide-pencil"
             variant="ghost"
             color="neutral"
-            :aria-label="`Edit ${item.name}`"
+            :aria-label="$t('pantry.editAria', { name: item.name })"
             @click="openEdit(item)"
           />
           <UButton
             icon="i-lucide-trash-2"
             variant="ghost"
             color="error"
-            :aria-label="`Delete ${item.name}`"
+            :aria-label="$t('pantry.deleteAria', { name: item.name })"
             @click="deleteItem(item)"
           />
         </div>
@@ -239,26 +254,26 @@ async function deleteItem(item: PantryRow) {
     <BarcodeScanner v-model:open="scanOpen" @detected="onDetected" />
 
     <!-- Edit item -->
-    <UModal v-model:open="editOpen" title="Edit pantry item">
+    <UModal v-model:open="editOpen" :title="$t('pantry.editor.title')">
       <template #body>
         <div class="space-y-4">
-          <UFormField label="Name">
+          <UFormField :label="$t('pantry.editor.name')">
             <UInput v-model="editForm.name" class="w-full" />
           </UFormField>
           <div class="flex gap-2">
-            <UFormField label="Quantity" class="flex-1">
+            <UFormField :label="$t('pantry.editor.quantity')" class="flex-1">
               <UInput v-model.number="editForm.quantity" type="number" min="0" step="any" class="w-full" />
             </UFormField>
-            <UFormField label="Unit" class="flex-1">
+            <UFormField :label="$t('pantry.editor.unit')" class="flex-1">
               <UInput v-model="editForm.unit" class="w-full" />
             </UFormField>
           </div>
-          <UFormField label="Aisle">
-            <USelect v-model="editForm.category" :items="CATEGORY_ORDER" class="w-full" />
+          <UFormField :label="$t('pantry.editor.aisle')">
+            <USelect v-model="editForm.category" :items="aisleItems" class="w-full" />
           </UFormField>
           <div class="flex gap-2">
-            <UButton :loading="savingEdit" :disabled="!editForm.name.trim()" @click="saveEdit">Save</UButton>
-            <UButton variant="soft" color="neutral" @click="editOpen = false">Cancel</UButton>
+            <UButton :loading="savingEdit" :disabled="!editForm.name.trim()" @click="saveEdit">{{ $t('common.actions.save') }}</UButton>
+            <UButton variant="soft" color="neutral" @click="editOpen = false">{{ $t('common.actions.cancel') }}</UButton>
           </div>
         </div>
       </template>

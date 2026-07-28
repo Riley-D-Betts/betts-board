@@ -3,6 +3,8 @@
 const open = defineModel<boolean>('open', { required: true })
 const emit = defineEmits<{ detected: [code: string] }>()
 
+const { t } = useI18n()
+
 const videoEl = ref<HTMLVideoElement | null>(null)
 const error = ref<string | null>(null)
 const starting = ref(false)
@@ -26,7 +28,7 @@ function stopTracks() {
 async function start() {
   error.value = null
   if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
-    error.value = 'The camera needs a secure (HTTPS) connection — type the barcode number below instead.'
+    error.value = t('pantry.scanner.errors.insecureContext')
     return
   }
   starting.value = true
@@ -44,7 +46,7 @@ async function start() {
     timer = setInterval(scanFrame, 300)
   }
   catch {
-    error.value = 'Could not open the camera — type the barcode number below instead.'
+    error.value = t('pantry.scanner.errors.cameraFailed')
     stopTracks()
   }
   finally {
@@ -71,7 +73,7 @@ async function scanFrame() {
 function submitManual() {
   const code = manualCode.value.trim()
   if (!/^\d{6,14}$/.test(code)) {
-    error.value = 'Barcodes are 6–14 digits.'
+    error.value = t('pantry.scanner.errors.invalidBarcode')
     return
   }
   stopTracks()
@@ -93,14 +95,14 @@ onBeforeUnmount(stopTracks)
 </script>
 
 <template>
-  <UModal v-model:open="open" title="Scan barcode">
+  <UModal v-model:open="open" :title="$t('pantry.scanner.title')">
     <template #body>
       <div class="space-y-4">
         <div v-if="!error" class="relative aspect-video overflow-hidden rounded-xl bg-black">
           <video ref="videoEl" autoplay muted playsinline class="h-full w-full object-cover" />
           <div class="pointer-events-none absolute inset-x-8 top-1/2 h-0.5 -translate-y-1/2 rounded bg-red-500/70" />
           <p v-if="starting" class="absolute inset-0 grid place-items-center text-sm text-white/80">
-            Starting camera…
+            {{ $t('pantry.scanner.starting') }}
           </p>
         </div>
         <p
@@ -110,17 +112,17 @@ onBeforeUnmount(stopTracks)
           {{ error }}
         </p>
         <p v-if="!error" class="text-sm text-slate-500 dark:text-slate-400">
-          Point the camera at the barcode — it scans automatically.
+          {{ $t('pantry.scanner.hint') }}
         </p>
 
         <form class="flex gap-2" @submit.prevent="submitManual">
           <UInput
             v-model="manualCode"
             inputmode="numeric"
-            placeholder="…or type the number"
+            :placeholder="$t('pantry.scanner.manualPlaceholder')"
             class="flex-1"
           />
-          <UButton type="submit" variant="soft" :disabled="!manualCode.trim()">Look up</UButton>
+          <UButton type="submit" variant="soft" :disabled="!manualCode.trim()">{{ $t('pantry.scanner.lookUp') }}</UButton>
         </form>
       </div>
     </template>

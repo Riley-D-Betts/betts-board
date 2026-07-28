@@ -3,7 +3,9 @@
 import { DateTime } from 'luxon'
 import type { CalendarOccurrence } from '#shared/schemas/events'
 
-const { formatTime } = useDateFormat()
+const { formatTime, formatWeekdayShort } = useDateFormat()
+const { occurrenceTitle } = useOccurrenceTitle()
+const { t } = useI18n()
 
 const { state } = useBoardState()
 const timezone = computed(() => state.value?.timezone ?? 'UTC')
@@ -34,31 +36,35 @@ const upcoming = computed(() =>
   occurrences.value.filter(o => o.start > todayEnd.value).slice(0, 3))
 
 function timeLabel(occ: CalendarOccurrence) {
-  if (occ.isAllDay) return 'All day'
+  if (occ.isAllDay) return t('photos.overlay.allDay')
   return formatTime(occ.start, timezone.value)
 }
 
 function dayLabel(occ: CalendarOccurrence) {
-  return DateTime.fromMillis(occ.start, { zone: timezone.value }).toFormat('ccc')
+  // Resolve the occurrence to a calendar key in the household's zone first, so
+  // the weekday is the household's day; toFormat here is a machine value, and
+  // only useDateFormat applies a locale.
+  const dateKey = DateTime.fromMillis(occ.start, { zone: timezone.value }).toFormat('yyyy-MM-dd')
+  return formatWeekdayShort(dateKey)
 }
 </script>
 
 <template>
   <div v-if="today.length || upcoming.length" class="max-w-xs space-y-3 text-right">
     <div v-if="today.length">
-      <p class="text-xs font-semibold uppercase tracking-widest opacity-75">Today</p>
+      <p class="text-xs font-semibold uppercase tracking-widest opacity-75">{{ $t('common.actions.today') }}</p>
       <ul class="mt-1 space-y-1">
         <li v-for="occ in today" :key="occ.occurrenceId" class="text-sm leading-snug">
-          <span class="font-medium">{{ occ.title }}</span>
+          <span class="font-medium">{{ occurrenceTitle(occ) }}</span>
           <span class="opacity-80"> · {{ timeLabel(occ) }}</span>
         </li>
       </ul>
     </div>
     <div v-if="upcoming.length">
-      <p class="text-xs font-semibold uppercase tracking-widest opacity-75">Coming up</p>
+      <p class="text-xs font-semibold uppercase tracking-widest opacity-75">{{ $t('photos.overlay.comingUp') }}</p>
       <ul class="mt-1 space-y-1">
         <li v-for="occ in upcoming" :key="occ.occurrenceId" class="text-sm leading-snug">
-          <span class="font-medium">{{ occ.title }}</span>
+          <span class="font-medium">{{ occurrenceTitle(occ) }}</span>
           <span class="opacity-80"> · {{ dayLabel(occ) }} {{ timeLabel(occ) }}</span>
         </li>
       </ul>

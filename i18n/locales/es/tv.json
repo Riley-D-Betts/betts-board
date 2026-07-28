@@ -1,0 +1,18 @@
+{
+  "moreCount": "+{n} más",
+  "weather": {
+    "heading": "El tiempo",
+    "noLocation": "Añade una ubicación en Ajustes para ver la previsión."
+  },
+  "agenda": {
+    "allDay": "Todo el día",
+    "empty": "Hoy no hay nada en el calendario."
+  },
+  "chores": {
+    "empty": "Hoy no toca ninguna tarea."
+  },
+  "actions": {
+    "slideshow": "Pase de fotos",
+    "exitTvMode": "Salir del modo TV"
+  }
+}

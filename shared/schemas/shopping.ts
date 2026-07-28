@@ -1,6 +1,51 @@
 import { z } from 'zod'
 import { zDateString, zId } from './common'
 
+/**
+ * Store aisles, in walk-the-store order — the shopping list and the pantry
+ * share one vocabulary (the pantry service categorises through the same
+ * matcher), so both screens read this list.
+ *
+ * These strings are VALUES, not labels: `server/services/shopping/aisles.ts`
+ * assigns them from a deliberately English-only keyword map and they are what
+ * lands in the `category` column. Never translate them in place — translate
+ * the label via `aisleLabelKey()` and leave the stored value alone.
+ */
+export const AISLES = [
+  'Produce',
+  'Bakery',
+  'Meat & Seafood',
+  'Dairy',
+  'Frozen',
+  'Pantry',
+  'Beverages',
+  'Household',
+  'Other',
+] as const
+
+export type Aisle = (typeof AISLES)[number]
+
+const AISLE_KEYS: Record<Aisle, string> = {
+  'Produce': 'produce',
+  'Bakery': 'bakery',
+  'Meat & Seafood': 'meatSeafood',
+  'Dairy': 'dairy',
+  'Frozen': 'frozen',
+  'Pantry': 'pantry',
+  'Beverages': 'beverages',
+  'Household': 'household',
+  'Other': 'other',
+}
+
+/**
+ * i18n key for a stored aisle value, or null when nothing matches — items can
+ * carry a custom aisle somebody typed, and that has no translation to look up.
+ */
+export function aisleLabelKey(value: string): string | null {
+  const key = AISLE_KEYS[value as Aisle]
+  return key ? `shopping.aisles.${key}` : null
+}
+
 export const shoppingListCreateSchema = z.object({
   name: z.string().trim().min(1).max(100),
   isDefault: z.boolean().default(false),

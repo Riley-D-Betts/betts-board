@@ -10,7 +10,14 @@ import { z } from 'zod'
  */
 export interface FontDef {
   value: string
+  /** English fallback. Proper nouns (Inter, Lora…) are the label everywhere. */
   label: string
+  /**
+   * i18n key for the descriptive system-stack names, which are ordinary words
+   * rather than brand names. This file is shared code and must not import i18n,
+   * so the picker resolves the key and falls back to `label`.
+   */
+  labelKey?: string
   stack: string
   /** system = no download, always available. bundled = woff2 shipped in the build. */
   kind: 'system' | 'bundled'
@@ -21,11 +28,11 @@ const SYSTEM_FALLBACK = 'ui-rounded, "SF Pro Rounded", system-ui, sans-serif'
 export const FONT_DEFS: readonly FontDef[] = [
   // System stacks — the original five. Values are unchanged so existing
   // households keep the font they already chose.
-  { value: 'rounded', label: 'Rounded', kind: 'system', stack: SYSTEM_FALLBACK },
-  { value: 'system', label: 'System', kind: 'system', stack: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif' },
-  { value: 'serif', label: 'Serif', kind: 'system', stack: '"Iowan Old Style", "Palatino Linotype", Georgia, "Times New Roman", serif' },
-  { value: 'mono', label: 'Mono', kind: 'system', stack: 'ui-monospace, "Cascadia Code", Consolas, "Courier New", monospace' },
-  { value: 'playful', label: 'Playful', kind: 'system', stack: '"Comic Sans MS", "Comic Neue", "Chalkboard SE", cursive, sans-serif' },
+  { value: 'rounded', label: 'Rounded', labelKey: 'settings.appearance.fonts.rounded', kind: 'system', stack: SYSTEM_FALLBACK },
+  { value: 'system', label: 'System', labelKey: 'settings.appearance.fonts.system', kind: 'system', stack: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif' },
+  { value: 'serif', label: 'Serif', labelKey: 'settings.appearance.fonts.serif', kind: 'system', stack: '"Iowan Old Style", "Palatino Linotype", Georgia, "Times New Roman", serif' },
+  { value: 'mono', label: 'Mono', labelKey: 'settings.appearance.fonts.mono', kind: 'system', stack: 'ui-monospace, "Cascadia Code", Consolas, "Courier New", monospace' },
+  { value: 'playful', label: 'Playful', labelKey: 'settings.appearance.fonts.playful', kind: 'system', stack: '"Comic Sans MS", "Comic Neue", "Chalkboard SE", cursive, sans-serif' },
 
   // Bundled webfonts — self-hosted woff2 under app/assets/fonts/, never fetched
   // from Google at runtime.

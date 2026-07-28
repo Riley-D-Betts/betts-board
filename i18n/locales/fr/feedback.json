@@ -1,0 +1,67 @@
+{
+  "title": "Retours",
+  "intro": "Un bug repéré ? Une idée pour le tableau ? Dites-le-nous — ça part droit dans la liste des choses à corriger de la famille.",
+  "notConfigured": {
+    "title": "Les retours ne sont pas encore configurés",
+    "body": "Demandez à un parent de connecter GitHub dans {path}. Ensuite, tout ce que vous enverrez d'ici ira dans la liste des choses à corriger de la famille.",
+    "settingsPath": "Réglages → Retours"
+  },
+  "kinds": {
+    "bugTitle": "Quelque chose ne marche pas",
+    "bugBlurb": "Une page plante, un bouton ne fait rien, les chiffres sont faux…",
+    "featureTitle": "J'ai une idée",
+    "featureBlurb": "Ce que le tableau devrait faire, ou faire mieux."
+  },
+  "form": {
+    "title": "Titre",
+    "titlePlaceholderBug": "ex. Le tableau des tâches affiche celles d'hier",
+    "titlePlaceholderFeature": "ex. Compte à rebours des anniversaires sur le tableau de bord",
+    "bodyLabelBug": "Que s'est-il passé ?",
+    "bodyLabelFeature": "Racontez-nous",
+    "bodyPlaceholderBug": "Que faisiez-vous, que s'est-il passé, et à quoi vous attendiez-vous ?",
+    "bodyPlaceholderFeature": "Que devrait faire le tableau ? Qui s'en servirait dans la famille ?",
+    "includeDiagnostics": "Joindre les infos de l'appareil",
+    "includeDiagnosticsHelp": "Ajoute votre navigateur et la taille de la fenêtre au message — ça aide à trouver le problème.",
+    "submitBug": "Envoyer le rapport",
+    "submitFeature": "Envoyer l'idée"
+  },
+  "sent": {
+    "title": "Envoyé ! Ticket n° {number}",
+    "body": "Merci — c'est noté.",
+    "view": "Voir sur GitHub",
+    "sendAnother": "Envoyer autre chose"
+  },
+  "errors": {
+    "notConnectedTitle": "GitHub n'est pas encore connecté",
+    "notConnectedBody": "Demandez à un parent de le connecter dans Réglages → Retours.",
+    "rejectedTitle": "GitHub a refusé l'envoi",
+    "rejectedBody": "{reason} — votre texte n'est pas perdu, réessayez dans un instant.",
+    "couldNotReach": "Impossible de joindre GitHub",
+    "couldNotSend": "Impossible d'envoyer votre message"
+  },
+  "settings": {
+    "title": "Retours → GitHub",
+    "intro": "Les bugs et les idées envoyés depuis la {link} deviennent des issues GitHub dans votre dépôt — sans compte GitHub pour la famille. Créez un {tokenLink} avec le droit Issues en lecture et écriture sur ce seul dépôt.",
+    "introLinkText": "page Retours",
+    "introTokenLinkText": "jeton d'accès personnel à portée limitée",
+    "connected": "Connecté à {repo}",
+    "notConnected": "Non connecté",
+    "repoLabel": "Dépôt",
+    "repoHelp": "propriétaire/dépôt — là où les issues seront créées.",
+    "tokenLabel": "Jeton d'accès",
+    "tokenPlaceholder": "ghp_… ou github_pat_…",
+    "tokenHelp": "Conservé sur votre serveur, jamais réaffiché.",
+    "tokenHelpStored": "Conservé sur votre serveur, jamais réaffiché. Laissez vide pour garder le jeton actuel.",
+    "test": "Tester la connexion",
+    "disconnect": "Déconnecter",
+    "disconnectConfirm": "Déconnecter GitHub ? Le jeton enregistré sera supprimé et la famille ne pourra plus envoyer de retours.",
+    "disconnected": "GitHub déconnecté",
+    "saved": "Réglages des retours enregistrés",
+    "errors": {
+      "invalidRepo": "Le dépôt doit s'écrire propriétaire/dépôt",
+      "couldNotSave": "Impossible d'enregistrer les réglages des retours",
+      "needsSetup": "Enregistrez d'abord un dépôt et un jeton",
+      "couldNotDisconnect": "Impossible de déconnecter"
+    }
+  }
+}

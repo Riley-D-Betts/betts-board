@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { DateTime } from 'luxon'
 import type { CalendarOccurrence } from '#shared/schemas/events'
 
 const props = withDefaults(defineProps<{
@@ -12,12 +11,17 @@ const props = withDefaults(defineProps<{
 
 defineEmits<{ select: [occurrence: CalendarOccurrence] }>()
 
+const { t } = useI18n()
+const { formatTime } = useDateFormat()
+const { occurrenceTitle } = useOccurrenceTitle()
+
+const title = computed(() => occurrenceTitle(props.occurrence))
+
 const timeLabel = computed(() => {
-  if (props.occurrence.isAllDay) return 'All day'
-  const start = DateTime.fromMillis(props.occurrence.start, { zone: props.timezone })
-  if (props.variant === 'compact') return start.toFormat('h:mm')
-  const end = DateTime.fromMillis(props.occurrence.end, { zone: props.timezone })
-  return `${start.toFormat('h:mm a')} – ${end.toFormat('h:mm a')}`
+  if (props.occurrence.isAllDay) return t('calendar.allDay')
+  const start = formatTime(props.occurrence.start, props.timezone)
+  if (props.variant === 'compact') return start
+  return `${start} – ${formatTime(props.occurrence.end, props.timezone)}`
 })
 </script>
 
@@ -31,7 +35,7 @@ const timeLabel = computed(() => {
     <span class="size-2 shrink-0 rounded-full" :style="{ backgroundColor: occurrence.color }" />
     <span v-if="showTime && !occurrence.isAllDay" class="shrink-0 tabular-nums text-slate-500 dark:text-slate-400">{{ timeLabel }}</span>
     <UIcon v-if="occurrence.kind === 'meal'" name="i-lucide-chef-hat" class="size-3 shrink-0 text-slate-500 dark:text-slate-400" />
-    <span class="truncate font-medium">{{ occurrence.title }}</span>
+    <span class="truncate font-medium">{{ title }}</span>
   </button>
 
   <button
@@ -44,7 +48,7 @@ const timeLabel = computed(() => {
     <div class="min-w-0 flex-1">
       <p class="truncate text-sm font-medium">
         <UIcon v-if="occurrence.kind === 'meal'" name="i-lucide-chef-hat" class="inline size-3.5 text-slate-500 dark:text-slate-400 align-middle" />
-        {{ occurrence.title }}
+        {{ title }}
         <UIcon v-if="occurrence.hasRecurrence" name="i-lucide-repeat" class="inline size-3 text-slate-400 align-middle" />
         <UIcon v-if="occurrence.readonly && occurrence.kind !== 'meal'" name="i-lucide-rss" class="inline size-3 text-slate-400 align-middle" />
       </p>

@@ -1,15 +1,16 @@
 <script setup lang="ts">
 const toast = useToast()
+const { t } = useI18n()
 
 const q = ref('')
 const tag = ref<string | null>(null)
 const sort = ref<'recent' | 'rating' | 'title'>('recent')
 
-const sortItems = [
-  { label: 'Newest', value: 'recent' },
-  { label: 'Top rated', value: 'rating' },
-  { label: 'A to Z', value: 'title' },
-]
+const sortItems = computed(() => [
+  { label: t('recipes.newest'), value: 'recent' },
+  { label: t('recipes.topRated'), value: 'rating' },
+  { label: t('recipes.aToZ'), value: 'title' },
+])
 
 // Debounced: the query is bound straight to the input, so without this every
 // keystroke fires a request.
@@ -28,7 +29,7 @@ const tagChips = computed(() => {
   const tags = new Set<string>()
   if (tag.value) tags.add(tag.value)
   for (const r of recipeList.value ?? []) {
-    for (const t of r.tags ?? []) tags.add(t)
+    for (const tagName of r.tags ?? []) tags.add(tagName)
   }
   return [...tags].sort((a, b) => a.localeCompare(b))
 })
@@ -39,27 +40,27 @@ async function createManually() {
   if (creating.value) return
   creating.value = true
   try {
-    const recipe = await $fetch('/api/recipes', { method: 'POST', body: { title: 'New recipe' } })
+    const recipe = await $fetch('/api/recipes', { method: 'POST', body: { title: t('recipes.defaultTitle') } })
     await navigateTo(`/recipes/${recipe.id}/edit`)
   }
   catch {
-    toast.add({ title: 'Could not create recipe', color: 'error' })
+    toast.add({ title: t('recipes.couldNotCreate'), color: 'error' })
     creating.value = false
   }
 }
 
-const addItems = [[
-  { label: 'Import from link', icon: 'i-lucide-link', onSelect: () => navigateTo('/recipes/import') },
-  { label: 'Create manually', icon: 'i-lucide-pencil-line', onSelect: () => createManually() },
-]]
+const addItems = computed(() => [[
+  { label: t('recipes.importFromLink'), icon: 'i-lucide-link', onSelect: () => navigateTo('/recipes/import') },
+  { label: t('recipes.createManually'), icon: 'i-lucide-pencil-line', onSelect: () => createManually() },
+]])
 </script>
 
 <template>
   <div class="space-y-4">
     <div class="flex items-center gap-2">
-      <h1 class="text-2xl md:text-3xl font-bold flex-1">Recipes</h1>
+      <h1 class="text-2xl md:text-3xl font-bold flex-1">{{ $t('recipes.title') }}</h1>
       <UDropdownMenu :items="addItems">
-        <UButton icon="i-lucide-plus" :loading="creating">Add</UButton>
+        <UButton icon="i-lucide-plus" :loading="creating">{{ $t('common.actions.add') }}</UButton>
       </UDropdownMenu>
     </div>
 
@@ -67,37 +68,37 @@ const addItems = [[
       <UInput
         v-model="q"
         icon="i-lucide-search"
-        placeholder="Search recipes…"
+        :placeholder="$t('recipes.search')"
         class="flex-1"
         size="lg"
       />
-      <USelect v-model="sort" :items="sortItems" size="lg" class="sm:w-40" aria-label="Sort recipes" />
+      <USelect v-model="sort" :items="sortItems" size="lg" class="sm:w-40" :aria-label="$t('recipes.sortAria')" />
     </div>
 
     <div v-if="tagChips.length" class="flex flex-wrap gap-1.5">
       <UButton
-        v-for="t in tagChips"
-        :key="t"
+        v-for="tagName in tagChips"
+        :key="tagName"
         size="xs"
-        :variant="tag === t ? 'solid' : 'soft'"
-        :color="tag === t ? 'primary' : 'neutral'"
+        :variant="tag === tagName ? 'solid' : 'soft'"
+        :color="tag === tagName ? 'primary' : 'neutral'"
         class="rounded-full"
-        @click="tag = tag === t ? null : t"
+        @click="tag = tag === tagName ? null : tagName"
       >
-        {{ t }}
-        <UIcon v-if="tag === t" name="i-lucide-x" class="size-3" />
+        {{ tagName }}
+        <UIcon v-if="tag === tagName" name="i-lucide-x" class="size-3" />
       </UButton>
     </div>
 
     <div v-if="!recipeList?.length && !pending" class="text-center py-16 text-slate-500 dark:text-slate-400">
       <UIcon name="i-lucide-chef-hat" class="size-12 mb-3" />
-      <p v-if="q || tag">Nothing matches — try a different search.</p>
+      <p v-if="q || tag">{{ $t('recipes.noMatches') }}</p>
       <template v-else>
-        <p>No recipes yet.</p>
+        <p>{{ $t('recipes.none') }}</p>
         <div class="mt-4 flex justify-center gap-2">
-          <UButton to="/recipes/import" icon="i-lucide-link" variant="soft">Import from link</UButton>
+          <UButton to="/recipes/import" icon="i-lucide-link" variant="soft">{{ $t('recipes.importFromLink') }}</UButton>
           <UButton icon="i-lucide-pencil-line" variant="soft" color="neutral" :loading="creating" @click="createManually">
-            Create manually
+            {{ $t('recipes.createManually') }}
           </UButton>
         </div>
       </template>

@@ -73,6 +73,23 @@ export const financeAccountPatchSchema = z.object({
 
 // ── Transactions ──────────────────────────────────────────────────────────
 
+/**
+ * One line of a transaction's categorisation.
+ *
+ * Every transaction has at least one; an ordinary one has exactly one carrying
+ * the whole amount, which is why `splits` is optional everywhere below. The
+ * lines must sum to the transaction exactly — that is checked server-side
+ * against the amount, which a schema on its own cannot see.
+ */
+export const financeSplitInputSchema = z.object({
+  categoryId: zId.nullish(),
+  amountMinor: zAmountMinor,
+  note: z.string().trim().max(200).nullish(),
+})
+
+/** 40 lines is far past any real receipt and stops a runaway client. */
+const zSplits = z.array(financeSplitInputSchema).min(1).max(40)
+
 export const financeTransactionCreateSchema = z.object({
   accountId: zId,
   postedDate: zDateString,
@@ -82,6 +99,8 @@ export const financeTransactionCreateSchema = z.object({
   memo: z.string().trim().max(500).nullish(),
   categoryId: zId.nullish(),
   notes: z.string().trim().max(2000).nullish(),
+  /** Omitted = one line for the whole amount, using `categoryId`. */
+  splits: zSplits.optional(),
 })
 
 export const financeTransactionPatchSchema = z.object({
@@ -92,6 +111,8 @@ export const financeTransactionPatchSchema = z.object({
   memo: z.string().trim().max(500).nullish(),
   categoryId: zId.nullish(),
   notes: z.string().trim().max(2000).nullish(),
+  /** Replaces the whole set. Sending one line un-splits a split transaction. */
+  splits: zSplits.optional(),
 })
 
 export const financeTransactionQuerySchema = z.object({

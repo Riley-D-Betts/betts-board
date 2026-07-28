@@ -6,5 +6,105 @@
   "aToZ": "A to Z",
   "none": "No recipes yet.",
   "importFromLink": "Import from link",
-  "createManually": "Create manually"
+  "createManually": "Create manually",
+  "defaultTitle": "New recipe",
+  "notFound": "Recipe not found",
+  "backToList": "Back to recipes",
+  "sortAria": "Sort recipes",
+  "noMatches": "Nothing matches — try a different search.",
+  "couldNotCreate": "Could not create recipe",
+  "duration": {
+    "minutes": "{n} min",
+    "hours": "{n} hr",
+    "hoursMinutes": "{h} hr {m} min"
+  },
+  "rating": {
+    "groupLabel": "Rate this recipe",
+    "starCount": "{n} star | {n} stars"
+  },
+  "detail": {
+    "deleteAria": "Delete recipe",
+    "confirmDelete": "Delete \"{title}\"? This can't be undone.",
+    "deleted": "Recipe deleted",
+    "couldNotDelete": "Could not delete recipe",
+    "couldNotRate": "Could not save rating",
+    "tapToRate": "Tap a star to rate it",
+    "source": "Source",
+    "serves": "Serves {n}",
+    "time": {
+      "total": "Total {duration}",
+      "prep": "Prep {duration}",
+      "cook": "Cook {duration}"
+    },
+    "ingredients": "Ingredients",
+    "noIngredients": "No ingredients listed.",
+    "steps": "Steps",
+    "noSteps": "No steps listed."
+  },
+  "notes": {
+    "title": "Family notes",
+    "empty": "No notes yet. \"Double the sauce next time\" goes here.",
+    "placeholder": "Add a note for next time…",
+    "addAria": "Add note",
+    "deleteAria": "Delete note",
+    "confirmDelete": "Delete this note?",
+    "couldNotAdd": "Could not add note",
+    "couldNotDelete": "Could not delete note",
+    "unknownAuthor": "Someone",
+    "justNow": "just now",
+    "minutesAgo": "{n}m ago",
+    "hoursAgo": "{n}h ago",
+    "daysAgo": "{n}d ago"
+  },
+  "import": {
+    "title": "Import a recipe",
+    "intro": "Paste a link to any recipe page and we'll pull in the title, ingredients, steps, and photo.",
+    "linkLabel": "Recipe link",
+    "linkPlaceholder": "https://example.com/best-lasagna",
+    "fetching": "Fetching recipe…",
+    "manualInstead": "Enter it manually instead",
+    "submit": "Import recipe",
+    "footnote": "Works best with sites that publish standard recipe markup — most food blogs do.",
+    "imported": "Recipe imported",
+    "failed": "Something went wrong importing that recipe."
+  },
+  "edit": {
+    "title": "Edit recipe",
+    "back": "Back to recipe",
+    "save": "Save recipe",
+    "saved": "Recipe saved",
+    "couldNotSave": "Could not save recipe",
+    "titleRequired": "Give the recipe a title first",
+    "fields": {
+      "title": "Title",
+      "titlePlaceholder": "Grandma's lasagna",
+      "description": "Description",
+      "descriptionPlaceholder": "What makes it great?",
+      "prep": "Prep (min)",
+      "cook": "Cook (min)",
+      "total": "Total (min)",
+      "servings": "Servings",
+      "tags": "Tags",
+      "tagsHelp": "Separate with commas — e.g. dinner, pasta, weeknight",
+      "tagsPlaceholder": "dinner, pasta"
+    },
+    "ingredients": {
+      "title": "Ingredients",
+      "empty": "No ingredients yet.",
+      "placeholder": "1 cup flour",
+      "add": "Add ingredient",
+      "moveUp": "Move ingredient {n} up",
+      "moveDown": "Move ingredient {n} down",
+      "remove": "Remove ingredient {n}"
+    },
+    "steps": {
+      "title": "Steps",
+      "empty": "No steps yet.",
+      "placeholder": "Preheat the oven to 375F…",
+      "add": "Add step",
+      "moveUp": "Move step {n} up",
+      "moveDown": "Move step {n} down",
+      "remove": "Remove step {n}"
+    }
+  }
 }

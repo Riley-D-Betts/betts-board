@@ -1,0 +1,47 @@
+{
+  "title": "Pantry",
+  "scanBarcode": "Scan barcode",
+  "searchPlaceholder": "Search the pantry…",
+  "editAria": "Edit {name}",
+  "deleteAria": "Delete {name}",
+  "addForm": {
+    "namePlaceholder": "Add to pantry — “olive oil”…",
+    "quantityPlaceholder": "Qty",
+    "unitPlaceholder": "Unit",
+    "aislePlaceholder": "Aisle"
+  },
+  "empty": {
+    "noMatches": "Nothing matches your search.",
+    "none": "Pantry is empty — add items or put away groceries from a shopping list."
+  },
+  "scan": {
+    "found": "Found: {name}",
+    "foundWithBrand": "Found: {name} ({brand})",
+    "notRecognized": "Not recognized — name it and we'll remember it next time."
+  },
+  "editor": {
+    "title": "Edit pantry item",
+    "name": "Name",
+    "quantity": "Quantity",
+    "unit": "Unit",
+    "aisle": "Aisle"
+  },
+  "scanner": {
+    "title": "Scan barcode",
+    "starting": "Starting camera…",
+    "hint": "Point the camera at the barcode — it scans automatically.",
+    "manualPlaceholder": "…or type the number",
+    "lookUp": "Look up",
+    "errors": {
+      "insecureContext": "The camera needs a secure (HTTPS) connection — type the barcode number below instead.",
+      "cameraFailed": "Could not open the camera — type the barcode number below instead.",
+      "invalidBarcode": "Barcodes are 6–14 digits."
+    }
+  },
+  "errors": {
+    "couldNotAdd": "Could not add the item",
+    "couldNotSave": "Could not save the item",
+    "couldNotDelete": "Could not delete the item",
+    "lookupFailed": "Barcode lookup failed"
+  }
+}

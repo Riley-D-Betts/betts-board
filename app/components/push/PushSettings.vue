@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const toast = useToast()
+const { t } = useI18n()
 const { isAdmin } = useBoardState()
 const { isSupported, permission, isSubscribed, busy, refresh, subscribe, unsubscribe } = usePush()
 
@@ -12,16 +13,16 @@ async function toggle(on: boolean) {
   try {
     if (on) {
       const ok = await subscribe()
-      if (ok) toast.add({ title: 'Notifications enabled on this device', color: 'success' })
-      else if (permission.value === 'denied') toast.add({ title: 'Notifications are blocked in your browser settings', color: 'error' })
+      if (ok) toast.add({ title: t('settings.push.enabled'), color: 'success' })
+      else if (permission.value === 'denied') toast.add({ title: t('settings.push.blocked'), color: 'error' })
     }
     else {
       await unsubscribe()
-      toast.add({ title: 'Notifications disabled on this device', color: 'success' })
+      toast.add({ title: t('settings.push.disabled'), color: 'success' })
     }
   }
   catch {
-    toast.add({ title: 'Could not update notifications', color: 'error' })
+    toast.add({ title: t('settings.push.updateFailed'), color: 'error' })
   }
 }
 
@@ -30,11 +31,11 @@ async function sendTest() {
   testing.value = true
   try {
     const res = await $fetch<{ sent: number, total: number }>('/api/push/test', { method: 'POST' })
-    if (res.total === 0) toast.add({ title: 'No subscribed devices for your profile yet', color: 'warning' })
-    else toast.add({ title: `Test sent to ${res.sent} of ${res.total} device${res.total === 1 ? '' : 's'}`, color: 'success' })
+    if (res.total === 0) toast.add({ title: t('settings.push.noDevices'), color: 'warning' })
+    else toast.add({ title: t('settings.push.testSent', { sent: res.sent, total: res.total }, res.total), color: 'success' })
   }
   catch {
-    toast.add({ title: 'Could not send test notification', color: 'error' })
+    toast.add({ title: t('settings.push.testFailed'), color: 'error' })
   }
   finally {
     testing.value = false
@@ -47,22 +48,19 @@ async function sendTest() {
     <template #header>
       <div class="flex items-center gap-2 font-semibold">
         <UIcon name="i-lucide-bell" class="text-primary size-5" />
-        Notifications
+        {{ $t('settings.push.title') }}
       </div>
     </template>
 
     <div class="space-y-4">
       <div v-if="!isSupported" class="rounded-lg bg-slate-100 dark:bg-slate-800 p-3 text-sm text-slate-600 dark:text-slate-300 space-y-2">
         <p>
-          Push notifications aren't available here. They need a secure (HTTPS)
-          connection and a browser that supports web push.
+          {{ $t('settings.push.unsupported') }}
         </p>
         <p v-if="isIos" class="flex items-start gap-2">
           <UIcon name="i-lucide-share" class="size-4 mt-0.5 shrink-0" />
           <span>
-            On iPhone and iPad, first add Betts Board to your Home Screen
-            (Share → Add to Home Screen), then enable notifications from the
-            installed app.
+            {{ $t('settings.push.iosInstall') }}
           </span>
         </p>
       </div>
@@ -70,10 +68,9 @@ async function sendTest() {
       <template v-else>
         <div class="flex items-center justify-between gap-4 min-h-11">
           <div>
-            <p class="font-medium">Notify on this device</p>
+            <p class="font-medium">{{ $t('settings.push.notifyOnDevice') }}</p>
             <p class="text-sm text-slate-500">
-              Event reminders and chore due-times for your profile arrive as
-              push notifications.
+              {{ $t('settings.push.notifyOnDeviceHelp') }}
             </p>
           </div>
           <USwitch
@@ -84,13 +81,11 @@ async function sendTest() {
         </div>
 
         <p v-if="permission === 'denied'" class="rounded-lg bg-amber-50 dark:bg-amber-950 p-3 text-sm text-amber-700 dark:text-amber-300">
-          Notifications are blocked for this site. Allow them in your browser's
-          site settings (the lock icon in the address bar), then try again.
+          {{ $t('settings.push.blockedHelp') }}
         </p>
 
         <p v-if="isIos && !isSubscribed" class="text-sm text-slate-500">
-          On iPhone and iPad this only works from the Home Screen app
-          (Share → Add to Home Screen).
+          {{ $t('settings.push.iosHomeScreen') }}
         </p>
 
         <UButton
@@ -101,7 +96,7 @@ async function sendTest() {
           :disabled="!isSubscribed"
           @click="sendTest"
         >
-          Send test notification
+          {{ $t('settings.push.sendTest') }}
         </UButton>
       </template>
     </div>

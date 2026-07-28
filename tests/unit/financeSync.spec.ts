@@ -1,10 +1,10 @@
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator'
-import { eq } from 'drizzle-orm'
+import { asc, eq } from 'drizzle-orm'
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { createDb, setDb, type Db } from '../../server/db/client'
 import {
   defaultHouseholdSettings, financeAccounts, financeCategories, financeConnections,
-  financeRules, financeTransactions, households,
+  financeRules, financeTransactionSplits, financeTransactions, households,
 } from '../../server/db/schema'
 import { installNitroGlobals } from '../support/nitroGlobals'
 import type { SimpleFinAccount } from '../../server/services/finance/simplefin'
@@ -12,6 +12,7 @@ import type { SimpleFinAccount } from '../../server/services/finance/simplefin'
 installNitroGlobals()
 
 const { ingestAccount, connectionsDue } = await import('../../server/services/finance/sync')
+const { setSplits } = await import('../../server/services/finance/splits')
 
 let db: Db
 let householdId: string
@@ -112,8 +113,10 @@ describe('ingestAccount', () => {
     const category = db.insert(financeCategories)
       .values({ householdId, name: 'Fishing', kind: 'expense' }).returning().get()
     const txn = db.select().from(financeTransactions).get()!
-    db.update(financeTransactions)
-      .set({ categoryId: category.id, categorizedBy: 'user', notes: 'split with Sam' })
+    setSplits(db, txn.id, txn.amountMinor, [
+      { categoryId: category.id, amountMinor: txn.amountMinor, categorizedBy: 'user' },
+    ])
+    db.update(financeTransactions).set({ notes: 'split with Sam' })
       .where(eq(financeTransactions.id, txn.id)).run()
 
     const amended = account()
@@ -121,10 +124,69 @@ describe('ingestAccount', () => {
     ingestAccount(db, connection, amended, WINDOW_START)
 
     const after = db.select().from(financeTransactions).get()!
-    expect(after.categoryId).toBe(category.id)
-    expect(after.categorizedBy).toBe('user')
+    const splits = db.select().from(financeTransactionSplits).all()
+    expect(splits).toHaveLength(1)
+    expect(splits[0]!.categoryId).toBe(category.id)
+    expect(splits[0]!.categorizedBy).toBe('user')
     expect(after.notes).toBe('split with Sam')
     expect(after.amountMinor).toBe(-4000)
+    // The line followed the bank's new amount — an unsplit transaction has
+    // only one place the difference can go.
+    expect(splits[0]!.amountMinor).toBe(-4000)
+  })
+
+  /**
+   * The invariant under the one thing that can move an amount without a person
+   * being there to re-divide it: a tip posting after the meal.
+   */
+  it('keeps a hand-made split adding up when the bank amends the amount', () => {
+    ingestAccount(db, connection, account(), WINDOW_START)
+    const [food, drinks] = ['Food', 'Drinks'].map(name => db.insert(financeCategories)
+      .values({ householdId, name, kind: 'expense' }).returning().get())
+    // A round meal total to divide, so the arithmetic below is readable.
+    const settled = account()
+    settled.transactions[0]!.amountMinor = -5000
+    ingestAccount(db, connection, settled, WINDOW_START)
+
+    const txn = db.select().from(financeTransactions).get()!
+    setSplits(db, txn.id, -5000, [
+      { categoryId: food!.id, amountMinor: -3000 },
+      { categoryId: drinks!.id, amountMinor: -2000 },
+    ])
+
+    const tipped = account()
+    tipped.transactions[0]!.amountMinor = -6000 // 20% tip posted later
+    ingestAccount(db, connection, tipped, WINDOW_START)
+
+    const splits = db.select().from(financeTransactionSplits)
+      .orderBy(asc(financeTransactionSplits.sortOrder)).all()
+    expect(splits.map(s => s.amountMinor)).toEqual([-3600, -2400])
+    expect(splits.reduce((acc, s) => acc + s.amountMinor, 0)).toBe(-6000)
+    expect(splits.map(s => s.categoryId)).toEqual([food!.id, drinks!.id])
+  })
+
+  it('never leaves a rounded rebalance a penny out', () => {
+    ingestAccount(db, connection, account(), WINDOW_START)
+    const category = db.insert(financeCategories)
+      .values({ householdId, name: 'Food', kind: 'expense' }).returning().get()
+    const settled = account()
+    settled.transactions[0]!.amountMinor = -5000
+    ingestAccount(db, connection, settled, WINDOW_START)
+
+    const txn = db.select().from(financeTransactions).get()!
+    setSplits(db, txn.id, -5000, [
+      { categoryId: category.id, amountMinor: -1667 },
+      { categoryId: category.id, amountMinor: -1667 },
+      { categoryId: category.id, amountMinor: -1666 },
+    ])
+
+    const amended = account()
+    amended.transactions[0]!.amountMinor = -3333
+    ingestAccount(db, connection, amended, WINDOW_START)
+
+    const splits = db.select().from(financeTransactionSplits).all()
+    expect(splits.reduce((acc, s) => acc + s.amountMinor, 0)).toBe(-3333)
+    expect(splits.every(s => s.amountMinor < 0)).toBe(true)
   })
 
   it('flips pending to posted on the same row', () => {

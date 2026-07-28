@@ -1,0 +1,65 @@
+{
+  "title": "Tâches",
+  "leaderboard": "Classement",
+  "manage": "Gérer",
+  "byDay": "Par jour",
+  "byPerson": "Par personne",
+  "thisWeek": "Cette semaine",
+  "nextWeek": "Semaine prochaine",
+  "lastWeek": "Semaine dernière",
+  "noneThisWeek": "Aucune tâche cette semaine.",
+  "setUp": "Configurer les tâches",
+  "noneToday": "Rien à faire aujourd'hui — profitez-en ! 🎉",
+  "doneCount": "{done}/{total}",
+  "daysLate": "{n} jour de retard | {n} jours de retard",
+  "markDone": "Cocher {title}",
+  "markNotDone": "Décocher {title}",
+  "couldNotUpdate": "Impossible de mettre à jour la tâche",
+  "dueByTime": "avant {time}",
+  "backToChores": "Retour aux tâches",
+  "newChore": "Nouvelle tâche",
+  "noPermission": "Demandez à un adulte de modifier la liste des tâches.",
+  "noneYet": "Aucune tâche pour l'instant — ajoutez la première.",
+  "removeConfirm": "Supprimer « {title} » ? Les points déjà gagnés sont conservés.",
+  "removeChore": "Supprimer {title}",
+  "couldNotRemove": "Impossible de supprimer la tâche",
+  "weekNav": {
+    "previous": "Semaine précédente",
+    "next": "Semaine suivante"
+  },
+  "tile": {
+    "doneSummary": "{done}/{total} faites",
+    "chooseProfile": "Choisissez un profil pour voir vos tâches."
+  },
+  "editor": {
+    "editTitle": "Modifier la tâche",
+    "title": "Titre",
+    "titlePlaceholder": "Nourrir les poules",
+    "description": "Description",
+    "points": "Points",
+    "assignees": "Qui s'en occupe",
+    "assigneeRequired": "Choisissez au moins une personne",
+    "startDate": "Début",
+    "dueTime": "À faire avant",
+    "repeats": "Répétition",
+    "stacking": "Cumul",
+    "stackingOn": "Les jours manqués s'accumulent — deux jours sautés font deux tâches",
+    "stackingOff": "Les jours manqués se regroupent en une seule tâche",
+    "saveChanges": "Enregistrer",
+    "create": "Ajouter une tâche",
+    "couldNotSave": "Impossible d'enregistrer la tâche"
+  },
+  "ranking": {
+    "periodMonth": "Ce mois-ci",
+    "periodAll": "Depuis le début",
+    "rewardsStore": "Boutique",
+    "empty": "Aucun membre de la famille pour l'instant.",
+    "choresDone": "{n} tâche faite | {n} tâches faites",
+    "streak": "Série de {n} jours"
+  },
+  "celebration": {
+    "stars": "+{n} étoile | +{n} étoiles",
+    "niceWork": "Bien joué",
+    "streak": "{n} jours d'affilée"
+  }
+}

@@ -44,7 +44,7 @@ function dateLabel(date: string) {
         {{ points }}
       </UBadge>
       <UBadge :variant="allDone ? 'solid' : 'soft'" :color="allDone ? 'success' : 'neutral'" class="shrink-0 tabular-nums">
-        {{ doneCount }}/{{ instances.length }}
+        {{ $t('chores.doneCount', { done: doneCount, total: instances.length }) }}
       </UBadge>
     </div>
 

@@ -186,9 +186,10 @@ export const financeTransactions = sqliteTable('finance_transactions', {
   payee: text('payee'),
   memo: text('memo'),
   pending: integer('pending', { mode: 'boolean' }).notNull().default(false),
-  categoryId: text('category_id').references(() => financeCategories.id, { onDelete: 'set null' }),
-  /** A user's choice must survive re-sync and re-running rules. */
-  categorizedBy: text('categorized_by', { enum: ['rule', 'user', 'import'] }),
+  // NOTE: there is deliberately no category_id here. Categorisation lives in
+  // finance_transaction_splits — every transaction has at least one split, and
+  // an ordinary one has exactly one. A column here would be a second source of
+  // truth that a future query could read while quietly ignoring split rows.
   notes: text('notes'),
   source: text('source', { enum: ['sync', 'import', 'manual'] }).notNull().default('manual'),
   importBatchId: text('import_batch_id').references(() => financeImportBatches.id, { onDelete: 'set null' }),
@@ -205,6 +206,49 @@ export const financeTransactions = sqliteTable('finance_transactions', {
   index('finance_txn_account_posted_idx').on(table.accountId, table.postedDate),
   index('finance_txn_household_posted_idx').on(table.householdId, table.postedDate),
   index('finance_txn_dedupe_idx').on(table.accountId, table.dedupeHash),
+])
+
+/**
+ * How a transaction is categorised — always, not only when it's split.
+ *
+ * A Costco run is partly groceries and partly household; a Target trip is
+ * partly kids' clothes and partly a birthday present. Forcing one category per
+ * transaction makes the budget wrong for the most ordinary receipt a family
+ * has.
+ *
+ * EVERY transaction has at least one split. An ordinary one has exactly one,
+ * carrying the whole amount. That is deliberately not an optional overlay:
+ * `if (isSplit) … else …` in each aggregation is the dual-path shape that
+ * produced most of the defects found reviewing this slice, and here a call
+ * site that forgot the split branch would under-count money silently.
+ *
+ * THE INVARIANT, enforced on every write by setSplits():
+ *   sum(splits.amountMinor) === transaction.amountMinor, exactly.
+ * Integer minor units throughout, so this is exact equality with no rounding
+ * tolerance — the reason the money layer bans floats in the first place.
+ *
+ * There is deliberately NO unique index on (transactionId, categoryId): two
+ * lines in the same category with different notes is a reasonable thing to
+ * want. The cost is that `count(*)` would double-count a transaction, so
+ * spendByCategory counts `distinct transaction_id` instead.
+ */
+export const financeTransactionSplits = sqliteTable('finance_transaction_splits', {
+  id: id(),
+  transactionId: text('transaction_id').notNull()
+    .references(() => financeTransactions.id, { onDelete: 'cascade' }),
+  /** Null = uncategorised, the same meaning the old column had. */
+  categoryId: text('category_id').references(() => financeCategories.id, { onDelete: 'set null' }),
+  /** Same sign as the parent transaction: expenses negative, income positive. */
+  amountMinor: integer('amount_minor').notNull(),
+  /** Per-part note — "Emma's shoes" on the clothing line of a Target receipt. */
+  note: text('note'),
+  /** A user's choice must survive re-sync and re-running rules. */
+  categorizedBy: text('categorized_by', { enum: ['rule', 'user', 'import'] }),
+  sortOrder: integer('sort_order').notNull().default(0),
+  createdAt: createdAt(),
+}, table => [
+  index('finance_txn_splits_txn_idx').on(table.transactionId),
+  index('finance_txn_splits_category_idx').on(table.categoryId),
 ])
 
 /**

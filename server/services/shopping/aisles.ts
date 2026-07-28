@@ -2,17 +2,11 @@
  * words inside the normalized name key; the longest matching keyword wins
  * ("black pepper" → Pantry beats "pepper" → Produce). */
 
-export const CATEGORIES = [
-  'Produce',
-  'Bakery',
-  'Meat & Seafood',
-  'Dairy',
-  'Frozen',
-  'Pantry',
-  'Beverages',
-  'Household',
-  'Other',
-] as const
+import { AISLES } from '#shared/schemas/shopping'
+
+/** The aisle vocabulary lives in shared/ so the pantry and shopping screens can
+ * label it; the values below are what this matcher writes to the DB. */
+export const CATEGORIES = AISLES
 
 export type Category = (typeof CATEGORIES)[number]
 

@@ -1,0 +1,58 @@
+{
+  "title": "Repas",
+  "generateList": "Générer la liste de courses",
+  "thisWeek": "Cette semaine",
+  "nextWeek": "Semaine prochaine",
+  "lastWeek": "Semaine dernière",
+  "planSlot": "Planifier {slot} pour {date}",
+  "removeEntry": "Retirer {title}",
+  "couldNotPlan": "Impossible de planifier le repas",
+  "couldNotRemove": "Impossible de retirer le repas",
+  "slots": {
+    "breakfast": "Petit-déjeuner",
+    "lunch": "Déjeuner",
+    "dinner": "Dîner",
+    "snack": "Goûter"
+  },
+  "weekNav": {
+    "previous": "Semaine précédente",
+    "next": "Semaine suivante"
+  },
+  "tile": {
+    "tonight": "Ce soir",
+    "nothingPlanned": "Rien de prévu ce soir.",
+    "planTonight": "Planifier le dîner"
+  },
+  "picker": {
+    "title": "{slot} · {day}",
+    "search": "Rechercher une recette…",
+    "servings": "Portions",
+    "servingsOverride": "Nombre de portions",
+    "servingsCount": "{n} portion(s)",
+    "whosCooking": "Qui cuisine ?",
+    "cook": "Qui cuisine",
+    "noCook": "Personne",
+    "noMatches": "Aucune recette ne correspond.",
+    "empty": "Aucune recette pour l'instant.",
+    "orTypeIt": "ou saisissez-le",
+    "freeTextPlaceholder": "« Restes », « Pizza au resto »…"
+  },
+  "generate": {
+    "from": "Du",
+    "until": "Jusqu'au (exclu)",
+    "addToList": "Ajouter à la liste",
+    "defaultList": "Liste par défaut",
+    "listIsDefault": "{name} (par défaut)",
+    "checkPantry": "Vérifier le garde-manger",
+    "checkPantryHint": "Signalez les ingrédients que vous avez déjà à la maison.",
+    "submit": "Générer",
+    "summary": "{created} ajoutés, {merged} fusionnés avec des articles existants.",
+    "inPantry": "Déjà dans votre garde-manger — touchez pour retirer :",
+    "skippedFreeText": "Pas d'ingrédients pour ces repas saisis à la main :",
+    "openList": "Ouvrir la liste",
+    "done": "Terminé",
+    "failed": "Impossible de générer la liste de courses",
+    "removedItem": "Retiré : {name}",
+    "couldNotRemoveItem": "Impossible de retirer l'article"
+  }
+}

@@ -3,34 +3,39 @@ import type { RecipeDetail } from '~~/server/services/recipes/recipes'
 
 const route = useRoute()
 const toast = useToast()
+const { t } = useI18n()
 const recipeId = route.params.id as string
 
 // Dynamic URL defeats Nuxt's route-based response inference — type it by hand.
 const { data: recipe, refresh } = await useFetch<RecipeDetail>(`/api/recipes/${recipeId}`)
 
 if (!recipe.value) {
-  throw createError({ statusCode: 404, statusMessage: 'Recipe not found', fatal: true })
+  throw createError({ statusCode: 404, statusMessage: t('recipes.notFound'), fatal: true })
 }
 
-function timeChip(label: string, mins: number | null | undefined) {
-  if (!mins) return null
-  if (mins < 60) return `${label} ${mins} min`
+function duration(mins: number) {
+  if (mins < 60) return t('recipes.duration.minutes', { n: mins })
   const h = Math.floor(mins / 60)
   const m = mins % 60
-  return m ? `${label} ${h} hr ${m} min` : `${label} ${h} hr`
+  return m ? t('recipes.duration.hoursMinutes', { h, m }) : t('recipes.duration.hours', { n: h })
+}
+
+function timeChip(key: 'total' | 'prep' | 'cook', mins: number | null | undefined) {
+  if (!mins) return null
+  return t(`recipes.detail.time.${key}`, { duration: duration(mins) })
 }
 
 const metaChips = computed(() => {
   const r = recipe.value
   if (!r) return []
   const chips: Array<{ icon: string, text: string }> = []
-  const total = timeChip('Total', r.totalMinutes)
-  const prep = timeChip('Prep', r.prepMinutes)
-  const cook = timeChip('Cook', r.cookMinutes)
+  const total = timeChip('total', r.totalMinutes)
+  const prep = timeChip('prep', r.prepMinutes)
+  const cook = timeChip('cook', r.cookMinutes)
   if (total) chips.push({ icon: 'i-lucide-clock', text: total })
   if (prep) chips.push({ icon: 'i-lucide-timer', text: prep })
   if (cook) chips.push({ icon: 'i-lucide-flame', text: cook })
-  if (r.servings) chips.push({ icon: 'i-lucide-users', text: `Serves ${r.servings}` })
+  if (r.servings) chips.push({ icon: 'i-lucide-users', text: t('recipes.detail.serves', { n: r.servings }) })
   return chips
 })
 
@@ -51,22 +56,22 @@ async function rate(value: number) {
     await refresh()
   }
   catch {
-    toast.add({ title: 'Could not save rating', color: 'error' })
+    toast.add({ title: t('recipes.detail.couldNotRate'), color: 'error' })
   }
 }
 
 const deleting = ref(false)
 
 async function deleteRecipe() {
-  if (!confirm(`Delete "${recipe.value?.title}"? This can't be undone.`)) return
+  if (!confirm(t('recipes.detail.confirmDelete', { title: recipe.value?.title }))) return
   deleting.value = true
   try {
     await $fetch(`/api/recipes/${recipeId}`, { method: 'DELETE' })
-    toast.add({ title: 'Recipe deleted', icon: 'i-lucide-trash-2' })
+    toast.add({ title: t('recipes.detail.deleted'), icon: 'i-lucide-trash-2' })
     await navigateTo('/recipes')
   }
   catch {
-    toast.add({ title: 'Could not delete recipe', color: 'error' })
+    toast.add({ title: t('recipes.detail.couldNotDelete'), color: 'error' })
     deleting.value = false
   }
 }
@@ -75,15 +80,15 @@ async function deleteRecipe() {
 <template>
   <div v-if="recipe" class="space-y-6 max-w-4xl">
     <div class="flex items-center gap-2">
-      <UButton to="/recipes" icon="i-lucide-arrow-left" variant="ghost" color="neutral" aria-label="Back to recipes" />
+      <UButton to="/recipes" icon="i-lucide-arrow-left" variant="ghost" color="neutral" :aria-label="$t('recipes.backToList')" />
       <div class="flex-1" />
-      <UButton :to="`/recipes/${recipeId}/edit`" icon="i-lucide-pencil" variant="soft" color="neutral">Edit</UButton>
+      <UButton :to="`/recipes/${recipeId}/edit`" icon="i-lucide-pencil" variant="soft" color="neutral">{{ $t('common.actions.edit') }}</UButton>
       <UButton
         icon="i-lucide-trash-2"
         variant="soft"
         color="error"
         :loading="deleting"
-        aria-label="Delete recipe"
+        :aria-label="$t('recipes.detail.deleteAria')"
         @click="deleteRecipe"
       />
     </div>
@@ -113,12 +118,12 @@ async function deleteRecipe() {
           @rate="rate"
         />
         <span v-if="!recipe.ratingCount" class="text-sm text-slate-400 dark:text-slate-500">
-          Tap a star to rate it
+          {{ $t('recipes.detail.tapToRate') }}
         </span>
       </div>
 
       <div v-if="recipe.tags?.length" class="flex flex-wrap gap-1.5">
-        <UBadge v-for="t in recipe.tags" :key="t" variant="subtle" size="sm">{{ t }}</UBadge>
+        <UBadge v-for="tagName in recipe.tags" :key="tagName" variant="subtle" size="sm">{{ tagName }}</UBadge>
       </div>
 
       <p v-if="recipe.description" class="text-slate-600 dark:text-slate-300">
@@ -133,7 +138,7 @@ async function deleteRecipe() {
         class="inline-flex items-center gap-1 text-sm text-primary hover:underline"
       >
         <UIcon name="i-lucide-external-link" class="size-3.5" />
-        {{ sourceHost ?? 'Source' }}
+        {{ sourceHost ?? $t('recipes.detail.source') }}
       </a>
     </div>
 
@@ -141,10 +146,10 @@ async function deleteRecipe() {
       <section>
         <h2 class="text-lg font-semibold mb-2 flex items-center gap-2">
           <UIcon name="i-lucide-shopping-basket" class="size-5" />
-          Ingredients
+          {{ $t('recipes.detail.ingredients') }}
         </h2>
         <p v-if="!recipe.ingredients.length" class="text-sm text-slate-500 dark:text-slate-400">
-          No ingredients listed.
+          {{ $t('recipes.detail.noIngredients') }}
         </p>
         <IngredientList v-else :ingredients="recipe.ingredients" />
       </section>
@@ -152,10 +157,10 @@ async function deleteRecipe() {
       <section>
         <h2 class="text-lg font-semibold mb-2 flex items-center gap-2">
           <UIcon name="i-lucide-list-ordered" class="size-5" />
-          Steps
+          {{ $t('recipes.detail.steps') }}
         </h2>
         <p v-if="!recipe.steps.length" class="text-sm text-slate-500 dark:text-slate-400">
-          No steps listed.
+          {{ $t('recipes.detail.noSteps') }}
         </p>
         <ol v-else class="space-y-4">
           <li v-for="(step, i) in recipe.steps" :key="i" class="flex gap-3">

@@ -1,0 +1,54 @@
+{
+  "title": "Listes d'envies",
+  "newList": "Nouvelle liste",
+  "createList": "Nouvelle liste d'envies",
+  "editList": "Modifier la liste d'envies",
+  "notFound": "Liste d'envies introuvable",
+  "backToLists": "Retour aux listes d'envies",
+  "empty": "Aucune liste d'envies pour l'instant. Créez-en une pour un anniversaire ou pour les fêtes.",
+  "emptyItems": "Rien sur cette liste pour l'instant.",
+  "ideas": "{n} idée | {n} idées",
+  "addIdea": "Ajouter une idée",
+  "ideaPlaceholder": "Coffret Lego Botanical",
+  "addToList": "Ajouter à la liste",
+  "archive": "Archiver cette liste",
+  "name": "Nom",
+  "namePlaceholder": "Anniversaire d'Emma",
+  "forWhom": "Pour qui",
+  "occasion": "Occasion",
+  "occasionPlaceholder": "Anniversaire",
+  "occasions": {
+    "birthday": "Anniversaire",
+    "christmas": "Noël",
+    "hanukkah": "Hanoucca",
+    "graduation": "Remise de diplôme",
+    "justBecause": "Juste comme ça"
+  },
+  "date": "Date",
+  "dateHelp": "Affiche un compte à rebours sur la liste.",
+  "link": "Lien",
+  "roughPrice": "Prix indicatif",
+  "pricePlaceholder": "environ 30 €",
+  "notes": "Notes",
+  "notesPlaceholder": "Taille M, en bleu si possible",
+  "wantLevel": "À quel point ça lui ferait envie",
+  "priority": {
+    "nice": "Pourquoi pas",
+    "love": "Adorerait",
+    "really": "En rêve"
+  },
+  "countdown": {
+    "inDays": "Dans {n} jours",
+    "daysAgo": "Il y a {n} jours"
+  },
+  "removeItem": "Retirer {name}",
+  "confirmRemove": "Retirer « {name} » de cette liste ?",
+  "confirmArchive": "Archiver cette liste d'envies ?",
+  "errors": {
+    "nameRequired": "Donnez d'abord un nom à la liste",
+    "couldNotSave": "Impossible d'enregistrer la liste",
+    "couldNotAdd": "Impossible d'ajouter l'idée",
+    "couldNotRemove": "Impossible de retirer l'idée",
+    "couldNotArchive": "Impossible d'archiver la liste"
+  }
+}

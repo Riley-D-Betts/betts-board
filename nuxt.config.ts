@@ -1,5 +1,6 @@
 import { execSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
+import { LOCALE_DEFS, DEFAULT_LOCALE } from './shared/schemas/locales'
 
 /**
  * Build identity, resolved once at build time.
@@ -39,21 +40,28 @@ export default defineNuxtConfig({
 
   devtools: { enabled: false },
 
-  // English only for now; the point of the scaffold is that adding a language
-  // is a locale file plus one line here.
+  // The language list comes from shared/schemas/locales.ts so it cannot drift
+  // from the household setting's enum or the settings picker.
   //
   // - no_prefix: URLs must not move. The PWA start_url, the /tv routes, and
-  //   the secret ICS feed URL are all already in the wild.
+  //   the secret ICS feed URL are all already in the wild. It also means a
+  //   bookmarked screen on the kitchen tablet keeps working when the family
+  //   switches language.
   // - locale files are compiled into same-origin build chunks (matched by the
   //   PWA precache globs), so nothing is fetched from the internet and the
   //   board keeps working offline.
-  // - no browser detection: with a single locale, server and client always
-  //   agree, so there is no hydration mismatch.
+  // - no browser detection: the language is a household setting, read from the
+  //   same bootstrap payload on the server and the client, so both sides agree
+  //   from the first byte. Letting the browser vote would make a phone render
+  //   one language and the wall tablet another — and would desynchronise SSR
+  //   from hydration on the very first paint.
   i18n: {
     strategy: 'no_prefix',
-    defaultLocale: 'en',
-    locales: [{ code: 'en', language: 'en-US', name: 'English', file: 'en.ts' }],
+    defaultLocale: DEFAULT_LOCALE,
+    locales: LOCALE_DEFS.map(l => ({ ...l })),
     detectBrowserLanguage: false,
+    // Pluralisation rules — French counts zero as singular. See the file.
+    vueI18n: './i18n.config.ts',
   },
 
   nitro: {

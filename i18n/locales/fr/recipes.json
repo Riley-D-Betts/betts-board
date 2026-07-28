@@ -1,0 +1,110 @@
+{
+  "title": "Recettes",
+  "search": "Rechercher une recette…",
+  "newest": "Plus récentes",
+  "topRated": "Mieux notées",
+  "aToZ": "De A à Z",
+  "none": "Aucune recette pour l'instant.",
+  "importFromLink": "Importer depuis un lien",
+  "createManually": "Créer à la main",
+  "defaultTitle": "Nouvelle recette",
+  "notFound": "Recette introuvable",
+  "backToList": "Retour aux recettes",
+  "sortAria": "Trier les recettes",
+  "noMatches": "Aucun résultat — essayez autre chose.",
+  "couldNotCreate": "Impossible de créer la recette",
+  "duration": {
+    "minutes": "{n} min",
+    "hours": "{n} h",
+    "hoursMinutes": "{h} h {m} min"
+  },
+  "rating": {
+    "groupLabel": "Noter cette recette",
+    "starCount": "{n} étoile | {n} étoiles"
+  },
+  "detail": {
+    "deleteAria": "Supprimer la recette",
+    "confirmDelete": "Supprimer « {title} » ? C'est définitif.",
+    "deleted": "Recette supprimée",
+    "couldNotDelete": "Impossible de supprimer la recette",
+    "couldNotRate": "Impossible d'enregistrer la note",
+    "tapToRate": "Touchez une étoile pour noter",
+    "source": "Source",
+    "serves": "{n} portion(s)",
+    "time": {
+      "total": "Total {duration}",
+      "prep": "Préparation {duration}",
+      "cook": "Cuisson {duration}"
+    },
+    "ingredients": "Ingrédients",
+    "noIngredients": "Aucun ingrédient indiqué.",
+    "steps": "Étapes",
+    "noSteps": "Aucune étape indiquée."
+  },
+  "notes": {
+    "title": "Notes de la famille",
+    "empty": "Aucune note pour l'instant. C'est ici qu'on écrit « doubler la sauce la prochaine fois ».",
+    "placeholder": "Une note pour la prochaine fois…",
+    "addAria": "Ajouter une note",
+    "deleteAria": "Supprimer la note",
+    "confirmDelete": "Supprimer cette note ?",
+    "couldNotAdd": "Impossible d'ajouter la note",
+    "couldNotDelete": "Impossible de supprimer la note",
+    "unknownAuthor": "Quelqu'un",
+    "justNow": "à l'instant",
+    "minutesAgo": "il y a {n} min",
+    "hoursAgo": "il y a {n} h",
+    "daysAgo": "il y a {n} j"
+  },
+  "import": {
+    "title": "Importer une recette",
+    "intro": "Collez le lien d'une page de recette : on récupère le titre, les ingrédients, les étapes et la photo.",
+    "linkLabel": "Lien de la recette",
+    "linkPlaceholder": "https://example.com/meilleures-lasagnes",
+    "fetching": "Récupération de la recette…",
+    "manualInstead": "Plutôt la saisir à la main",
+    "submit": "Importer la recette",
+    "footnote": "Ça marche mieux avec les sites qui publient un balisage de recette standard — la plupart des blogs de cuisine le font.",
+    "imported": "Recette importée",
+    "failed": "L'import de cette recette a échoué."
+  },
+  "edit": {
+    "title": "Modifier la recette",
+    "back": "Retour à la recette",
+    "save": "Enregistrer la recette",
+    "saved": "Recette enregistrée",
+    "couldNotSave": "Impossible d'enregistrer la recette",
+    "titleRequired": "Donnez d'abord un titre à la recette",
+    "fields": {
+      "title": "Titre",
+      "titlePlaceholder": "Les lasagnes de mamie",
+      "description": "Description",
+      "descriptionPlaceholder": "Qu'est-ce qui la rend si bonne ?",
+      "prep": "Préparation (min)",
+      "cook": "Cuisson (min)",
+      "total": "Total (min)",
+      "servings": "Portions",
+      "tags": "Tags",
+      "tagsHelp": "Séparez-les par des virgules — ex. dîner, pâtes, en semaine",
+      "tagsPlaceholder": "dîner, pâtes"
+    },
+    "ingredients": {
+      "title": "Ingrédients",
+      "empty": "Aucun ingrédient pour l'instant.",
+      "placeholder": "200 g de farine",
+      "add": "Ajouter un ingrédient",
+      "moveUp": "Monter l'ingrédient {n}",
+      "moveDown": "Descendre l'ingrédient {n}",
+      "remove": "Supprimer l'ingrédient {n}"
+    },
+    "steps": {
+      "title": "Étapes",
+      "empty": "Aucune étape pour l'instant.",
+      "placeholder": "Préchauffez le four à 190 °C…",
+      "add": "Ajouter une étape",
+      "moveUp": "Monter l'étape {n}",
+      "moveDown": "Descendre l'étape {n}",
+      "remove": "Supprimer l'étape {n}"
+    }
+  }
+}

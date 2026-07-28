@@ -15,6 +15,48 @@
   "markDone": "Mark {title} done",
   "markNotDone": "Mark {title} not done",
   "couldNotUpdate": "Could not update chore",
+  "dueByTime": "by {time}",
+  "backToChores": "Back to chores",
+  "newChore": "New chore",
+  "noPermission": "Ask a grown-up to change the chore list.",
+  "noneYet": "No chores yet — add the first one.",
+  "removeConfirm": "Remove \"{title}\"? Earned points are kept.",
+  "removeChore": "Remove {title}",
+  "couldNotRemove": "Could not remove chore",
+  "weekNav": {
+    "previous": "Previous week",
+    "next": "Next week"
+  },
+  "tile": {
+    "doneSummary": "{done}/{total} done",
+    "chooseProfile": "Choose a profile to see your chores."
+  },
+  "editor": {
+    "editTitle": "Edit chore",
+    "title": "Title",
+    "titlePlaceholder": "Feed the chickens",
+    "description": "Description",
+    "points": "Points",
+    "assignees": "Who does it",
+    "assigneeRequired": "Pick at least one person",
+    "startDate": "Starts",
+    "dueTime": "Due by",
+    "repeats": "Repeats",
+    "stacking": "Stacking",
+    "stackingOn": "Missed days pile up — two skipped days means two chores",
+    "stackingOff": "Missed days merge into one",
+    "saveChanges": "Save changes",
+    "create": "Add chore",
+    "couldNotSave": "Could not save chore"
+  },
+  "ranking": {
+    "periodMonth": "This month",
+    "periodAll": "All time",
+    "rewardsStore": "Rewards store",
+    "empty": "No family members yet.",
+    "choresDone": "{n} chore done | {n} chores done",
+    "streak": "{n}-day streak"
+  },
   "celebration": {
     "stars": "+{n} star | +{n} stars",
     "niceWork": "Nice work",

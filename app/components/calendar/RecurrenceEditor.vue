@@ -1,4 +1,7 @@
 <script setup lang="ts">
+// Sentence structure lives in the locale file, not in the code — see
+// shared/utils/recurrenceText.ts for why concatenating it cannot be translated.
+const { recurrenceText } = useRecurrenceText()
 const props = withDefaults(defineProps<{
   modelValue: string | null
   /** Event start date (YYYY-MM-DD) — default weekday for custom weekly rules. */
@@ -7,6 +10,8 @@ const props = withDefaults(defineProps<{
 }>(), { startDate: undefined, weekStartsOn: 0 })
 
 const emit = defineEmits<{ 'update:modelValue': [value: string | null] }>()
+
+const { t } = useI18n()
 
 type Preset = 'none' | 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'custom'
 
@@ -18,27 +23,24 @@ const PRESET_RULES: Record<Exclude<Preset, 'none' | 'custom'>, string> = {
   yearly: 'FREQ=YEARLY',
 }
 
-const presetItems = [
-  { label: 'Does not repeat', value: 'none' },
-  { label: 'Daily', value: 'daily' },
-  { label: 'Weekly', value: 'weekly' },
-  { label: 'Monthly', value: 'monthly' },
-  { label: 'Quarterly', value: 'quarterly' },
-  { label: 'Yearly', value: 'yearly' },
-  { label: 'Custom…', value: 'custom' },
-]
+const presetItems = computed(() => [
+  { label: t('calendar.repeat.presets.none'), value: 'none' },
+  { label: t('calendar.repeat.presets.daily'), value: 'daily' },
+  { label: t('calendar.repeat.presets.weekly'), value: 'weekly' },
+  { label: t('calendar.repeat.presets.monthly'), value: 'monthly' },
+  { label: t('calendar.repeat.presets.quarterly'), value: 'quarterly' },
+  { label: t('calendar.repeat.presets.yearly'), value: 'yearly' },
+  { label: t('calendar.repeat.presets.custom'), value: 'custom' },
+])
 
-const WEEKDAYS = [
-  { code: 'SU', label: 'S' },
-  { code: 'MO', label: 'M' },
-  { code: 'TU', label: 'T' },
-  { code: 'WE', label: 'W' },
-  { code: 'TH', label: 'T' },
-  { code: 'FR', label: 'F' },
-  { code: 'SA', label: 'S' },
-]
-const weekdayItems = computed(() =>
-  props.weekStartsOn === 1 ? [...WEEKDAYS.slice(1), WEEKDAYS[0]!] : WEEKDAYS)
+const WEEKDAY_CODES = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA']
+const weekdayItems = computed(() => {
+  const items = WEEKDAY_CODES.map(code => ({
+    code,
+    label: t(`calendar.repeat.weekdays.${code.toLowerCase()}`),
+  }))
+  return props.weekStartsOn === 1 ? [...items.slice(1), items[0]!] : items
+})
 
 const preset = ref<Preset>('none')
 const custom = reactive({
@@ -50,17 +52,17 @@ const custom = reactive({
   count: 10,
 })
 
-const freqItems = [
-  { label: 'day(s)', value: 'DAILY' },
-  { label: 'week(s)', value: 'WEEKLY' },
-  { label: 'month(s)', value: 'MONTHLY' },
-  { label: 'year(s)', value: 'YEARLY' },
-]
-const endItems = [
-  { label: 'Never ends', value: 'never' },
-  { label: 'Ends on date', value: 'until' },
-  { label: 'Ends after…', value: 'count' },
-]
+const freqItems = computed(() => [
+  { label: t('calendar.repeat.freq.daily'), value: 'DAILY' },
+  { label: t('calendar.repeat.freq.weekly'), value: 'WEEKLY' },
+  { label: t('calendar.repeat.freq.monthly'), value: 'MONTHLY' },
+  { label: t('calendar.repeat.freq.yearly'), value: 'YEARLY' },
+])
+const endItems = computed(() => [
+  { label: t('calendar.repeat.end.never'), value: 'never' },
+  { label: t('calendar.repeat.end.until'), value: 'until' },
+  { label: t('calendar.repeat.end.count'), value: 'count' },
+])
 
 function toggleWeekday(code: string) {
   const i = custom.byday.indexOf(code)
@@ -127,7 +129,7 @@ watch([preset, custom], () => {
   if (preset.value === 'custom' && custom.freq === 'WEEKLY' && !custom.byday.length && props.startDate) {
     // Default the weekly toggle to the event's start weekday.
     const dow = parseDateString(props.startDate).getDay()
-    custom.byday = [WEEKDAYS[dow]!.code]
+    custom.byday = [WEEKDAY_CODES[dow]!]
   }
   const built = buildRule()
   if (built !== props.modelValue) {
@@ -143,7 +145,7 @@ watch([preset, custom], () => {
 
     <div v-if="preset === 'custom'" class="space-y-3 rounded-lg border border-slate-200 dark:border-slate-700 p-3">
       <div class="flex items-center gap-2">
-        <span class="text-sm text-slate-600 dark:text-slate-300">Every</span>
+        <span class="text-sm text-slate-600 dark:text-slate-300">{{ $t('calendar.repeat.every') }}</span>
         <UInput v-model.number="custom.interval" type="number" min="1" max="99" class="w-20" />
         <USelect v-model="custom.freq" :items="freqItems" class="w-32" />
       </div>
@@ -168,7 +170,7 @@ watch([preset, custom], () => {
         <UInput v-if="custom.end === 'until'" v-model="custom.untilDate" type="date" class="w-44" />
         <template v-else-if="custom.end === 'count'">
           <UInput v-model.number="custom.count" type="number" min="1" max="999" class="w-20" />
-          <span class="text-sm text-slate-600 dark:text-slate-300">times</span>
+          <span class="text-sm text-slate-600 dark:text-slate-300">{{ $t('calendar.repeat.times') }}</span>
         </template>
       </div>
     </div>

@@ -1,0 +1,67 @@
+{
+  "title": "Feedback",
+  "intro": "Spotted a bug? Wish the board did something new? Tell us — it goes straight to the family's fix-it list.",
+  "notConfigured": {
+    "title": "Feedback isn't set up yet",
+    "body": "Ask a parent to connect GitHub under {path}. Once that's done, anything you send here lands on the family's to-fix list.",
+    "settingsPath": "Settings → Feedback"
+  },
+  "kinds": {
+    "bugTitle": "Something's broken",
+    "bugBlurb": "A page errors, a button does nothing, the numbers look wrong…",
+    "featureTitle": "I have an idea",
+    "featureBlurb": "Something the board should do, or do better."
+  },
+  "form": {
+    "title": "Title",
+    "titlePlaceholderBug": "e.g. Chore board shows yesterday's chores",
+    "titlePlaceholderFeature": "e.g. Birthday countdowns on the dashboard",
+    "bodyLabelBug": "What happened?",
+    "bodyLabelFeature": "Tell us about it",
+    "bodyPlaceholderBug": "What were you doing, what happened, and what did you expect instead?",
+    "bodyPlaceholderFeature": "What should the board do? Who in the family would use it?",
+    "includeDiagnostics": "Include device info",
+    "includeDiagnosticsHelp": "Adds your browser and window size to the report — helps track it down.",
+    "submitBug": "Send bug report",
+    "submitFeature": "Send idea"
+  },
+  "sent": {
+    "title": "Sent! Issue #{number}",
+    "body": "Thanks — it's on the list now.",
+    "view": "View on GitHub",
+    "sendAnother": "Send another"
+  },
+  "errors": {
+    "notConnectedTitle": "Not connected to GitHub yet",
+    "notConnectedBody": "Ask a parent to connect it under Settings → Feedback.",
+    "rejectedTitle": "GitHub didn't take it",
+    "rejectedBody": "{reason} — your words aren't lost, try again in a bit.",
+    "couldNotReach": "Could not reach GitHub",
+    "couldNotSend": "Could not send feedback"
+  },
+  "settings": {
+    "title": "Feedback → GitHub",
+    "intro": "Bug reports and ideas from the {link} become GitHub issues on your repo — no GitHub accounts needed for the family. Create a {tokenLink} with Issues read & write on just that one repo.",
+    "introLinkText": "Feedback page",
+    "introTokenLinkText": "fine-grained personal access token",
+    "connected": "Connected to {repo}",
+    "notConnected": "Not connected",
+    "repoLabel": "Repository",
+    "repoHelp": "owner/repo — where the issues get filed.",
+    "tokenLabel": "Access token",
+    "tokenPlaceholder": "ghp_… or github_pat_…",
+    "tokenHelp": "Stored on your server, never shown again.",
+    "tokenHelpStored": "Stored on your server, never shown again. Leave blank to keep the current token.",
+    "test": "Test connection",
+    "disconnect": "Disconnect",
+    "disconnectConfirm": "Disconnect GitHub? The saved token is deleted and family members can no longer send feedback.",
+    "disconnected": "GitHub disconnected",
+    "saved": "Feedback settings saved",
+    "errors": {
+      "invalidRepo": "Repo must look like owner/repo",
+      "couldNotSave": "Could not save feedback settings",
+      "needsSetup": "Save a repo and token first",
+      "couldNotDisconnect": "Could not disconnect"
+    }
+  }
+}

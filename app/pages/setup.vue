@@ -3,6 +3,7 @@ definePageMeta({ layout: 'bare' })
 
 const { refresh } = useBoardState()
 const toast = useToast()
+const { t, locale } = useI18n()
 
 const step = ref(1)
 const busy = ref(false)
@@ -22,7 +23,9 @@ const form = reactive({
 
 const PROFILE_COLORS = ['#3b82f6', '#ec4899', '#22c55e', '#f97316', '#a855f7', '#14b8a6', '#eab308', '#ef4444']
 
-// Location search via Open-Meteo's free geocoder (no API key).
+// Location search via Open-Meteo's free geocoder (no API key). `language`
+// takes the bare locale code, and the name the wizard picks is persisted, so
+// it must be searched in the household's language — same as SettingsHousehold.
 const locationQuery = ref('')
 const locationResults = ref<{ name: string, admin1?: string, country: string, latitude: number, longitude: number, timezone: string }[]>([])
 let searchTimer: ReturnType<typeof setTimeout> | undefined
@@ -37,7 +40,7 @@ watch(locationQuery, (q) => {
     try {
       const res = await $fetch<{ results?: typeof locationResults.value }>(
         'https://geocoding-api.open-meteo.com/v1/search',
-        { params: { name: q, count: 5 } },
+        { params: { name: q, count: 5, language: locale.value } },
       )
       locationResults.value = res.results ?? []
     }
@@ -93,7 +96,7 @@ async function finish() {
     await navigateTo('/')
   }
   catch (err: unknown) {
-    const msg = (err as { data?: { message?: string } })?.data?.message ?? 'Setup failed'
+    const msg = (err as { data?: { message?: string } })?.data?.message ?? t('auth.setup.failed')
     toast.add({ title: msg, color: 'error' })
   }
   finally {
@@ -107,29 +110,29 @@ async function finish() {
     <template #header>
       <div class="text-center">
         <UIcon name="i-lucide-layout-dashboard" class="text-primary size-10 mb-2" />
-        <h1 class="text-2xl font-bold">Welcome to Betts Board</h1>
-        <p class="text-sm text-slate-500 mt-1">Let's set up your family board — step {{ step }} of 3</p>
+        <h1 class="text-2xl font-bold">{{ $t('auth.setup.title') }}</h1>
+        <p class="text-sm text-slate-500 mt-1">{{ $t('auth.setup.stepIndicator', { step }) }}</p>
       </div>
     </template>
 
     <!-- Step 1: household + password -->
     <div v-if="step === 1" class="space-y-4">
-      <UFormField label="Household name">
-        <UInput v-model="form.householdName" placeholder="The Betts Family" class="w-full" size="lg" />
+      <UFormField :label="$t('auth.setup.household.nameLabel')">
+        <UInput v-model="form.householdName" :placeholder="$t('auth.setup.household.namePlaceholder')" class="w-full" size="lg" />
       </UFormField>
-      <UFormField label="Household password" help="Everyone shares this one password to unlock the board.">
+      <UFormField :label="$t('auth.setup.household.passwordLabel')" :help="$t('auth.setup.household.passwordHelp')">
         <UInput v-model="form.password" type="password" class="w-full" size="lg" />
       </UFormField>
-      <UFormField label="Confirm password" :error="form.passwordConfirm && form.password !== form.passwordConfirm ? 'Passwords do not match' : undefined">
+      <UFormField :label="$t('auth.setup.household.passwordConfirmLabel')" :error="form.passwordConfirm && form.password !== form.passwordConfirm ? $t('auth.setup.household.passwordMismatch') : undefined">
         <UInput v-model="form.passwordConfirm" type="password" class="w-full" size="lg" />
       </UFormField>
-      <UButton block size="lg" :disabled="!step1Valid" @click="step = 2">Continue</UButton>
+      <UButton block size="lg" :disabled="!step1Valid" @click="step = 2">{{ $t('auth.setup.continue') }}</UButton>
     </div>
 
     <!-- Step 2: location (for weather) + timezone -->
     <div v-else-if="step === 2" class="space-y-4">
-      <UFormField label="Your town" help="Used for the weather forecast. Search and pick, or skip.">
-        <UInput v-model="locationQuery" placeholder="Search your town…" class="w-full" size="lg" icon="i-lucide-map-pin" />
+      <UFormField :label="$t('auth.setup.location.label')" :help="$t('auth.setup.location.help')">
+        <UInput v-model="locationQuery" :placeholder="$t('auth.setup.location.placeholder')" class="w-full" size="lg" icon="i-lucide-map-pin" />
       </UFormField>
       <div v-if="locationResults.length" class="rounded-lg border border-slate-200 dark:border-slate-700 divide-y divide-slate-200 dark:divide-slate-700">
         <button
@@ -144,24 +147,24 @@ async function finish() {
       <p v-if="form.locationName" class="text-sm">
         <UIcon name="i-lucide-check" class="text-green-500 size-4" /> {{ form.locationName }}
       </p>
-      <UFormField label="Timezone">
+      <UFormField :label="$t('auth.setup.location.timezoneLabel')">
         <UInput v-model="form.timezone" class="w-full" size="lg" />
       </UFormField>
       <div class="flex gap-2">
-        <UButton variant="ghost" size="lg" @click="step = 1">Back</UButton>
-        <UButton block size="lg" @click="step = 3">Continue</UButton>
+        <UButton variant="ghost" size="lg" @click="step = 1">{{ $t('common.actions.back') }}</UButton>
+        <UButton block size="lg" @click="step = 3">{{ $t('auth.setup.continue') }}</UButton>
       </div>
     </div>
 
     <!-- Step 3: profiles -->
     <div v-else class="space-y-4">
-      <p class="text-sm text-slate-500">Add everyone in the family. You can add more later.</p>
+      <p class="text-sm text-slate-500">{{ $t('auth.setup.profiles.intro') }}</p>
       <div v-for="(p, i) in form.profiles" :key="i" class="flex items-center gap-2">
         <input v-model="p.color" type="color" class="size-9 rounded cursor-pointer border-0 bg-transparent shrink-0">
-        <UInput v-model="p.name" :placeholder="i === 0 ? 'Your name' : 'Name'" class="flex-1" />
+        <UInput v-model="p.name" :placeholder="i === 0 ? $t('auth.setup.profiles.firstNamePlaceholder') : $t('auth.setup.profiles.namePlaceholder')" class="flex-1" />
         <USelect
           v-model="p.role"
-          :items="[{ label: 'Admin', value: 'admin' }, { label: 'Adult', value: 'adult' }, { label: 'Kid', value: 'kid' }]"
+          :items="[{ label: $t('auth.roles.admin'), value: 'admin' }, { label: $t('auth.roles.adult'), value: 'adult' }, { label: $t('auth.roles.kid'), value: 'kid' }]"
           class="w-28"
         />
         <UButton
@@ -172,13 +175,13 @@ async function finish() {
           @click="form.profiles.splice(i, 1)"
         />
       </div>
-      <UButton variant="soft" icon="i-lucide-plus" @click="addProfile">Add family member</UButton>
+      <UButton variant="soft" icon="i-lucide-plus" @click="addProfile">{{ $t('auth.setup.profiles.addMember') }}</UButton>
       <p v-if="!form.profiles.some(p => p.role === 'admin')" class="text-sm text-red-500">
-        At least one profile must be an Admin.
+        {{ $t('auth.setup.profiles.adminRequired') }}
       </p>
       <div class="flex gap-2">
-        <UButton variant="ghost" size="lg" @click="step = 2">Back</UButton>
-        <UButton block size="lg" :disabled="!step3Valid" :loading="busy" @click="finish">Create board</UButton>
+        <UButton variant="ghost" size="lg" @click="step = 2">{{ $t('common.actions.back') }}</UButton>
+        <UButton block size="lg" :disabled="!step3Valid" :loading="busy" @click="finish">{{ $t('auth.setup.profiles.finish') }}</UButton>
       </div>
     </div>
   </UCard>

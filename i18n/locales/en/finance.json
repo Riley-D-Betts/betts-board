@@ -167,7 +167,8 @@
     "bankSays": "Your bank says: {message}",
     "credentialsUnreadable": "This connection can't be read on this server — the encryption key is missing or has changed. Reconnect the bank.",
     "firstSyncNote": "Banks usually send about 90 days of history on the first sync.",
-    "encryptionNote": "Your bank credentials are stored encrypted, with the key held on this server. Anyone with access to the server itself can read them."
+    "encryptionNote": "Your bank credentials are stored encrypted, with the key held on this server. Anyone with access to the server itself can read them.",
+    "couldNotConnect": "Could not connect."
   },
   "import": {
     "title": "Import a statement",
@@ -195,14 +196,24 @@
     "undo": "Undo this import",
     "undone": "Undone — removed {n} transaction. | Undone — removed {n} transactions.",
     "wasUndone": "Undone",
-    "noAutoDrop": "Nothing is dropped automatically — you decide on every duplicate."
+    "noAutoDrop": "Nothing is dropped automatically — you decide on every duplicate.",
+    "couldNotRead": "Could not read that file.",
+    "warnings": {
+      "noDateOrAmount": "Skipped a transaction with no date or amount.",
+      "unreadableAmount": "Skipped a transaction with an unreadable amount ({amount}).",
+      "badDate": "Row {row}: could not read the date.",
+      "badAmount": "Row {row}: could not read the amount.",
+      "unknown": "A row in that file could not be read and was skipped."
+    }
   },
   "budgets": {
     "title": "Budgets",
     "month": "Month",
     "setAmount": "Budget",
+    "setAmountFor": "Budget for {category}",
     "spent": "Spent",
     "remaining": "Left",
+    "remainingAmount": "{amount} left",
     "over": "Over by {amount}",
     "noBudget": "No budget set",
     "totalBudgeted": "Budgeted",
@@ -223,6 +234,13 @@
     "amount": "Usual amount",
     "startDate": "First due date",
     "repeats": "Repeats",
+    "frequencies": {
+      "monthly": "Repeats: monthly",
+      "weekly": "Repeats: weekly",
+      "biweekly": "Repeats: every 2 weeks",
+      "yearly": "Repeats: yearly",
+      "once": "Repeats: once"
+    },
     "until": "Until",
     "account": "Paid from",
     "autoPay": "Paid automatically",
@@ -278,7 +296,8 @@
     "lastOwner": "You can't remove the last owner.",
     "lastUnlock": "Last unlocked {time}",
     "neverUnlocked": "Hasn't unlocked yet",
-    "lockedUntil": "Locked out until {time}"
+    "lockedUntil": "Locked out until {time}",
+    "couldNotAdd": "Could not add them."
   },
   "sessions": {
     "title": "Unlocked right now",
@@ -287,13 +306,19 @@
     "revoke": "Lock that device",
     "startedAt": "Unlocked {time}",
     "expiresAt": "Locks at {time}",
-    "deviceLabel": "Device name"
+    "deviceLabel": "Device name",
+    "devices": {
+      "phone": "Phone",
+      "tablet": "Tablet",
+      "computer": "Computer"
+    }
   },
   "settings": {
     "title": "Money",
     "currency": "Currency",
     "currencyHelp": "Used for totals and new accounts. Bank accounts keep whatever currency your bank reports.",
     "forecastDays": "Forecast length",
+    "forecastOption": "{n} day | {n} days",
     "notOnDashboard": "Money never appears on the dashboard, the wall display, or the shared calendar.",
     "adminOnly": "Only a household admin can change these."
   },
@@ -304,5 +329,23 @@
     "synced": "Synced",
     "locked": "Money locked",
     "pinSet": "PIN set — unlock with it now"
+  },
+  "splits": {
+    "title": "Split across categories",
+    "subtitle": "{description} · {amount}",
+    "help": "Give each part of this receipt its own category. The parts have to add up to the whole.",
+    "line": "Line {n}",
+    "addLine": "Add a line",
+    "removeLine": "Remove this line",
+    "note": "Note",
+    "notePlaceholder": "Emma's shoes",
+    "remaining": "{amount} left to assign",
+    "over": "{amount} too much assigned",
+    "balanced": "Adds up exactly",
+    "assign": "Use the rest",
+    "badge": "{n} categories",
+    "edit": "Split",
+    "splitLocked": "Split across categories — open the split editor to change it.",
+    "saved": "Split saved"
   }
 }
