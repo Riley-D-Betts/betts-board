@@ -1527,7 +1527,7 @@ export const routeRegistry: RouteDoc[] = [
     tags: ['Finance'],
     auth: 'finance',
     requestSchema: financeImportPreviewSchema,
-    responseDescription: 'Parsed rows, each with the existing transaction it may duplicate, plus warnings. Changes nothing — duplicates are always reviewed, never silently dropped.',
+    responseDescription: 'Parsed rows, each with the existing transaction it may duplicate, plus `warnings` as `{ code, row?, amount? }` objects for the client to render in its own language. Changes nothing — duplicates are always reviewed, never silently dropped.',
   },
   {
     method: 'post',

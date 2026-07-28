@@ -1,5 +1,6 @@
 {
   "allDay": "All day",
+  "cookingTitle": "Cooking — {title}",
   "views": {
     "month": "Month",
     "week": "Week",
@@ -20,7 +21,6 @@
     "couldNotLoadEvent": "Could not load event"
   },
   "detail": {
-    "cookingTitle": "Cooking — {title}",
     "allDayOn": "{date} · All day",
     "allDayRange": "{start} – {end} · All day",
     "cookingHint": "Cooking block from the meal planner — change the cook or meal there.",

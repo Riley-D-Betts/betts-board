@@ -19,6 +19,7 @@ const BAR_H = 20 // px per lane row
 const BAR_TOP = 26 // px reserved for the day number
 
 const { weekdayNames } = useDateFormat()
+const { occurrenceTitle } = useOccurrenceTitle()
 const dayNames = computed(() => {
   const names = weekdayNames('short') // Sunday-first
   return props.weekStartsOn === 1 ? [...names.slice(1), names[0]!] : names
@@ -149,7 +150,7 @@ const weeks = computed(() => {
         }"
         @click.stop="emit('select', bar.occ)"
       >
-        {{ bar.occ.title }}
+        {{ occurrenceTitle(bar.occ) }}
       </button>
 
       <!-- day cells -->

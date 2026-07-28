@@ -1,12 +1,14 @@
 <!-- Statement import: parse → review duplicates → commit. Nothing is ever
      dropped automatically; the family decides on every flagged row. -->
 <script setup lang="ts">
+import type { ImportWarning } from '~~/server/services/finance/parseFile'
+
 const props = defineProps<{ accounts: { id: string, name: string, currency?: string }[] }>()
 const emit = defineEmits<{ imported: [] }>()
 
 const { money } = useMoney()
 const { formatDayMonth } = useDateFormat()
-const { t } = useI18n()
+const { t, te } = useI18n()
 const toast = useToast()
 
 interface Candidate {
@@ -26,8 +28,20 @@ const accountId = ref('')
 const filename = ref('')
 const content = ref('')
 const dateFormat = ref<'auto' | 'MDY' | 'DMY' | 'YMD'>('auto')
-const preview = ref<{ rows: Candidate[], warnings: string[], duplicateCount: number } | null>(null)
+const preview = ref<{ rows: Candidate[], warnings: ImportWarning[], duplicateCount: number } | null>(null)
 const skipRows = ref(new Set<number>())
+
+/**
+ * The parser reports a code plus its parameters, never a finished sentence —
+ * the sentence is written here so it comes out in the board's language. A code
+ * this build has no message for falls back to a generic line rather than
+ * printing the key path at someone mid-import.
+ */
+function warningText(warning: ImportWarning): string {
+  const path = `finance.import.warnings.${warning.code}`
+  if (!te(path)) return t('finance.import.warnings.unknown')
+  return t(path, { row: warning.row ?? '', amount: warning.amount ?? '' })
+}
 
 // The preview must show the TARGET account's currency, not a hardcoded USD —
 // the whole point of a review step is deciding whether a number looks right.
@@ -163,8 +177,12 @@ async function commit() {
               {{ $t('finance.import.duplicatesFound', preview.duplicateCount) }}
               {{ $t('finance.import.noAutoDrop') }}
             </p>
-            <p v-for="warning in preview.warnings.slice(0, 5)" :key="warning" class="text-xs text-slate-500 dark:text-slate-400">
-              {{ warning }}
+            <p
+              v-for="(warning, i) in preview.warnings.slice(0, 5)"
+              :key="`${warning.code}:${warning.row ?? i}`"
+              class="text-xs text-slate-500 dark:text-slate-400"
+            >
+              {{ warningText(warning) }}
             </p>
           </div>
 

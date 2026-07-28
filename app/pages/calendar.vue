@@ -9,6 +9,7 @@ const router = useRouter()
 const toast = useToast()
 const { t } = useI18n()
 const { formatDateTime, formatDayMonth, formatTime } = useDateFormat()
+const { occurrenceTitle } = useOccurrenceTitle()
 const { state } = useBoardState()
 
 const timezone = computed(() => state.value?.timezone ?? 'UTC')
@@ -129,12 +130,8 @@ function gotoDay(date: string) {
   router.replace({ query: { ...route.query, view: 'day', date } })
 }
 
-const detailTitle = computed(() => {
-  const occ = detailOcc.value
-  if (!occ) return ''
-  if (occ.kind === 'meal') return t('calendar.detail.cookingTitle', { title: occ.title.replace(/^Cook: /, '') })
-  return occ.title
-})
+const detailTitle = computed(() =>
+  detailOcc.value ? occurrenceTitle(detailOcc.value) : '')
 
 const detailTimeLabel = computed(() => {
   const occ = detailOcc.value

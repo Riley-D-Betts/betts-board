@@ -197,14 +197,23 @@
     "undone": "Undone — removed {n} transaction. | Undone — removed {n} transactions.",
     "wasUndone": "Undone",
     "noAutoDrop": "Nothing is dropped automatically — you decide on every duplicate.",
-    "couldNotRead": "Could not read that file."
+    "couldNotRead": "Could not read that file.",
+    "warnings": {
+      "noDateOrAmount": "Skipped a transaction with no date or amount.",
+      "unreadableAmount": "Skipped a transaction with an unreadable amount ({amount}).",
+      "badDate": "Row {row}: could not read the date.",
+      "badAmount": "Row {row}: could not read the amount.",
+      "unknown": "A row in that file could not be read and was skipped."
+    }
   },
   "budgets": {
     "title": "Budgets",
     "month": "Month",
     "setAmount": "Budget",
+    "setAmountFor": "Budget for {category}",
     "spent": "Spent",
     "remaining": "Left",
+    "remainingAmount": "{amount} left",
     "over": "Over by {amount}",
     "noBudget": "No budget set",
     "totalBudgeted": "Budgeted",

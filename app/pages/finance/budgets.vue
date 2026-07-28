@@ -160,7 +160,7 @@ function barColor(line: BudgetLine) {
                 class="w-28 shrink-0"
                 :placeholder="$t('finance.budgets.noBudget')"
                 :loading="savingId === line.categoryId"
-                :aria-label="`${line.categoryName} ${$t('finance.budgets.setAmount')}`"
+                :aria-label="$t('finance.budgets.setAmountFor', { category: line.categoryName })"
                 @blur="save(line)"
                 @keyup.enter="save(line)"
               />
@@ -181,7 +181,7 @@ function barColor(line: BudgetLine) {
                   {{ $t('finance.budgets.over', { amount: money(-line.remainingMinor, data.currency) }) }}
                 </template>
                 <template v-else>
-                  {{ money(line.remainingMinor, data.currency) }} {{ $t('finance.budgets.remaining').toLowerCase() }}
+                  {{ $t('finance.budgets.remainingAmount', { amount: money(line.remainingMinor, data.currency) }) }}
                 </template>
               </span>
             </div>

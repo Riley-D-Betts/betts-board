@@ -4,7 +4,8 @@ import type { Db } from '../../db/client'
 import { financeImportBatches, financeTransactions } from '../../db/schema'
 import { getAccount } from './accounts'
 import {
-  detectFormat, parseCsvStatement, parseOfx, type CsvColumnMap, type DateOrder, type ParsedRow,
+  detectFormat, parseCsvStatement, parseOfx,
+  type CsvColumnMap, type DateOrder, type ImportWarning, type ParsedRow,
 } from './parseFile'
 import { applyRules, listRules } from './rules'
 import { dedupeHashFor } from './transactions'
@@ -19,7 +20,7 @@ export interface ImportCandidate extends ParsedRow {
 export interface ImportPreview {
   format: 'ofx' | 'qfx' | 'csv'
   rows: ImportCandidate[]
-  warnings: string[]
+  warnings: ImportWarning[]
   duplicateCount: number
   columnMap?: Partial<CsvColumnMap>
 }

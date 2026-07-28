@@ -197,14 +197,23 @@
     "undone": "Deshecha: se ha quitado {n} movimiento. | Deshecha: se han quitado {n} movimientos.",
     "wasUndone": "Deshecha",
     "noAutoDrop": "No se descarta nada automáticamente: tú decides con cada duplicado.",
-    "couldNotRead": "No se ha podido leer ese archivo."
+    "couldNotRead": "No se ha podido leer ese archivo.",
+    "warnings": {
+      "noDateOrAmount": "Se ha omitido un movimiento sin fecha o sin importe.",
+      "unreadableAmount": "Se ha omitido un movimiento con un importe ilegible ({amount}).",
+      "badDate": "Fila {row}: no se ha podido leer la fecha.",
+      "badAmount": "Fila {row}: no se ha podido leer el importe.",
+      "unknown": "No se ha podido leer una fila de ese archivo y se ha omitido."
+    }
   },
   "budgets": {
     "title": "Presupuestos",
     "month": "Mes",
     "setAmount": "Presupuesto",
+    "setAmountFor": "Presupuesto de {category}",
     "spent": "Gastado",
     "remaining": "Queda",
+    "remainingAmount": "Queda {amount}",
     "over": "{amount} de más",
     "noBudget": "Sin presupuesto",
     "totalBudgeted": "Presupuestado",

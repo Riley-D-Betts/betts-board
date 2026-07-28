@@ -72,6 +72,11 @@ export interface CalendarOccurrence {
   occurrenceId: string // `${eventId}:${originalStartMs}` — stable edit key
   eventId: string
   kind: 'event' | 'feed' | 'chore' | 'meal'
+  /**
+   * The subject only, never a label: a `meal` occurrence carries the DISH, and
+   * the screen composes "Cooking — {title}" from `kind` in the board's
+   * language. Render it through `useOccurrenceTitle()` rather than raw.
+   */
   title: string
   description?: string | null
   location?: string | null

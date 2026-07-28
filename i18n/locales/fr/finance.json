@@ -197,14 +197,23 @@
     "undone": "Annulé — {n} transaction retirée. | Annulé — {n} transactions retirées.",
     "wasUndone": "Annulé",
     "noAutoDrop": "Rien n'est écarté automatiquement — vous décidez pour chaque doublon.",
-    "couldNotRead": "Impossible de lire ce fichier."
+    "couldNotRead": "Impossible de lire ce fichier.",
+    "warnings": {
+      "noDateOrAmount": "Une opération sans date ni montant a été ignorée.",
+      "unreadableAmount": "Une opération dont le montant est illisible ({amount}) a été ignorée.",
+      "badDate": "Ligne {row} : impossible de lire la date.",
+      "badAmount": "Ligne {row} : impossible de lire le montant.",
+      "unknown": "Une ligne de ce fichier n'a pas pu être lue et a été ignorée."
+    }
   },
   "budgets": {
     "title": "Budgets",
     "month": "Mois",
     "setAmount": "Budget",
+    "setAmountFor": "Budget pour {category}",
     "spent": "Dépensé",
     "remaining": "Reste",
+    "remainingAmount": "Il reste {amount}",
     "over": "Dépassé de {amount}",
     "noBudget": "Aucun budget défini",
     "totalBudgeted": "Budgété",

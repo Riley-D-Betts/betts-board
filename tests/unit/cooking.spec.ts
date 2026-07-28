@@ -65,7 +65,9 @@ describe('getCookingOccurrences', () => {
     expect(occ.occurrenceId).toBe(`meal:${entry.id}`)
     expect(occ.eventId).toBe(entry.id)
     expect(occ.kind).toBe('meal')
-    expect(occ.title).toBe('Cook: Lasagna')
+    // The dish only — the "Cooking — …" label is composed client-side, in the
+    // board's language.
+    expect(occ.title).toBe('Lasagna')
     expect(occ.isAllDay).toBe(false)
     expect(occ.attendees).toEqual([{ profileId: mom, color: '#ec4899', name: 'Mom' }])
     expect(occ.color).toBe('#ec4899')
@@ -93,10 +95,10 @@ describe('getCookingOccurrences', () => {
 
     const out = occurrences(...FEB_WEEK)
     expect(out.map(o => `${o.title}@${fmt(o.start)}`).sort()).toEqual([
-      'Cook: Lasagna@2026-02-03 17:00', // 45 + 15 = 60 min before 18:00
-      'Cook: Leftovers@2026-02-04 17:00',
+      'Lasagna@2026-02-03 17:00', // 45 + 15 = 60 min before 18:00
+      'Leftovers@2026-02-04 17:00',
     ])
-    expect(out.find(o => o.title === 'Cook: Leftovers')!.recipeId).toBeNull()
+    expect(out.find(o => o.title === 'Leftovers')!.recipeId).toBeNull()
   })
 
   it('honors custom household mealTimes with defaults per slot', () => {
@@ -106,10 +108,10 @@ describe('getCookingOccurrences', () => {
 
     const out = occurrences(...FEB_WEEK, { dinner: '19:30' })
     const byTitle = new Map(out.map(o => [o.title, o]))
-    expect(fmt(byTitle.get('Cook: Lasagna')!.end)).toBe('2026-02-03 19:30')
-    expect(fmt(byTitle.get('Cook: Lasagna')!.start)).toBe('2026-02-03 18:45')
+    expect(fmt(byTitle.get('Lasagna')!.end)).toBe('2026-02-03 19:30')
+    expect(fmt(byTitle.get('Lasagna')!.start)).toBe('2026-02-03 18:45')
     // Lunch wasn't overridden → DEFAULT_MEAL_TIMES 12:00.
-    expect(fmt(byTitle.get('Cook: Soup')!.end)).toBe('2026-02-04 12:00')
+    expect(fmt(byTitle.get('Soup')!.end)).toBe('2026-02-04 12:00')
   })
 
   it('ignores entries without a cook', () => {

@@ -2,7 +2,7 @@
 import { DEFAULT_MEAL_TIMES } from '#shared/schemas/meals'
 
 const toast = useToast()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const { state, refresh } = useBoardState()
 
 const { data: household } = await useFetch('/api/household')
@@ -34,7 +34,12 @@ const mealTimeFields = computed(() => [
   { key: 'snack', label: t('settings.household.meals.snack') },
 ] as const)
 
-// Open-Meteo geocoder for changing the weather location.
+// Open-Meteo geocoder for changing the weather location. Called straight from
+// the browser (no server route), so the household's language is right here.
+// The geocoder wants a bare two-letter code — `es`, not the `es-ES` BCP 47 tag
+// Intl gets — and the picked name is PERSISTED, so searching in the household's
+// language is what puts "Múnich, Baviera, Alemania" on the dashboard and the TV
+// board instead of "Munich, Bavaria, Germany".
 const locationQuery = ref('')
 const locationResults = ref<{ name: string, admin1?: string, country: string, latitude: number, longitude: number, timezone: string }[]>([])
 let searchTimer: ReturnType<typeof setTimeout> | undefined
@@ -50,7 +55,7 @@ watch(locationQuery, (q) => {
     try {
       const res = await $fetch<{ results?: typeof locationResults.value }>(
         'https://geocoding-api.open-meteo.com/v1/search',
-        { params: { name: q, count: 5 } },
+        { params: { name: q, count: 5, language: locale.value } },
       )
       locationResults.value = res.results ?? []
     }

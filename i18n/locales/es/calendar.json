@@ -1,5 +1,6 @@
 {
   "allDay": "Todo el día",
+  "cookingTitle": "Cocinar — {title}",
   "views": {
     "month": "Mes",
     "week": "Semana",
@@ -20,7 +21,6 @@
     "couldNotLoadEvent": "No se pudo cargar el evento"
   },
   "detail": {
-    "cookingTitle": "Cocinar — {title}",
     "allDayOn": "{date} · Todo el día",
     "allDayRange": "{start} – {end} · Todo el día",
     "cookingHint": "Bloque de cocina del planificador de comidas: cambia allí el plato o quién cocina.",

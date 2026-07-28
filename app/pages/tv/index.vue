@@ -6,6 +6,7 @@ import type { WeatherReport } from '~~/server/services/weather/forecast'
 
 const { formatTime, formatWeekdayShort } = useDateFormat()
 const { weatherLabel } = useWeatherLabel()
+const { occurrenceTitle } = useOccurrenceTitle()
 const { t } = useI18n()
 
 definePageMeta({ layout: 'tv' })
@@ -106,7 +107,7 @@ function weekdayLabel(date: string) {
         <ul v-if="agenda.length" class="mt-3 space-y-2">
           <li v-for="occ in agenda.slice(0, 5)" :key="occ.occurrenceId" class="flex items-center gap-3">
             <span class="h-6 w-1.5 shrink-0 rounded-full" :style="{ backgroundColor: occ.color }" />
-            <span class="min-w-0 flex-1 truncate font-medium">{{ occ.title }}</span>
+            <span class="min-w-0 flex-1 truncate font-medium">{{ occurrenceTitle(occ) }}</span>
             <span class="tv-muted shrink-0 text-sm">{{ timeLabel(occ) }}</span>
           </li>
           <li v-if="agenda.length > 5" class="tv-muted text-sm">

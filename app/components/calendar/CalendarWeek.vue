@@ -17,6 +17,7 @@ const emit = defineEmits<{
 }>()
 
 const { formatHour, formatTime, formatWeekdayLong, formatWeekdayShort } = useDateFormat()
+const { occurrenceTitle } = useOccurrenceTitle()
 
 const HOUR_START = 6
 const HOUR_END = 22
@@ -188,7 +189,7 @@ const nowLine = computed(() => {
           :style="{ backgroundColor: occ.color }"
           @click="emit('select', occ)"
         >
-          {{ occ.title }}
+          {{ occurrenceTitle(occ) }}
         </button>
       </div>
     </div>
@@ -236,7 +237,7 @@ const nowLine = computed(() => {
           }"
           @click="emit('select', block.occ)"
         >
-          <span class="block truncate font-semibold">{{ block.occ.title }}</span>
+          <span class="block truncate font-semibold">{{ occurrenceTitle(block.occ) }}</span>
           <span class="block truncate text-slate-500 dark:text-slate-400">{{ block.startLabel }}</span>
         </button>
 

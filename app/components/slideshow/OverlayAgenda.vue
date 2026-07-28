@@ -4,6 +4,7 @@ import { DateTime } from 'luxon'
 import type { CalendarOccurrence } from '#shared/schemas/events'
 
 const { formatTime, formatWeekdayShort } = useDateFormat()
+const { occurrenceTitle } = useOccurrenceTitle()
 const { t } = useI18n()
 
 const { state } = useBoardState()
@@ -54,7 +55,7 @@ function dayLabel(occ: CalendarOccurrence) {
       <p class="text-xs font-semibold uppercase tracking-widest opacity-75">{{ $t('common.actions.today') }}</p>
       <ul class="mt-1 space-y-1">
         <li v-for="occ in today" :key="occ.occurrenceId" class="text-sm leading-snug">
-          <span class="font-medium">{{ occ.title }}</span>
+          <span class="font-medium">{{ occurrenceTitle(occ) }}</span>
           <span class="opacity-80"> · {{ timeLabel(occ) }}</span>
         </li>
       </ul>
@@ -63,7 +64,7 @@ function dayLabel(occ: CalendarOccurrence) {
       <p class="text-xs font-semibold uppercase tracking-widest opacity-75">{{ $t('photos.overlay.comingUp') }}</p>
       <ul class="mt-1 space-y-1">
         <li v-for="occ in upcoming" :key="occ.occurrenceId" class="text-sm leading-snug">
-          <span class="font-medium">{{ occ.title }}</span>
+          <span class="font-medium">{{ occurrenceTitle(occ) }}</span>
           <span class="opacity-80"> · {{ dayLabel(occ) }} {{ timeLabel(occ) }}</span>
         </li>
       </ul>

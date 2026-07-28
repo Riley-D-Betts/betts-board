@@ -4,6 +4,7 @@ import { DateTime } from 'luxon'
 import type { CalendarOccurrence } from '#shared/schemas/events'
 
 const { formatTime } = useDateFormat()
+const { occurrenceTitle } = useOccurrenceTitle()
 const { t } = useI18n()
 
 const { state } = useBoardState()
@@ -44,7 +45,7 @@ function timeLabel(occ: CalendarOccurrence) {
       >
         <span class="w-1.5 self-stretch shrink-0 rounded-full" :style="{ backgroundColor: occ.color }" />
         <div class="min-w-0 flex-1">
-          <p class="truncate text-sm font-medium">{{ occ.title }}</p>
+          <p class="truncate text-sm font-medium">{{ occurrenceTitle(occ) }}</p>
           <p class="text-xs text-slate-500 dark:text-slate-400">
             {{ timeLabel(occ) }}<span v-if="occ.location"> · {{ occ.location }}</span>
           </p>

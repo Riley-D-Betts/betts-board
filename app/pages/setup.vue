@@ -3,7 +3,7 @@ definePageMeta({ layout: 'bare' })
 
 const { refresh } = useBoardState()
 const toast = useToast()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const step = ref(1)
 const busy = ref(false)
@@ -23,7 +23,9 @@ const form = reactive({
 
 const PROFILE_COLORS = ['#3b82f6', '#ec4899', '#22c55e', '#f97316', '#a855f7', '#14b8a6', '#eab308', '#ef4444']
 
-// Location search via Open-Meteo's free geocoder (no API key).
+// Location search via Open-Meteo's free geocoder (no API key). `language`
+// takes the bare locale code, and the name the wizard picks is persisted, so
+// it must be searched in the household's language — same as SettingsHousehold.
 const locationQuery = ref('')
 const locationResults = ref<{ name: string, admin1?: string, country: string, latitude: number, longitude: number, timezone: string }[]>([])
 let searchTimer: ReturnType<typeof setTimeout> | undefined
@@ -38,7 +40,7 @@ watch(locationQuery, (q) => {
     try {
       const res = await $fetch<{ results?: typeof locationResults.value }>(
         'https://geocoding-api.open-meteo.com/v1/search',
-        { params: { name: q, count: 5 } },
+        { params: { name: q, count: 5, language: locale.value } },
       )
       locationResults.value = res.results ?? []
     }

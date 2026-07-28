@@ -1,5 +1,6 @@
 {
   "allDay": "Toute la journée",
+  "cookingTitle": "Cuisine — {title}",
   "views": {
     "month": "Mois",
     "week": "Semaine",
@@ -20,7 +21,6 @@
     "couldNotLoadEvent": "Impossible de charger l'événement"
   },
   "detail": {
-    "cookingTitle": "Cuisine — {title}",
     "allDayOn": "{date} · Toute la journée",
     "allDayRange": "{start} – {end} · Toute la journée",
     "cookingHint": "Créneau cuisine du planning des repas — c'est là qu'on change de plat ou de cuisinier.",
