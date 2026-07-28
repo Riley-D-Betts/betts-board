@@ -48,8 +48,13 @@ your own server.
   Google Font by name — it's downloaded once and served from your own server
   afterwards, so no page view is ever reported to Google and it still works
   offline
-- 💰 **Money** — accounts, transactions, budgets, bills, savings goals, and a
-  cash-flow forecast, behind its own PIN. Connect a bank through
+- 🌐 **Languages** — the whole board speaks English, Spanish, or French, chosen
+  once for the household in Settings. Dates, times, and money amounts follow the
+  language too, and every translation is bundled and served from your own server,
+  so nothing is fetched from a translation service and it all works offline
+- 💰 **Money** — accounts, transactions (split a single receipt across
+  categories), budgets, bills, savings goals, and a cash-flow forecast, behind
+  its own PIN. Connect a bank through
   [SimpleFIN](https://beta-bridge.simplefin.org/) or import OFX/QFX/CSV
   statements. Deliberately never shown on the dashboard, the wall display, or
   the shared calendar — see [Money and privacy](#money-and-privacy)
@@ -158,8 +163,8 @@ the container does not reset it.
 | `PORT` | `3000` | HTTP port inside the container |
 
 Everything else — weather location, temperature unit, week start, meal times,
-default cook, appearance, slideshow behavior, feeds, notifications, API keys —
-is configured in the app under **Settings**.
+default cook, appearance, language, slideshow behavior, feeds, notifications,
+API keys — is configured in the app under **Settings**.
 
 ## Money and privacy
 
@@ -262,8 +267,8 @@ undone in one click.
 Nuxt 4 full-stack (one Nitro server, no separate backend) · SQLite via Drizzle
 ORM with migrations applied automatically on boot · Nuxt UI v4 + Tailwind ·
 `rrule` for RFC 5545 recurrence · sharp for image processing · Web Push with
-auto-provisioned VAPID keys · vue-i18n (English today; the scaffolding is in
-place for more) · installable PWA.
+auto-provisioned VAPID keys · vue-i18n with English, Spanish, and French, all
+bundled and served locally · installable PWA.
 
 Everything is served from your own server. The app makes no outbound requests
 at page load — fonts, icons, and translations are all local — and the only
