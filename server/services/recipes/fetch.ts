@@ -7,12 +7,23 @@ import { eq } from 'drizzle-orm'
 import type { Db } from '../../db/client'
 import { recipes } from '../../db/schema'
 import { uploadsDir } from '../../utils/dataDir'
+import { safeFetch, safeFetchText } from '../../utils/safeFetch'
 import { extractRecipeFromHtml } from './jsonld'
 import { extractRecipeFromMicrodata } from './microdata'
 import { createRecipe } from './recipes'
 import type { RecipeDetail } from './recipes'
 
-const FETCH_TIMEOUT_MS = 10_000
+/**
+ * Recipe sites are slow, ad-laden and redirect a lot, so the budget is
+ * generous — but it is a TOTAL budget that includes reading the body, and it
+ * is spent through safeFetch(), which refuses LAN/loopback/metadata addresses
+ * on every redirect hop. The URL here is typed by a household member and the
+ * image URL is chosen by the remote page, so neither is trusted.
+ */
+const PAGE_LIMITS = { timeoutMs: 20_000, maxBytes: 5_000_000, maxRedirects: 5 }
+// Hero photos are the one legitimately large thing we pull; 10 MB covers an
+// unoptimised full-resolution JPEG and still bounds what sharp has to hold.
+const IMAGE_LIMITS = { timeoutMs: 20_000, maxBytes: 10_000_000, maxRedirects: 5 }
 
 // Many recipe sites block obvious bots; present as a normal browser.
 const BROWSER_HEADERS = {
@@ -21,27 +32,12 @@ const BROWSER_HEADERS = {
   'Accept-Language': 'en-US,en;q=0.9',
 }
 
-async function fetchWithTimeout(url: string) {
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
-  try {
-    return await fetch(url, {
-      headers: BROWSER_HEADERS,
-      redirect: 'follow',
-      signal: controller.signal,
-    })
-  }
-  finally {
-    clearTimeout(timer)
-  }
-}
-
 /** Download + re-encode the hero image; returns "recipes/<uuid>.jpg" or null on any failure. */
 async function downloadHeroImage(imageUrl: string): Promise<string | null> {
   try {
-    const res = await fetchWithTimeout(imageUrl)
+    const res = await safeFetch(imageUrl, { headers: BROWSER_HEADERS, ...IMAGE_LIMITS })
     if (!res.ok) return null
-    const buffer = Buffer.from(await res.arrayBuffer())
+    const buffer = Buffer.from(res.bytes)
     const jpeg = await sharp(buffer)
       .rotate() // honor EXIF orientation
       .resize({ width: 1200, withoutEnlargement: true })
@@ -67,11 +63,13 @@ export async function importRecipeFromUrl(
 ): Promise<RecipeDetail> {
   let html: string
   try {
-    const res = await fetchWithTimeout(opts.url)
+    const res = await safeFetchText(opts.url, { headers: BROWSER_HEADERS, ...PAGE_LIMITS })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    html = await res.text()
+    html = res.text
   }
   catch {
+    // Deliberately one message for every failure — "blocked" must not be
+    // distinguishable from "unreachable", or this becomes a LAN scanner.
     throw createError({
       statusCode: 422,
       statusMessage: 'We couldn\'t reach that page. Check the link, or enter the recipe manually.',

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { dateStringDiffDays } from '../utils/dates'
 import { zDateString, zEmoji, zId, zRRule, zTimeString } from './common'
 
 export const choreCreateSchema = z.object({
@@ -24,10 +25,23 @@ export const choreCompleteSchema = z.object({
   profileId: zId,
 })
 
+/**
+ * The widest board `/api/chores/board` will build, in days.
+ *
+ * Same rule, same reason, as MAX_CALENDAR_WINDOW_DAYS in ./events: the board
+ * expands every active chore across the window and then multiplies by every
+ * assignee, so `?start=0001-01-01&end=9999-12-31` turned twenty daily chores
+ * and four kids into 400,000 instances — a ~112 MB response — inside the one
+ * container the whole household shares. The screens ask for a day (the tile
+ * and the TV) or a week (the chores page), so a year is generous.
+ */
+export const MAX_CHORE_BOARD_WINDOW_DAYS = 366
+
 export const choreBoardQuerySchema = z.object({
   start: zDateString,
   end: zDateString, // exclusive
-})
+}).refine(q => dateStringDiffDays(q.end, q.start) <= MAX_CHORE_BOARD_WINDOW_DAYS,
+  `window must be at most ${MAX_CHORE_BOARD_WINDOW_DAYS} days`)
 
 export const leaderboardQuerySchema = z.object({
   period: z.enum(['week', 'month', 'all']).default('week'),

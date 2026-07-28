@@ -26,8 +26,13 @@ interface StubCall {
 
 let stub: Server
 let calls: StubCall[]
-/** Per-test behavior: JSON response, or 'destroy' to simulate a network failure. */
-let respond: () => { status: number, json: unknown } | 'destroy'
+/**
+ * Per-test behavior: JSON response, 'destroy' to simulate a network failure,
+ * or 'endless' — headers immediately, body forever. 'endless' is the shape a
+ * timer cleared when fetch() resolves does nothing about, because res.json()
+ * then runs with no abort armed at all.
+ */
+let respond: () => { status: number, json: unknown } | 'destroy' | 'endless'
 
 beforeAll(async () => {
   stub = createServer((req, res) => {
@@ -45,6 +50,16 @@ beforeAll(async () => {
         res.destroy()
         return
       }
+      if (reply === 'endless') {
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        const pump = () => {
+          if (res.writableEnded || res.destroyed) return
+          if (res.write('x'.repeat(64 * 1024))) setTimeout(pump, 1)
+          else res.once('drain', pump)
+        }
+        pump()
+        return
+      }
       res.writeHead(reply.status, { 'Content-Type': 'application/json' })
       res.end(JSON.stringify(reply.json))
     })
@@ -55,8 +70,12 @@ beforeAll(async () => {
   ;({ createIssue, testConnection } = await import('../../server/services/feedback/github'))
 })
 
-afterAll(() => new Promise<void>((resolve, reject) =>
-  stub.close(err => (err ? reject(err) : resolve()))))
+afterAll(() => {
+  // The 'endless' case leaves a socket mid-response on purpose.
+  stub.closeAllConnections()
+  return new Promise<void>((resolve, reject) =>
+    stub.close(err => (err ? reject(err) : resolve())))
+})
 
 // ── Fixture household ───────────────────────────────────────────────────
 
@@ -179,6 +198,22 @@ describe('createIssue', () => {
   // The 10 s AbortController timeout path is intentionally untested — it would
   // add 10 real seconds to the suite for the same catch branch the dropped-
   // connection test already covers.
+
+  // A response whose headers arrive and whose body never ends is the case the
+  // old timer missed entirely: it was cleared when fetch() resolved, so the
+  // res.json() that followed had nothing armed and streamed into memory until
+  // the container fell over. Revert to a live Response + res.json() and this
+  // test buffers until vitest kills it.
+  it('stops an endless response body instead of buffering it', async () => {
+    respond = () => 'endless'
+    const started = Date.now()
+
+    await expect(createIssue(db, {
+      kind: 'bug', title: 'Broken', body: 'x', reporterName: 'Mom',
+    })).rejects.toMatchObject({ statusCode: 502 })
+
+    expect(Date.now() - started).toBeLessThan(9000) // inside the 10 s budget
+  }, 15_000)
 })
 
 // ── testConnection ──────────────────────────────────────────────────────

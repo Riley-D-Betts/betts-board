@@ -3,7 +3,18 @@ import { DateTime } from 'luxon'
 import type { CalendarOccurrence } from '#shared/schemas/events'
 import type { Db } from '../../db/client'
 import { calendarFeeds, eventAttendees, eventExceptions, events, profiles } from '../../db/schema'
-import { expandDateRule, expandTimedRule } from './recurrence'
+import { MAX_OCCURRENCES_PER_SERIES, expandDateRule, expandTimedRule } from './recurrence'
+
+/**
+ * Ceiling on the occurrences ONE expansion may produce, across every series.
+ *
+ * The per-series cap bounds one runaway rule; this bounds the sum of them, so
+ * the cost of a request stays a function of the window and not of how many
+ * events a subscribed ICS feed decided to import. Real use is nowhere near it:
+ * the widest window the API accepts is a year, and the widest the UI asks for
+ * is the 42-day month grid.
+ */
+export const MAX_OCCURRENCES_PER_EXPANSION = 20_000
 
 /**
  * All-day occurrences are keyed in event_exceptions.occurrenceStart by the
@@ -105,8 +116,11 @@ export function expandEvents(db: Db, args: ExpandEventsArgs): CalendarOccurrence
   )
 
   const out: CalendarOccurrence[] = []
+  /** Occurrences this expansion may still produce; see the constant. */
+  let budget = MAX_OCCURRENCES_PER_EXPANSION
 
   for (const event of candidates) {
+    if (budget <= 0) break
     const exceptions = exceptionsByEvent.get(event.id) ?? new Map<number, ExceptionRow>()
     const attendees = attendeesByEvent.get(event.id) ?? []
     const feed = event.feedId ? feedById.get(event.feedId) : undefined
@@ -180,6 +194,7 @@ export function expandEvents(db: Db, args: ExpandEventsArgs): CalendarOccurrence
         startDate: event.startDate!,
         windowStart: windowStartDate,
         windowEnd: windowEndDateExcl,
+        limit: Math.min(budget, MAX_OCCURRENCES_PER_SERIES),
       }).map(encodeDateKey)
     }
     else {
@@ -189,8 +204,10 @@ export function expandEvents(db: Db, args: ExpandEventsArgs): CalendarOccurrence
         timezone: event.timezone,
         windowStartMs,
         windowEndMs,
+        limit: Math.min(budget, MAX_OCCURRENCES_PER_SERIES),
       })
     }
+    budget -= originalKeys.length
 
     const emitted = new Set<number>()
     for (const key of originalKeys) {

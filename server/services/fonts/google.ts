@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { createError } from 'h3'
+import { SafeFetchError, safeFetch } from '../../utils/safeFetch'
 
 /**
  * Downloads a Google Font once and serves it from this server forever after.
@@ -23,6 +24,8 @@ import { createError } from 'h3'
  *  - downloaded bytes must start with the woff2 magic number
  *  - we regenerate our own CSS from parsed values and never serve Google's
  *    CSS text, which forecloses @import and url(javascript:) injection
+ *  - every request goes out through safeFetch(), which caps the response
+ *    while it streams and holds one time budget across the body read
  */
 
 const CSS_HOST = 'https://fonts.googleapis.com'
@@ -90,34 +93,44 @@ function isWoff2(bytes: Uint8Array): boolean {
     && bytes[2] === 0x46 && bytes[3] === 0x32
 }
 
-async function fetchWithTimeout(url: string, init: RequestInit = {}): Promise<Response> {
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
-  try {
-    return await fetch(url, {
-      ...init,
-      redirect: 'error',
-      signal: controller.signal,
-      headers: { 'User-Agent': UA, ...(init.headers ?? {}) },
-    })
-  }
-  finally {
-    clearTimeout(timer)
-  }
+/**
+ * Everything goes through safeFetch: not because the host is attacker-chosen
+ * (it isn't — see the posture note above) but for the other half of the job.
+ * The old timer here was cleared the moment the headers arrived, so the size
+ * checks below ran on bytes we had ALREADY buffered — a server that dribbles
+ * out an endless response filled this container's memory whatever the caps
+ * said. safeFetch counts as it streams and aborts mid-body, and its budget
+ * covers the read.
+ *
+ * `maxRedirects: 0` keeps the previous `redirect: 'error'` posture: Google
+ * serves these directly, so a hop means something is in the middle.
+ */
+async function fetchFont(url: string, maxBytes: number) {
+  return safeFetch(url, {
+    timeoutMs: TIMEOUT_MS,
+    maxBytes,
+    maxRedirects: 0,
+    headers: { 'User-Agent': UA },
+  })
 }
 
-/** Base URL override so tests can point at a local stub. */
+/** Base URL override so tests, and self-hosters with a local mirror, can point
+ *  elsewhere. A mirror on the LAN also needs its host in
+ *  BETTS_ALLOW_PRIVATE_FETCH_HOSTS — safeFetch has no exception for us. */
 function cssHost() {
   return process.env.BETTS_GOOGLE_FONTS_URL || CSS_HOST
 }
 
 export async function fetchFamilyCss(family: string): Promise<string> {
   const url = `${cssHost()}/css2?family=${encodeURIComponent(family)}:wght@${WEIGHTS}&display=swap`
-  let response: Response
+  let response: Awaited<ReturnType<typeof fetchFont>>
   try {
-    response = await fetchWithTimeout(url)
+    response = await fetchFont(url, MAX_CSS_BYTES)
   }
-  catch {
+  catch (err) {
+    if (err instanceof SafeFetchError && err.reason === 'too-large') {
+      throw createError({ statusCode: 422, statusMessage: 'That font is unexpectedly large' })
+    }
     throw createError({
       statusCode: 502,
       statusMessage: 'Could not reach Google Fonts — this board needs internet access once to download a font.',
@@ -129,11 +142,7 @@ export async function fetchFamilyCss(family: string): Promise<string> {
   if (!response.ok) {
     throw createError({ statusCode: 502, statusMessage: 'Google Fonts returned an error' })
   }
-  const css = await response.text()
-  if (css.length > MAX_CSS_BYTES) {
-    throw createError({ statusCode: 422, statusMessage: 'That font is unexpectedly large' })
-  }
-  return css
+  return new TextDecoder().decode(response.bytes)
 }
 
 /** Our own stylesheet, built from parsed values — never Google's text. */
@@ -185,20 +194,22 @@ export async function downloadGoogleFont(family: string, targetDir: string): Pro
 
   for (const [index, face] of selected.entries()) {
     assertFontUrl(face.url)
-    const response = await fetchWithTimeout(face.url).catch(() => {
+    // The remaining budget is the cap for this file, so the total can never be
+    // exceeded by buffering one more file first — the stream stops at the line.
+    const response = await fetchFont(face.url, MAX_TOTAL_BYTES - total).catch((err) => {
+      if (err instanceof SafeFetchError && err.reason === 'too-large') {
+        throw createError({ statusCode: 422, statusMessage: 'That font is unexpectedly large' })
+      }
       throw createError({ statusCode: 502, statusMessage: 'Could not download the font files' })
     })
     if (!response.ok) {
       throw createError({ statusCode: 502, statusMessage: 'Could not download the font files' })
     }
-    const bytes = new Uint8Array(await response.arrayBuffer())
+    const bytes = response.bytes
     if (!isWoff2(bytes)) {
       throw createError({ statusCode: 422, statusMessage: 'Downloaded file was not a woff2 font' })
     }
     total += bytes.byteLength
-    if (total > MAX_TOTAL_BYTES) {
-      throw createError({ statusCode: 422, statusMessage: 'That font is unexpectedly large' })
-    }
     // Filenames are ours, never derived from the remote URL.
     const file = `${index}.woff2`
     writeFileSync(join(dir, file), bytes)

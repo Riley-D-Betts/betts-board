@@ -102,10 +102,10 @@ plain HTTP on your LAN. Easy paths:
 Everything lives in one volume: the SQLite database plus the `uploads/` folder.
 
 ```bash
-# Backup
+# Backup — excludes the cookie-sealing secret on purpose (see below)
 docker compose stop betts-board
 docker run --rm -v betts-board_betts-data:/data -v "$PWD":/backup alpine \
-  tar czf /backup/betts-backup.tar.gz -C /data .
+  tar czf /backup/betts-backup.tar.gz -C /data --exclude=./.session-secret .
 docker compose start betts-board
 
 # Restore into a fresh install
@@ -114,8 +114,33 @@ docker run --rm -v betts-board_betts-data:/data -v "$PWD":/backup alpine \
 docker compose up -d
 ```
 
+**Why the `--exclude`.** The volume also holds `.session-secret`, the key that
+seals session cookies. It's generated on first boot and reused forever, so a
+backup containing it lets anyone holding that backup mint a cookie the *live*
+board accepts — no password needed, from anywhere the board is reachable.
+Backups get copied to laptops and cloud drives; the running board's login key
+shouldn't ride along. Leaving it out costs nothing: a restored install
+generates a fresh one automatically, and everyone simply unlocks once with the
+household password.
+
+**The backup is still sensitive.** It contains every photo, the whole calendar,
+and — if you use Money — `.finance-key`, which decrypts your stored bank
+credentials. That file has to stay in the backup (restore without it and you'll
+be asked to reconnect the bank), so store the tarball somewhere you'd be
+willing to store your family's records, and encrypt it if it leaves the house.
+
 Forgot the household password? Start one boot with `BETTS_RESET_PASSWORD=1`
-and the unlock screen lets you set a new one.
+and the unlock screen lets you set a new one. It clears the password once and
+then refuses to act again until you remove the variable, so leaving it in
+`docker-compose.yml` can't quietly reopen the board on every restart — but do
+remove it anyway; the log says so too.
+
+Repeated wrong passwords slow the unlock screen down: after ten consecutive
+failures — counted household-wide, from every device together, so that guessing
+from many addresses buys nothing — the board refuses unlock attempts for a
+minute, escalating to at most fifteen. It never locks permanently, and one
+correct password clears it. The counter lives in the data volume, so restarting
+the container does not reset it.
 
 ## Configuration
 
@@ -123,11 +148,13 @@ and the unlock screen lets you set a new one.
 | --- | --- | --- |
 | `TZ` | `UTC` | Container timezone — set it to your home timezone |
 | `BETTS_DATA_DIR` | `/data` | Where the database and uploads live |
-| `NUXT_SESSION_PASSWORD` | auto-generated | Cookie-sealing secret; created and persisted in the data volume automatically |
-| `BETTS_RESET_PASSWORD` | unset | Set to `1` for one boot to reset the household password |
-| `BETTS_RESET_FINANCE_PIN` | unset | Set to `1` for one boot to clear every Money PIN. Bank connections and history are untouched; whoever sets a PIN first afterwards becomes the Money owner |
+| `NUXT_SESSION_PASSWORD` | auto-generated | Cookie-sealing secret; created as `.session-secret` in the data volume on first boot and reused. Treat it like a password — see [Backup & restore](#backup--restore) |
+| `BETTS_RESET_PASSWORD` | unset | Set to `1` to reset the household password. Acts on the **next boot only**: the board records that it ran and ignores the variable afterwards, so a copy left in `docker-compose.yml` can't reset the password on every restart. Remove it (or give it a different value) to arm it again |
+| `BETTS_RESET_FINANCE_PIN` | unset | Set to `1` to clear every Money PIN. Bank connections and history are untouched; whoever sets a PIN first afterwards becomes the Money owner. Same one-shot arming as `BETTS_RESET_PASSWORD` |
 | `BETTS_SIMPLEFIN_HOSTS` | `bridge.simplefin.org` | Comma-separated hosts the server may fetch bank data from. Only change this if you run your own SimpleFIN bridge |
+| `BETTS_ALLOW_PRIVATE_FETCH_HOSTS` | unset | Comma-separated hosts on your own network that the board is allowed to fetch from — e.g. `nas.lan,192.168.1.10`. By default every outbound fetch the app makes on someone's behalf (recipe import, calendar feed, font download) refuses to connect to a private, loopback or link-local address, because otherwise anyone who can paste a link can make the board knock on your router, your NAS, your printer, or a cloud metadata endpoint and never see the reply. Subscribing to a calendar hosted on your **own** NAS is a legitimate reason to reopen exactly that one host. Matching is exact and per-host, so allowing the NAS does not allow the router. It is a variable rather than a setting in the app on purpose: this should cost a deliberate edit here, not a checkbox anyone with an admin session can tick |
 | `NUXT_SESSION_COOKIE_SECURE` | `false` | Session cookies work over plain HTTP by default (LAN deployments). Set to `true` when serving behind HTTPS so the cookie is only ever sent encrypted |
+| `BETTS_TRUSTED_PROXY` | unset | Set to `1` only when a reverse proxy **you control** is the only route to the container. It makes the unlock rate limit read the client address from the last `X-Forwarded-For` element instead of the socket. Leave it unset if the container is reachable directly — the header is client-writable, and trusting it would let an attacker pick their own rate-limit bucket |
 | `PORT` | `3000` | HTTP port inside the container |
 
 Everything else — weather location, temperature unit, week start, meal times,
@@ -156,8 +183,10 @@ Money therefore has a second, independent lock:
   the household password.
 - Unlocking lasts **15 minutes of activity**, with an 8-hour hard limit — not
   the 90 days the rest of the board uses.
-- Switching profiles drops it. Dad unlocking Money and walking away does not
-  leave it unlocked for the next person who taps their own face.
+- Switching profiles drops it — the unlock is ended on the server, not just
+  hidden, so switching *back* doesn't bring it back either. Dad unlocking Money
+  and walking away does not leave it unlocked for the next person at the
+  tablet, whichever face they tap.
 - Failed attempts are counted and shown to you next time you unlock, and
   repeated failures lock that profile out for 5 minutes, then an hour, then a
   day. The counter survives restarts.
@@ -167,8 +196,10 @@ Money therefore has a second, independent lock:
 - **Settings → Money** lists every device that currently has Money unlocked,
   with a button to lock any of them.
 
-Forgotten the PIN? Set `BETTS_RESET_FINANCE_PIN=1` for one boot. That needs
-access to the server itself, which is the point.
+Forgotten the PIN? Set `BETTS_RESET_FINANCE_PIN=1` and restart. That needs
+access to the server itself, which is the point. It clears the PINs once and
+then ignores the variable, so it can't keep handing Money to whoever sets a PIN
+first after each restart — remove it from your environment once you're back in.
 
 ### Where Money never appears
 
@@ -398,7 +429,7 @@ allowed for this key/role, `404` not found, `409` setup required.
 | GET | `/api/photos` | unlocked | query `cursor` (last id of previous page), `limit` (≤100) |
 | POST | `/api/photos` | profile | `multipart/form-data` — one or more image files, ≤25 MB each |
 | PATCH | `/api/photos/:id` | profile | `inSlideshow` (bool) |
-| DELETE | `/api/photos/:id` | profile | |
+| DELETE | `/api/photos/:id` | profile | deletes the photo and its files. Adults and admins may delete any photo; a kid may only delete one they uploaded themselves |
 | GET | `/api/slideshow` | unlocked | shuffled slideshow manifest + display settings |
 
 Image URLs in responses are session-gated `/uploads/…` paths — fetch them with

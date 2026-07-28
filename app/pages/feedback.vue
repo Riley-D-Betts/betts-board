@@ -41,6 +41,11 @@ function pick(value: 'bug' | 'feature') {
   sent.value = null
 }
 
+// The issue URL is whatever the configured GitHub host put in `html_url` — a
+// value from off this machine going into an href. Same guard as every other
+// stored/foreign URL: no scheme we did not verify reaches the browser.
+const issueLink = computed(() => safeExternalUrl(sent.value?.issueUrl))
+
 function sendAnother() {
   sent.value = null
   kind.value = null
@@ -134,8 +139,10 @@ async function submit() {
         </p>
         <div class="flex flex-wrap justify-center gap-2 pt-1">
           <UButton
-            :href="sent.issueUrl"
+            v-if="issueLink"
+            :href="issueLink"
             target="_blank"
+            rel="noopener noreferrer"
             icon="i-lucide-external-link"
             variant="soft"
           >

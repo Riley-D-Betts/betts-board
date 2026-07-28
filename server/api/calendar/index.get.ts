@@ -8,12 +8,11 @@ export default defineEventHandler(async (event) => {
   await requireUnlocked(event)
   // includeChores is accepted for forward-compat but ignored here — the chores
   // board has its own endpoint.
+  // The schema owns the window rules — ordering AND the maximum span. Both
+  // live there so every caller of calendarQuerySchema (and the OpenAPI doc)
+  // gets them, and so this route cannot be the place someone forgets the cap.
   const { start, end, profileIds } = await getValidatedQuery(event, calendarQuerySchema.parse)
   const hh = requireHousehold()
-
-  if (end <= start) {
-    throw createError({ statusCode: 400, statusMessage: 'end must be after start' })
-  }
 
   const ids = profileIds?.split(',').map(s => s.trim()).filter(Boolean)
 

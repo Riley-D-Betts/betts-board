@@ -1,6 +1,6 @@
 import { createReadStream, existsSync, statSync } from 'node:fs'
-import { join, normalize } from 'node:path'
 import { fontsDir } from '../../utils/dataDir'
+import { resolveWithin } from '../../utils/safePath'
 
 // Streams downloaded webfonts from $DATA_DIR/fonts.
 //
@@ -13,9 +13,11 @@ export default defineEventHandler((event) => {
   const rel = getRouterParam(event, 'path') ?? ''
   if (!ALLOWED.test(rel)) throw createError({ statusCode: 404, statusMessage: 'Not found' })
 
-  const root = fontsDir()
-  const full = normalize(join(root, rel))
-  if (!full.startsWith(root)) throw createError({ statusCode: 400, statusMessage: 'Bad path' })
+  // Belt and braces behind ALLOWED: resolveWithin, not startsWith — see
+  // server/utils/safePath.ts. A prefix test would also serve a sibling
+  // directory such as $DATA_DIR/fonts-evil, and this route is ungated.
+  const full = resolveWithin(fontsDir(), rel)
+  if (!full) throw createError({ statusCode: 400, statusMessage: 'Bad path' })
   if (!existsSync(full) || !statSync(full).isFile()) {
     throw createError({ statusCode: 404, statusMessage: 'Not found' })
   }

@@ -82,8 +82,15 @@ async function archiveList() {
 }
 
 // Most-wanted first.
+//
+// `link` is the only value the template is allowed to put in an href. Items
+// saved before the schema pinned the scheme can still hold `javascript:…`,
+// which would run on the board's origin with the session cookie the moment
+// someone taps the name; safeExternalUrl yields undefined for those, so the
+// item renders as plain text instead of a link.
 const items = computed(() => [...(list.value?.items ?? [])]
-  .sort((a, b) => b.priority - a.priority || a.sortOrder - b.sortOrder))
+  .sort((a, b) => b.priority - a.priority || a.sortOrder - b.sortOrder)
+  .map(item => ({ ...item, link: safeExternalUrl(item.url) })))
 
 const today = todayString()
 const countdown = computed(() => {
@@ -165,8 +172,8 @@ const countdown = computed(() => {
         <div class="min-w-0 flex-1">
           <div class="flex flex-wrap items-center gap-2">
             <a
-              v-if="item.url"
-              :href="item.url"
+              v-if="item.link"
+              :href="item.link"
               target="_blank"
               rel="noopener noreferrer"
               class="font-medium text-primary hover:underline truncate"

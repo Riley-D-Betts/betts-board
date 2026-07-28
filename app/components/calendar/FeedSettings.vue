@@ -3,7 +3,7 @@ const toast = useToast()
 const { t } = useI18n()
 const { formatDateTime } = useDateFormat()
 const { data: feeds, refresh: reload } = await useFetch('/api/feeds')
-const { data: household } = await useFetch('/api/household')
+const { data: household, refresh: refreshHousehold } = await useFetch('/api/household')
 
 const intervals = computed(() => [
   { label: t('calendar.feeds.intervals.min15'), value: 15 },
@@ -18,9 +18,29 @@ const busyId = ref<string | null>(null)
 const newFeed = reactive({ name: '', url: '', color: '#64748b', fetchIntervalMinutes: 60 })
 
 const origin = useRequestURL().origin
+// icsToken only reaches admins; for everyone else the subscribe box stays hidden.
 const icsUrl = computed(() =>
   household.value?.icsToken ? `${origin}/feeds/${household.value.icsToken}.ics` : '')
 const webcalUrl = computed(() => icsUrl.value.replace(/^https?:\/\//, 'webcal://'))
+
+const rotating = ref(false)
+
+/** Revokes the old link — nothing else can, since the token IS the auth. */
+async function rotateIcsToken() {
+  if (!confirm(t('calendar.feeds.subscribe.rotateConfirm'))) return
+  rotating.value = true
+  try {
+    await $fetch('/api/household/ics-token', { method: 'POST' })
+    await refreshHousehold()
+    toast.add({ title: t('calendar.feeds.toast.rotated'), color: 'success' })
+  }
+  catch {
+    toast.add({ title: t('calendar.feeds.toast.couldNotRotate'), color: 'error' })
+  }
+  finally {
+    rotating.value = false
+  }
+}
 
 function statusIcon(feed: { lastStatus: string | null }) {
   if (feed.lastStatus === 'ok') return { name: 'i-lucide-circle-check', class: 'text-green-500' }
@@ -126,7 +146,9 @@ async function copy(text: string) {
         <span class="size-3 rounded-full shrink-0" :style="{ backgroundColor: feed.color }" />
         <div class="flex-1 min-w-0">
           <div class="font-medium truncate">{{ feed.name }}</div>
-          <div class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ feed.url }}</div>
+          <!-- Host only: the server never sends the full subscription URL,
+               because for a private calendar that URL is the credential. -->
+          <div class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ feed.urlHost }}</div>
         </div>
         <UTooltip :text="statusText(feed)">
           <UIcon :name="statusIcon(feed).name" class="size-5 shrink-0" :class="statusIcon(feed).class" />
@@ -181,6 +203,16 @@ async function copy(text: string) {
           <code class="flex-1 min-w-0 truncate text-xs bg-slate-100 dark:bg-slate-800 rounded px-2 py-2.5">{{ webcalUrl }}</code>
           <UButton icon="i-lucide-copy" variant="soft" size="sm" :aria-label="$t('calendar.feeds.subscribe.copyWebcal')" @click="copy(webcalUrl)" />
         </div>
+        <UButton
+          icon="i-lucide-key-round"
+          variant="ghost"
+          color="neutral"
+          size="sm"
+          :loading="rotating"
+          @click="rotateIcsToken"
+        >
+          {{ $t('calendar.feeds.subscribe.rotate') }}
+        </UButton>
       </div>
     </div>
   </UCard>

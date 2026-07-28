@@ -139,7 +139,9 @@
       "title": "Subscribe on your phone",
       "help": "Add this URL as a calendar subscription in Google Calendar or Apple Calendar to see the board's events everywhere. Keep it private — the link is the key.",
       "copyUrl": "Copy URL",
-      "copyWebcal": "Copy webcal URL"
+      "copyWebcal": "Copy webcal URL",
+      "rotate": "Reset the link",
+      "rotateConfirm": "Reset the subscription link? Calendars already subscribed to the old link stop updating, and everyone has to add the new one."
     },
     "toast": {
       "couldNotAdd": "Could not add feed",
@@ -147,6 +149,8 @@
       "couldNotUpdate": "Could not update feed",
       "refreshFailed": "Refresh failed",
       "refreshed": "Feed refreshed",
+      "rotated": "Subscription link reset",
+      "couldNotRotate": "Could not reset the link",
       "couldNotRemove": "Could not remove feed",
       "copied": "Copied to clipboard",
       "couldNotCopy": "Could not copy"
