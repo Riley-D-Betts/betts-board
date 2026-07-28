@@ -1,47 +1,47 @@
 {
-  "title": "Pantry",
-  "scanBarcode": "Scan barcode",
-  "searchPlaceholder": "Search the pantry…",
-  "editAria": "Edit {name}",
-  "deleteAria": "Delete {name}",
+  "title": "Despensa",
+  "scanBarcode": "Escanear código",
+  "searchPlaceholder": "Buscar en la despensa…",
+  "editAria": "Editar {name}",
+  "deleteAria": "Eliminar {name}",
   "addForm": {
-    "namePlaceholder": "Add to pantry — “olive oil”…",
-    "quantityPlaceholder": "Qty",
-    "unitPlaceholder": "Unit",
-    "aislePlaceholder": "Aisle"
+    "namePlaceholder": "Añadir a la despensa — «aceite de oliva»…",
+    "quantityPlaceholder": "Cant.",
+    "unitPlaceholder": "Unidad",
+    "aislePlaceholder": "Sección"
   },
   "empty": {
-    "noMatches": "Nothing matches your search.",
-    "none": "Pantry is empty — add items or put away groceries from a shopping list."
+    "noMatches": "Nada coincide con la búsqueda.",
+    "none": "La despensa está vacía: añade productos o guarda la compra desde una lista."
   },
   "scan": {
-    "found": "Found: {name}",
-    "foundWithBrand": "Found: {name} ({brand})",
-    "notRecognized": "Not recognized — name it and we'll remember it next time."
+    "found": "Encontrado: {name}",
+    "foundWithBrand": "Encontrado: {name} ({brand})",
+    "notRecognized": "No lo reconocemos. Ponle nombre y lo recordaremos la próxima vez."
   },
   "editor": {
-    "title": "Edit pantry item",
-    "name": "Name",
-    "quantity": "Quantity",
-    "unit": "Unit",
-    "aisle": "Aisle"
+    "title": "Editar producto de la despensa",
+    "name": "Nombre",
+    "quantity": "Cantidad",
+    "unit": "Unidad",
+    "aisle": "Sección"
   },
   "scanner": {
-    "title": "Scan barcode",
-    "starting": "Starting camera…",
-    "hint": "Point the camera at the barcode — it scans automatically.",
-    "manualPlaceholder": "…or type the number",
-    "lookUp": "Look up",
+    "title": "Escanear código de barras",
+    "starting": "Abriendo la cámara…",
+    "hint": "Apunta con la cámara al código de barras: se escanea solo.",
+    "manualPlaceholder": "…o escribe el número",
+    "lookUp": "Buscar",
     "errors": {
-      "insecureContext": "The camera needs a secure (HTTPS) connection — type the barcode number below instead.",
-      "cameraFailed": "Could not open the camera — type the barcode number below instead.",
-      "invalidBarcode": "Barcodes are 6–14 digits."
+      "insecureContext": "La cámara necesita una conexión segura (HTTPS). Escribe abajo el número del código.",
+      "cameraFailed": "No se pudo abrir la cámara. Escribe abajo el número del código.",
+      "invalidBarcode": "Los códigos de barras tienen entre 6 y 14 dígitos."
     }
   },
   "errors": {
-    "couldNotAdd": "Could not add the item",
-    "couldNotSave": "Could not save the item",
-    "couldNotDelete": "Could not delete the item",
-    "lookupFailed": "Barcode lookup failed"
+    "couldNotAdd": "No se pudo añadir el producto",
+    "couldNotSave": "No se pudo guardar el producto",
+    "couldNotDelete": "No se pudo eliminar el producto",
+    "lookupFailed": "No se pudo consultar el código de barras"
   }
 }

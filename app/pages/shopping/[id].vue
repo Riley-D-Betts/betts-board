@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { AISLES, aisleLabelKey } from '#shared/schemas/shopping'
+
 interface Item {
   id: string
   name: string
@@ -23,10 +25,14 @@ const { t } = useI18n()
 
 const { data: list, refresh } = await useFetch<ListDetail>(`/api/shopping-lists/${listId}`)
 
-const CATEGORY_ORDER = [
-  'Produce', 'Bakery', 'Meat & Seafood', 'Dairy', 'Frozen',
-  'Pantry', 'Beverages', 'Household', 'Other',
-]
+/** Stored aisle values stay English; only the label is translated. */
+function aisleLabel(value: string) {
+  const key = aisleLabelKey(value)
+  return key ? t(key) : value
+}
+// `value: string`, not the literal union — an item can carry a custom aisle.
+const aisleItems = computed<{ label: string, value: string }[]>(() =>
+  AISLES.map(value => ({ label: aisleLabel(value), value })))
 
 const groups = computed(() => {
   const byCat = new Map<string, Item[]>()
@@ -38,13 +44,14 @@ const groups = computed(() => {
     byCat.set(cat, bucket)
   }
   const orderOf = (cat: string) => {
-    const i = CATEGORY_ORDER.indexOf(cat)
-    return i === -1 ? CATEGORY_ORDER.length - 1.5 : i // unknown custom aisles before Other
+    const i = AISLES.indexOf(cat as typeof AISLES[number])
+    return i === -1 ? AISLES.length - 1.5 : i // unknown custom aisles before Other
   }
   return [...byCat.entries()]
     .sort(([a], [b]) => orderOf(a) - orderOf(b))
     .map(([category, items]) => ({
       category,
+      label: aisleLabel(category),
       items: items.sort((a, b) => a.name.localeCompare(b.name)),
     }))
 })
@@ -236,7 +243,7 @@ const totalItems = computed(() => (list.value?.items ?? []).length)
     <!-- Unchecked, grouped by aisle -->
     <section v-for="group in groups" :key="group.category" class="space-y-1">
       <h2 class="px-1 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-        {{ group.category }}
+        {{ group.label }}
       </h2>
       <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
         <div v-for="item in group.items" :key="item.id" class="flex items-center gap-1 pr-1">
@@ -290,7 +297,7 @@ const totalItems = computed(() => (list.value?.items ?? []).length)
             <UInput v-model="editForm.displayQuantity" class="w-full" />
           </UFormField>
           <UFormField :label="$t('shopping.editor.aisle')">
-            <USelect v-model="editForm.category" :items="CATEGORY_ORDER" class="w-full" />
+            <USelect v-model="editForm.category" :items="aisleItems" class="w-full" />
           </UFormField>
           <div class="flex gap-2">
             <UButton :loading="savingEdit" :disabled="!editForm.name.trim()" @click="saveEdit">{{ $t('common.actions.save') }}</UButton>

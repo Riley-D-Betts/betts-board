@@ -9,6 +9,13 @@
     "modeAuto": "Auto",
     "font": "Police",
     "fontHelp": "S'applique à tout le tableau, pour tout le monde.",
+    "fonts": {
+      "rounded": "Arrondie",
+      "system": "Système",
+      "serif": "À empattements",
+      "mono": "Monospace",
+      "playful": "Fantaisie"
+    },
     "addGoogleFont": "Ajouter une police Google",
     "addGoogleFontHelp": "Téléchargée une fois et stockée sur votre serveur — le tableau ne contacte jamais Google à l'ouverture d'une page, et tout continue de fonctionner hors ligne.",
     "googleFontPlaceholder": "ex. Roboto Slab",
@@ -22,6 +29,18 @@
     "accentDark": "Couleur d'accent — mode sombre",
     "lightAccentSwatch": "Accent clair {color}",
     "darkAccentSwatch": "Accent sombre {color}",
+    "colors": {
+      "green": "vert",
+      "blue": "bleu",
+      "indigo": "indigo",
+      "violet": "violet",
+      "fuchsia": "fuchsia",
+      "rose": "rose",
+      "orange": "orange",
+      "amber": "ambre",
+      "teal": "sarcelle",
+      "cyan": "cyan"
+    },
     "tvTheme": "Thème du mode TV",
     "tvThemeHelp": "L'allure de l'écran mural /tv. Ce réglage vaut pour tout le foyer, pas par appareil.",
     "tvThemeNoLocation": "Aucun lieu défini : on se rabat sur une plage 7h–19h. Renseignez un lieu météo pour le vrai lever et coucher du soleil.",

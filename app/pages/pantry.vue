@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { BarcodeLookupResult } from '#shared/schemas/pantry'
+import { AISLES, aisleLabelKey } from '#shared/schemas/shopping'
 
 interface PantryRow {
   id: string
@@ -20,10 +21,15 @@ const { data: items, refresh } = await useFetch<PantryRow[]>('/api/pantry', {
   default: () => [],
 })
 
-const CATEGORY_ORDER = [
-  'Produce', 'Bakery', 'Meat & Seafood', 'Dairy', 'Frozen',
-  'Pantry', 'Beverages', 'Household', 'Other',
-]
+/** One aisle vocabulary for the pantry and the shopping list, so the stored
+ * value stays the English string the server's matcher assigns. */
+function aisleLabel(value: string) {
+  const key = aisleLabelKey(value)
+  return key ? t(key) : value
+}
+// `value: string`, not the literal union — an item can carry a custom aisle.
+const aisleItems = computed<{ label: string, value: string }[]>(() =>
+  AISLES.map(value => ({ label: aisleLabel(value), value })))
 
 const groups = computed(() => {
   const byCat = new Map<string, PantryRow[]>()
@@ -34,13 +40,14 @@ const groups = computed(() => {
     byCat.set(cat, bucket)
   }
   const orderOf = (cat: string) => {
-    const i = CATEGORY_ORDER.indexOf(cat)
-    return i === -1 ? CATEGORY_ORDER.length - 1.5 : i
+    const i = AISLES.indexOf(cat as typeof AISLES[number])
+    return i === -1 ? AISLES.length - 1.5 : i
   }
   return [...byCat.entries()]
     .sort(([a], [b]) => orderOf(a) - orderOf(b))
     .map(([category, rows]) => ({
       category,
+      label: aisleLabel(category),
       items: rows.sort((a, b) => a.name.localeCompare(b.name)),
     }))
 })
@@ -190,7 +197,7 @@ async function deleteItem(item: PantryRow) {
           <UInput v-model="addForm.name" :placeholder="$t('pantry.addForm.namePlaceholder')" class="min-w-40 flex-1" />
           <UInput v-model.number="addForm.quantity" type="number" min="0" step="any" :placeholder="$t('pantry.addForm.quantityPlaceholder')" class="w-20" />
           <UInput v-model="addForm.unit" :placeholder="$t('pantry.addForm.unitPlaceholder')" class="w-24" />
-          <USelect v-model="addForm.category" :items="CATEGORY_ORDER" :placeholder="$t('pantry.addForm.aislePlaceholder')" class="w-32" />
+          <USelect v-model="addForm.category" :items="aisleItems" :placeholder="$t('pantry.addForm.aislePlaceholder')" class="w-32" />
           <UButton type="submit" icon="i-lucide-plus" :loading="addBusy" :disabled="!addForm.name.trim()">
             {{ $t('common.actions.add') }}
           </UButton>
@@ -207,7 +214,7 @@ async function deleteItem(item: PantryRow) {
 
     <section v-for="group in groups" :key="group.category" class="space-y-1">
       <h2 class="px-1 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-        {{ group.category }}
+        {{ group.label }}
       </h2>
       <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
         <div v-for="item in group.items" :key="item.id" class="flex min-h-12 items-center gap-2 px-3 py-2">
@@ -257,7 +264,7 @@ async function deleteItem(item: PantryRow) {
             </UFormField>
           </div>
           <UFormField :label="$t('pantry.editor.aisle')">
-            <USelect v-model="editForm.category" :items="CATEGORY_ORDER" class="w-full" />
+            <USelect v-model="editForm.category" :items="aisleItems" class="w-full" />
           </UFormField>
           <div class="flex gap-2">
             <UButton :loading="savingEdit" :disabled="!editForm.name.trim()" @click="saveEdit">{{ $t('common.actions.save') }}</UButton>

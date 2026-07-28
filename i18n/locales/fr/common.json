@@ -1,74 +1,74 @@
 {
   "actions": {
-    "save": "Save",
-    "cancel": "Cancel",
-    "delete": "Delete",
-    "remove": "Remove",
-    "add": "Add",
-    "edit": "Edit",
-    "close": "Close",
-    "confirm": "Confirm",
-    "back": "Back",
-    "today": "Today",
-    "tomorrow": "Tomorrow",
-    "yesterday": "Yesterday"
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "remove": "Retirer",
+    "add": "Ajouter",
+    "edit": "Modifier",
+    "close": "Fermer",
+    "confirm": "Confirmer",
+    "back": "Retour",
+    "today": "Aujourd'hui",
+    "tomorrow": "Demain",
+    "yesterday": "Hier"
   },
   "state": {
-    "loading": "Loading…",
-    "saved": "Saved",
-    "nothingHere": "Nothing here yet",
-    "optional": "optional"
+    "loading": "Chargement…",
+    "saved": "Enregistré",
+    "nothingHere": "Rien pour l'instant",
+    "optional": "facultatif"
   },
   "errors": {
-    "generic": "Something went wrong",
-    "couldNotSave": "Could not save",
-    "couldNotLoad": "Could not load"
+    "generic": "Une erreur est survenue",
+    "couldNotSave": "Impossible d'enregistrer",
+    "couldNotLoad": "Impossible de charger"
   },
   "nav": {
-    "home": "Home",
-    "calendar": "Calendar",
-    "chores": "Chores",
-    "meals": "Meals",
-    "shopping": "Shopping",
-    "recipes": "Recipes",
-    "rewards": "Rewards",
-    "wishlists": "Wish lists",
-    "pantry": "Pantry",
+    "home": "Accueil",
+    "calendar": "Calendrier",
+    "chores": "Tâches",
+    "meals": "Repas",
+    "shopping": "Courses",
+    "recipes": "Recettes",
+    "rewards": "Récompenses",
+    "wishlists": "Listes d'envies",
+    "pantry": "Garde-manger",
     "photos": "Photos",
-    "money": "Money",
-    "tvMode": "TV mode",
-    "feedback": "Feedback",
-    "settings": "Settings",
-    "lock": "Lock",
-    "chooseProfile": "Choose profile",
-    "all": "All",
-    "allSections": "All sections",
-    "closeMenu": "Close menu",
-    "openMenu": "Open menu",
-    "leaderboard": "Leaderboard",
-    "manageChores": "Manage chores",
+    "money": "Argent",
+    "tvMode": "Mode TV",
+    "feedback": "Retours",
+    "settings": "Réglages",
+    "lock": "Verrouiller",
+    "chooseProfile": "Choisir un profil",
+    "all": "Tout",
+    "allSections": "Toutes les sections",
+    "closeMenu": "Fermer le menu",
+    "openMenu": "Ouvrir le menu",
+    "leaderboard": "Classement",
+    "manageChores": "Gérer les tâches",
     "groups": {
-      "everyday": "Every day",
-      "kitchen": "Kitchen",
-      "family": "Family",
-      "board": "This board"
+      "everyday": "Au quotidien",
+      "kitchen": "Cuisine",
+      "family": "Famille",
+      "board": "Ce tableau"
     }
   },
   "dashboard": {
     "greeting": {
-      "morning": "Good morning",
-      "afternoon": "Good afternoon",
-      "evening": "Good evening",
-      "morningNamed": "Good morning, {name}",
-      "afternoonNamed": "Good afternoon, {name}",
-      "eveningNamed": "Good evening, {name}"
+      "morning": "Bonjour",
+      "afternoon": "Bon après-midi",
+      "evening": "Bonsoir",
+      "morningNamed": "Bonjour {name}",
+      "afternoonNamed": "Bon après-midi {name}",
+      "eveningNamed": "Bonsoir {name}"
     }
   },
   "emoji": {
-    "label": "Emoji",
-    "placeholder": "Type or paste any emoji",
-    "selected": "Selected {emoji}",
-    "noneSelected": "No emoji selected",
-    "clear": "Clear emoji"
+    "label": "Émoji",
+    "placeholder": "Tapez ou collez un émoji",
+    "selected": "{emoji} sélectionné",
+    "noneSelected": "Aucun émoji sélectionné",
+    "clear": "Effacer l'émoji"
   }
 }

@@ -223,6 +223,13 @@
     "amount": "Importe habitual",
     "startDate": "Primer vencimiento",
     "repeats": "Se repite",
+    "frequencies": {
+      "monthly": "Se repite: cada mes",
+      "weekly": "Se repite: cada semana",
+      "biweekly": "Se repite: cada 2 semanas",
+      "yearly": "Se repite: cada año",
+      "once": "Se repite: una sola vez"
+    },
     "until": "Hasta",
     "account": "Se paga desde",
     "autoPay": "Pago automático",
@@ -294,6 +301,7 @@
     "currency": "Moneda",
     "currencyHelp": "Se usa en los totales y en las cuentas nuevas. Las cuentas del banco mantienen la moneda que indique tu banco.",
     "forecastDays": "Duración de la previsión",
+    "forecastOption": "{n} día | {n} días",
     "notOnDashboard": "El dinero nunca aparece en el panel de inicio, en la pantalla de pared ni en el calendario compartido.",
     "adminOnly": "Solo un administrador del hogar puede cambiar esto."
   },

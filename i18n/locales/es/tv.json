@@ -1,18 +1,18 @@
 {
-  "moreCount": "+{n} more",
+  "moreCount": "+{n} más",
   "weather": {
-    "heading": "Weather",
-    "noLocation": "Set a weather location in Settings to see the forecast."
+    "heading": "El tiempo",
+    "noLocation": "Añade una ubicación en Ajustes para ver la previsión."
   },
   "agenda": {
-    "allDay": "All day",
-    "empty": "Nothing on the calendar today."
+    "allDay": "Todo el día",
+    "empty": "Hoy no hay nada en el calendario."
   },
   "chores": {
-    "empty": "No chores due today."
+    "empty": "Hoy no toca ninguna tarea."
   },
   "actions": {
-    "slideshow": "Slideshow",
-    "exitTvMode": "Exit TV mode"
+    "slideshow": "Pase de fotos",
+    "exitTvMode": "Salir del modo TV"
   }
 }

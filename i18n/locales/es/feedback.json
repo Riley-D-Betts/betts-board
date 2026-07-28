@@ -1,66 +1,67 @@
 {
-  "title": "Feedback",
-  "intro": "Spotted a bug? Wish the board did something new? Tell us — it goes straight to the family's fix-it list.",
+  "title": "Sugerencias",
+  "intro": "¿Has visto un fallo? ¿Te gustaría que el tablero hiciera algo nuevo? Cuéntanoslo: va directo a la lista de arreglos de la familia.",
   "notConfigured": {
-    "title": "Feedback isn't set up yet",
-    "body": "Ask a parent to connect GitHub under {path}. Once that's done, anything you send here lands on the family's to-fix list.",
-    "settingsPath": "Settings → Feedback"
+    "title": "Las sugerencias aún no están configuradas",
+    "body": "Pide a un adulto que conecte GitHub en {path}. Cuando esté hecho, todo lo que envíes desde aquí irá a la lista de arreglos de la familia.",
+    "settingsPath": "Ajustes → Sugerencias"
   },
   "kinds": {
-    "bugTitle": "Something's broken",
-    "bugBlurb": "A page errors, a button does nothing, the numbers look wrong…",
-    "featureTitle": "I have an idea",
-    "featureBlurb": "Something the board should do, or do better."
+    "bugTitle": "Algo no funciona",
+    "bugBlurb": "Una página da error, un botón no hace nada, los números no cuadran…",
+    "featureTitle": "Tengo una idea",
+    "featureBlurb": "Algo que el tablero debería hacer, o hacer mejor."
   },
   "form": {
-    "title": "Title",
-    "titlePlaceholderBug": "e.g. Chore board shows yesterday's chores",
-    "titlePlaceholderFeature": "e.g. Birthday countdowns on the dashboard",
-    "bodyLabelBug": "What happened?",
-    "bodyLabelFeature": "Tell us about it",
-    "bodyPlaceholderBug": "What were you doing, what happened, and what did you expect instead?",
-    "bodyPlaceholderFeature": "What should the board do? Who in the family would use it?",
-    "includeDiagnostics": "Include device info",
-    "includeDiagnosticsHelp": "Adds your browser and window size to the report — helps track it down.",
-    "submitBug": "Send bug report",
-    "submitFeature": "Send idea"
+    "title": "Título",
+    "titlePlaceholderBug": "p. ej. El tablero de tareas muestra las de ayer",
+    "titlePlaceholderFeature": "p. ej. Cuenta atrás de los cumpleaños en el inicio",
+    "bodyLabelBug": "¿Qué ha pasado?",
+    "bodyLabelFeature": "Cuéntanoslo",
+    "bodyPlaceholderBug": "¿Qué estabas haciendo, qué ha pasado y qué esperabas que pasara?",
+    "bodyPlaceholderFeature": "¿Qué debería hacer el tablero? ¿Quién de la familia lo usaría?",
+    "includeDiagnostics": "Incluir datos del dispositivo",
+    "includeDiagnosticsHelp": "Añade tu navegador y el tamaño de la ventana al aviso: ayuda a dar con el fallo.",
+    "submitBug": "Enviar el fallo",
+    "submitFeature": "Enviar la idea"
   },
   "sent": {
-    "title": "Sent! Issue #{number}",
-    "body": "Thanks — it's on the list now.",
-    "view": "View on GitHub",
-    "sendAnother": "Send another"
+    "title": "¡Enviado! Incidencia #{number}",
+    "body": "Gracias, ya está en la lista.",
+    "view": "Ver en GitHub",
+    "sendAnother": "Enviar otra"
   },
   "errors": {
-    "notConnectedTitle": "Not connected to GitHub yet",
-    "notConnectedBody": "Ask a parent to connect it under Settings → Feedback.",
-    "rejectedTitle": "GitHub didn't take it",
-    "rejectedBody": "{reason} — your words aren't lost, try again in a bit.",
-    "couldNotReach": "Could not reach GitHub",
-    "couldNotSend": "Could not send feedback"
+    "notConnectedTitle": "Todavía no hay conexión con GitHub",
+    "notConnectedBody": "Pide a un adulto que lo conecte en Ajustes → Sugerencias.",
+    "rejectedTitle": "GitHub no lo ha aceptado",
+    "rejectedBody": "{reason} — no has perdido lo que escribiste, inténtalo de nuevo en un rato.",
+    "couldNotReach": "No se pudo conectar con GitHub",
+    "couldNotSend": "No se pudo enviar"
   },
   "settings": {
-    "title": "Feedback → GitHub",
-    "intro": "Bug reports and ideas from the {link} become GitHub issues on your repo — no GitHub accounts needed for the family. Create a {tokenLink} with Issues read & write on just that one repo.",
-    "introLinkText": "Feedback page",
-    "introTokenLinkText": "fine-grained personal access token",
-    "connected": "Connected to {repo}",
-    "notConnected": "Not connected",
-    "repoLabel": "Repository",
-    "repoHelp": "owner/repo — where the issues get filed.",
-    "tokenLabel": "Access token",
-    "tokenHelp": "Stored on your server, never shown again.",
-    "tokenHelpStored": "Stored on your server, never shown again. Leave blank to keep the current token.",
-    "test": "Test connection",
-    "disconnect": "Disconnect",
-    "disconnectConfirm": "Disconnect GitHub? The saved token is deleted and family members can no longer send feedback.",
-    "disconnected": "GitHub disconnected",
-    "saved": "Feedback settings saved",
+    "title": "Sugerencias → GitHub",
+    "intro": "Los fallos y las ideas que llegan desde la {link} se convierten en incidencias de GitHub en tu repositorio, sin que la familia necesite cuenta de GitHub. Crea un {tokenLink} con permiso de lectura y escritura de incidencias solo en ese repositorio.",
+    "introLinkText": "página de sugerencias",
+    "introTokenLinkText": "token de acceso personal detallado",
+    "connected": "Conectado a {repo}",
+    "notConnected": "Sin conectar",
+    "repoLabel": "Repositorio",
+    "repoHelp": "propietario/repo: donde se crearán las incidencias.",
+    "tokenLabel": "Token de acceso",
+    "tokenPlaceholder": "ghp_… o github_pat_…",
+    "tokenHelp": "Se guarda en tu servidor y no se vuelve a mostrar.",
+    "tokenHelpStored": "Se guarda en tu servidor y no se vuelve a mostrar. Déjalo en blanco para conservar el token actual.",
+    "test": "Probar la conexión",
+    "disconnect": "Desconectar",
+    "disconnectConfirm": "¿Desconectar GitHub? Se borrará el token guardado y la familia ya no podrá enviar sugerencias.",
+    "disconnected": "GitHub desconectado",
+    "saved": "Ajustes de sugerencias guardados",
     "errors": {
-      "invalidRepo": "Repo must look like owner/repo",
-      "couldNotSave": "Could not save feedback settings",
-      "needsSetup": "Save a repo and token first",
-      "couldNotDisconnect": "Could not disconnect"
+      "invalidRepo": "El repo debe tener el formato propietario/repo",
+      "couldNotSave": "No se pudieron guardar los ajustes de sugerencias",
+      "needsSetup": "Guarda antes el repo y el token",
+      "couldNotDisconnect": "No se pudo desconectar"
     }
   }
 }

@@ -11,6 +11,17 @@
   "allLists": "All lists",
   "untitledList": "List",
   "clearedCount": "Cleared {n} item | Cleared {n} items",
+  "aisles": {
+    "produce": "Produce",
+    "bakery": "Bakery",
+    "meatSeafood": "Meat & Seafood",
+    "dairy": "Dairy",
+    "frozen": "Frozen",
+    "pantry": "Pantry",
+    "beverages": "Beverages",
+    "household": "Household",
+    "other": "Other"
+  },
   "lists": {
     "newPlaceholder": "New list — “Costco run”…",
     "empty": "No lists yet — create one above, or plan meals and generate one.",

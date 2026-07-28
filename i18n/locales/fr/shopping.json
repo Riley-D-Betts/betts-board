@@ -1,57 +1,68 @@
 {
-  "title": "Shopping",
-  "checkOff": "Check off {name}",
-  "uncheck": "Uncheck {name}",
-  "checked": "Checked ({n})",
-  "clear": "Clear",
-  "nothingOnList": "Nothing on the list — nice.",
-  "moreOnList": "+{n} more on the list",
-  "toBuy": "{n} to buy",
-  "defaultBadge": "default",
-  "allLists": "All lists",
-  "untitledList": "List",
-  "clearedCount": "Cleared {n} item | Cleared {n} items",
+  "title": "Courses",
+  "checkOff": "Cocher {name}",
+  "uncheck": "Décocher {name}",
+  "checked": "Cochés ({n})",
+  "clear": "Vider",
+  "nothingOnList": "Rien sur la liste — parfait.",
+  "moreOnList": "+{n} autres sur la liste",
+  "toBuy": "{n} à acheter",
+  "defaultBadge": "par défaut",
+  "allLists": "Toutes les listes",
+  "untitledList": "Liste",
+  "clearedCount": "{n} article retiré | {n} articles retirés",
+  "aisles": {
+    "produce": "Fruits et légumes",
+    "bakery": "Boulangerie",
+    "meatSeafood": "Viande et poisson",
+    "dairy": "Produits laitiers",
+    "frozen": "Surgelés",
+    "pantry": "Épicerie",
+    "beverages": "Boissons",
+    "household": "Entretien",
+    "other": "Autre"
+  },
   "lists": {
-    "newPlaceholder": "New list — “Costco run”…",
-    "empty": "No lists yet — create one above, or plan meals and generate one.",
-    "planMeals": "Plan meals",
-    "deleteAria": "Delete {name}",
-    "uncheckedItems": "{n} unchecked item | {n} unchecked items",
-    "confirmDelete": "Delete \"{name}\"? Its {items} (and any checked ones) are deleted with it."
+    "newPlaceholder": "Nouvelle liste — « Courses du samedi »…",
+    "empty": "Aucune liste pour l'instant — créez-en une ci-dessus, ou planifiez des repas pour en générer une.",
+    "planMeals": "Planifier les repas",
+    "deleteAria": "Supprimer {name}",
+    "uncheckedItems": "{n} article non coché | {n} articles non cochés",
+    "confirmDelete": "Supprimer « {name} » ? Ses {items} (et ceux déjà cochés) disparaîtront avec elle."
   },
   "items": {
-    "quickAddPlaceholder": "Add — “2 lbs chicken”, “paper towels”…",
-    "empty": "Nothing to buy. Add items above or generate from your meal plan.",
-    "editAria": "Edit {name}"
+    "quickAddPlaceholder": "Ajouter — « 1 kg de poulet », « essuie-tout »…",
+    "empty": "Rien à acheter. Ajoutez des articles ci-dessus ou générez la liste depuis vos repas.",
+    "editAria": "Modifier {name}"
   },
   "editor": {
-    "title": "Edit item",
-    "name": "Name",
-    "quantity": "Quantity",
-    "quantityHelp": "Free text — “2 lbs”, “1½ cups + 2 tbsp”",
-    "aisle": "Aisle"
+    "title": "Modifier l'article",
+    "name": "Nom",
+    "quantity": "Quantité",
+    "quantityHelp": "Texte libre — « 1 kg », « 25 cl + 2 c. à soupe »",
+    "aisle": "Rayon"
   },
   "clearChecked": {
-    "title": "Clear checked items",
-    "confirm": "Put the {n} checked item away to the pantry so meal planning knows you have them? | Put the {n} checked items away to the pantry so meal planning knows you have them?",
-    "putAway": "Put away to pantry",
-    "justClear": "Just clear",
-    "putAwayDone": "Put {n} item away to the pantry | Put {n} items away to the pantry"
+    "title": "Retirer les articles cochés",
+    "confirm": "Ranger {n} article coché dans le garde-manger, pour que la planification des repas sache que vous l'avez ? | Ranger les {n} articles cochés dans le garde-manger, pour que la planification des repas sache que vous les avez ?",
+    "putAway": "Ranger au garde-manger",
+    "justClear": "Juste retirer",
+    "putAwayDone": "{n} article rangé dans le garde-manger | {n} articles rangés dans le garde-manger"
   },
   "clearList": {
-    "title": "Clear this list",
-    "confirm": "Remove all {n} item from “{name}” — checked and unchecked? The list itself stays. | Remove all {n} items from “{name}” — checked and unchecked? The list itself stays.",
-    "cta": "Clear everything"
+    "title": "Vider cette liste",
+    "confirm": "Retirer {n} article de « {name} », coché ou non ? La liste, elle, reste. | Retirer les {n} articles de « {name} », cochés ou non ? La liste, elle, reste.",
+    "cta": "Tout retirer"
   },
   "errors": {
-    "couldNotCreateList": "Could not create the list",
-    "couldNotDeleteList": "Could not delete the list",
-    "couldNotAddItem": "Could not add the item",
-    "couldNotUpdateItem": "Could not update the item",
-    "couldNotSaveItem": "Could not save the item",
-    "couldNotDeleteItem": "Could not delete the item",
-    "couldNotCheckOff": "Could not check off the item",
-    "couldNotClearChecked": "Could not clear checked items",
-    "couldNotClearList": "Could not clear the list"
+    "couldNotCreateList": "Impossible de créer la liste",
+    "couldNotDeleteList": "Impossible de supprimer la liste",
+    "couldNotAddItem": "Impossible d'ajouter l'article",
+    "couldNotUpdateItem": "Impossible de mettre à jour l'article",
+    "couldNotSaveItem": "Impossible d'enregistrer l'article",
+    "couldNotDeleteItem": "Impossible de supprimer l'article",
+    "couldNotCheckOff": "Impossible de cocher l'article",
+    "couldNotClearChecked": "Impossible de retirer les articles cochés",
+    "couldNotClearList": "Impossible de vider la liste"
   }
 }

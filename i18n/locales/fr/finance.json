@@ -223,6 +223,13 @@
     "amount": "Montant habituel",
     "startDate": "Première échéance",
     "repeats": "Répétition",
+    "frequencies": {
+      "monthly": "Récurrence : tous les mois",
+      "weekly": "Récurrence : toutes les semaines",
+      "biweekly": "Récurrence : toutes les 2 semaines",
+      "yearly": "Récurrence : tous les ans",
+      "once": "Récurrence : une seule fois"
+    },
     "until": "Jusqu'au",
     "account": "Payée depuis",
     "autoPay": "Prélèvement automatique",
@@ -294,6 +301,7 @@
     "currency": "Devise",
     "currencyHelp": "Utilisée pour les totaux et les nouveaux comptes. Les comptes bancaires gardent la devise indiquée par votre banque.",
     "forecastDays": "Durée des prévisions",
+    "forecastOption": "{n} jour | {n} jours",
     "notOnDashboard": "La section Argent n'apparaît jamais sur le tableau de bord, l'écran mural ni le calendrier partagé.",
     "adminOnly": "Seul un administrateur du foyer peut modifier ces réglages."
   },

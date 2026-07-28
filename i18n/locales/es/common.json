@@ -1,74 +1,74 @@
 {
   "actions": {
-    "save": "Save",
-    "cancel": "Cancel",
-    "delete": "Delete",
-    "remove": "Remove",
-    "add": "Add",
-    "edit": "Edit",
-    "close": "Close",
-    "confirm": "Confirm",
-    "back": "Back",
-    "today": "Today",
-    "tomorrow": "Tomorrow",
-    "yesterday": "Yesterday"
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "remove": "Quitar",
+    "add": "Añadir",
+    "edit": "Editar",
+    "close": "Cerrar",
+    "confirm": "Confirmar",
+    "back": "Atrás",
+    "today": "Hoy",
+    "tomorrow": "Mañana",
+    "yesterday": "Ayer"
   },
   "state": {
-    "loading": "Loading…",
-    "saved": "Saved",
-    "nothingHere": "Nothing here yet",
-    "optional": "optional"
+    "loading": "Cargando…",
+    "saved": "Guardado",
+    "nothingHere": "Aún no hay nada",
+    "optional": "opcional"
   },
   "errors": {
-    "generic": "Something went wrong",
-    "couldNotSave": "Could not save",
-    "couldNotLoad": "Could not load"
+    "generic": "Algo ha salido mal",
+    "couldNotSave": "No se pudo guardar",
+    "couldNotLoad": "No se pudo cargar"
   },
   "nav": {
-    "home": "Home",
-    "calendar": "Calendar",
-    "chores": "Chores",
-    "meals": "Meals",
-    "shopping": "Shopping",
-    "recipes": "Recipes",
-    "rewards": "Rewards",
-    "wishlists": "Wish lists",
-    "pantry": "Pantry",
-    "photos": "Photos",
-    "money": "Money",
-    "tvMode": "TV mode",
-    "feedback": "Feedback",
-    "settings": "Settings",
-    "lock": "Lock",
-    "chooseProfile": "Choose profile",
-    "all": "All",
-    "allSections": "All sections",
-    "closeMenu": "Close menu",
-    "openMenu": "Open menu",
-    "leaderboard": "Leaderboard",
-    "manageChores": "Manage chores",
+    "home": "Inicio",
+    "calendar": "Calendario",
+    "chores": "Tareas",
+    "meals": "Comidas",
+    "shopping": "Compra",
+    "recipes": "Recetas",
+    "rewards": "Recompensas",
+    "wishlists": "Listas de deseos",
+    "pantry": "Despensa",
+    "photos": "Fotos",
+    "money": "Dinero",
+    "tvMode": "Modo TV",
+    "feedback": "Sugerencias",
+    "settings": "Ajustes",
+    "lock": "Bloquear",
+    "chooseProfile": "Elegir perfil",
+    "all": "Todo",
+    "allSections": "Todas las secciones",
+    "closeMenu": "Cerrar el menú",
+    "openMenu": "Abrir el menú",
+    "leaderboard": "Clasificación",
+    "manageChores": "Gestionar tareas",
     "groups": {
-      "everyday": "Every day",
-      "kitchen": "Kitchen",
-      "family": "Family",
-      "board": "This board"
+      "everyday": "Día a día",
+      "kitchen": "Cocina",
+      "family": "Familia",
+      "board": "Este tablero"
     }
   },
   "dashboard": {
     "greeting": {
-      "morning": "Good morning",
-      "afternoon": "Good afternoon",
-      "evening": "Good evening",
-      "morningNamed": "Good morning, {name}",
-      "afternoonNamed": "Good afternoon, {name}",
-      "eveningNamed": "Good evening, {name}"
+      "morning": "Buenos días",
+      "afternoon": "Buenas tardes",
+      "evening": "Buenas noches",
+      "morningNamed": "Buenos días, {name}",
+      "afternoonNamed": "Buenas tardes, {name}",
+      "eveningNamed": "Buenas noches, {name}"
     }
   },
   "emoji": {
     "label": "Emoji",
-    "placeholder": "Type or paste any emoji",
-    "selected": "Selected {emoji}",
-    "noneSelected": "No emoji selected",
-    "clear": "Clear emoji"
+    "placeholder": "Escribe o pega cualquier emoji",
+    "selected": "{emoji} seleccionado",
+    "noneSelected": "Ningún emoji seleccionado",
+    "clear": "Quitar el emoji"
   }
 }

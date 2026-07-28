@@ -10,6 +10,9 @@
     "previous": "Anterior",
     "next": "Siguiente"
   },
+  "range": {
+    "nextDays": "Próximo {n} día | Próximos {n} días"
+  },
   "actions": {
     "addEvent": "Añadir evento"
   },

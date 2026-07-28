@@ -1,46 +1,46 @@
 {
-  "title": "Rewards",
-  "manage": "Manage",
-  "done": "Done",
-  "myStars": "{name}'s stars",
-  "newReward": "New reward",
-  "redeem": "Redeem",
-  "emptyManage": "No rewards yet — add something worth saving up for.",
-  "addFirst": "Add the first reward",
-  "empty": "No rewards yet. Ask a parent to add some rewards!",
-  "removeConfirm": "Remove \"{title}\"? Past redemptions are kept.",
-  "couldNotRemove": "Could not remove reward",
-  "notEnoughStars": "Not enough stars",
-  "couldNotRedeem": "Could not redeem reward",
+  "title": "Récompenses",
+  "manage": "Gérer",
+  "done": "Terminé",
+  "myStars": "Étoiles de {name}",
+  "newReward": "Nouvelle récompense",
+  "redeem": "Échanger",
+  "emptyManage": "Aucune récompense pour l'instant — ajoutez de quoi donner envie d'économiser.",
+  "addFirst": "Ajouter la première récompense",
+  "empty": "Aucune récompense pour l'instant. Demandez à un parent d'en ajouter !",
+  "removeConfirm": "Supprimer « {title} » ? Les échanges déjà effectués sont conservés.",
+  "couldNotRemove": "Impossible de supprimer la récompense",
+  "notEnoughStars": "Pas assez d'étoiles",
+  "couldNotRedeem": "Impossible d'échanger la récompense",
   "redeemed": {
-    "title": "🎉 {emoji} {title} is yours!",
-    "description": "{n} star well spent, {name}. | {n} stars well spent, {name}."
+    "title": "🎉 {emoji} {title} est à vous !",
+    "description": "{n} étoile bien dépensée, {name}. | {n} étoiles bien dépensées, {name}."
   },
   "card": {
-    "remove": "Remove {title}",
-    "needMore": "Need {n} more ⭐"
+    "remove": "Supprimer {title}",
+    "needMore": "Encore {n} ⭐"
   },
   "recent": {
-    "title": "Recent redemptions",
-    "justNow": "just now",
-    "minutesAgo": "{n}m ago",
-    "hoursAgo": "{n}h ago",
-    "daysAgo": "{n}d ago"
+    "title": "Échanges récents",
+    "justNow": "à l'instant",
+    "minutesAgo": "il y a {n} min",
+    "hoursAgo": "il y a {n} h",
+    "daysAgo": "il y a {n} j"
   },
   "confirm": {
-    "title": "Redeem reward",
-    "spend": "Spend {n} star on {title}? | Spend {n} stars on {title}?",
-    "remaining": "You'll have {n} ⭐ left."
+    "title": "Échanger la récompense",
+    "spend": "Dépenser {n} étoile pour {title} ? | Dépenser {n} étoiles pour {title} ?",
+    "remaining": "Il vous restera {n} ⭐."
   },
   "editor": {
-    "editTitle": "Edit reward",
-    "title": "Title",
-    "titlePlaceholder": "Ice cream trip",
-    "cost": "Cost in stars",
+    "editTitle": "Modifier la récompense",
+    "title": "Titre",
+    "titlePlaceholder": "Sortie glace",
+    "cost": "Coût en étoiles",
     "description": "Description",
-    "descriptionPlaceholder": "One scoop at the shop downtown",
-    "saveChanges": "Save changes",
-    "create": "Add reward",
-    "couldNotSave": "Could not save reward"
+    "descriptionPlaceholder": "Une boule au glacier du centre-ville",
+    "saveChanges": "Enregistrer",
+    "create": "Ajouter une récompense",
+    "couldNotSave": "Impossible d'enregistrer la récompense"
   }
 }

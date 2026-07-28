@@ -9,6 +9,13 @@
     "modeAuto": "Automático",
     "font": "Fuente",
     "fontHelp": "Se aplica a todo el tablero, para todos.",
+    "fonts": {
+      "rounded": "Redondeada",
+      "system": "Del sistema",
+      "serif": "Con remates",
+      "mono": "Monoespaciada",
+      "playful": "Divertida"
+    },
     "addGoogleFont": "Añadir una fuente de Google",
     "addGoogleFontHelp": "Se descarga una vez y se guarda en tu servidor: el tablero nunca se conecta a Google al abrir una página, y sigue funcionando sin internet.",
     "googleFontPlaceholder": "p. ej. Roboto Slab",
@@ -22,6 +29,18 @@
     "accentDark": "Color de acento — modo oscuro",
     "lightAccentSwatch": "Acento claro {color}",
     "darkAccentSwatch": "Acento oscuro {color}",
+    "colors": {
+      "green": "verde",
+      "blue": "azul",
+      "indigo": "índigo",
+      "violet": "violeta",
+      "fuchsia": "fucsia",
+      "rose": "rosa",
+      "orange": "naranja",
+      "amber": "ámbar",
+      "teal": "turquesa",
+      "cyan": "cian"
+    },
     "tvTheme": "Tema del modo TV",
     "tvThemeHelp": "El aspecto de la pantalla de pared /tv. Se aplica a todo el hogar, no a cada dispositivo.",
     "tvThemeNoLocation": "Sin ubicación, se usa un horario fijo de 7:00 a 19:00. Añade una ubicación del tiempo para usar el amanecer y el atardecer reales.",
