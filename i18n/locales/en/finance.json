@@ -75,7 +75,11 @@
       "investment": "Investment",
       "loan": "Loan",
       "other": "Other"
-    }
+    },
+    "remove": "Remove account",
+    "removeConfirm": "Remove “{name}”? This permanently deletes the account and its transactions, and can’t be undone.",
+    "removed": "Account removed",
+    "removeFailed": "Could not remove the account"
   },
   "transactions": {
     "title": "Transactions",
@@ -112,7 +116,15 @@
       "expense": "Spending",
       "income": "Income",
       "transfer": "Transfer"
-    }
+    },
+    "edit": "Edit category",
+    "color": "Colour",
+    "colorNone": "No colour",
+    "empty": "No categories yet.",
+    "removeConfirm": "Delete “{name}”? If a transaction still uses it, it’s archived instead so your history keeps its category.",
+    "deleted": "Category deleted",
+    "archivedInstead": "Archived instead of deleted — past transactions keep their category.",
+    "saveFailed": "Could not save the category"
   },
   "rules": {
     "title": "Auto-categorise",

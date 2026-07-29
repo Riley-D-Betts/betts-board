@@ -75,7 +75,11 @@
       "investment": "Inversión",
       "loan": "Préstamo",
       "other": "Otro"
-    }
+    },
+    "remove": "Eliminar cuenta",
+    "removeConfirm": "¿Eliminar «{name}»? Esto borra la cuenta y sus movimientos de forma permanente y no se puede deshacer.",
+    "removed": "Cuenta eliminada",
+    "removeFailed": "No se ha podido eliminar la cuenta"
   },
   "transactions": {
     "title": "Movimientos",
@@ -112,7 +116,15 @@
       "expense": "Gasto",
       "income": "Ingreso",
       "transfer": "Traspaso"
-    }
+    },
+    "edit": "Editar categoría",
+    "color": "Color",
+    "colorNone": "Sin color",
+    "empty": "Aún no hay categorías.",
+    "removeConfirm": "¿Eliminar «{name}»? Si algún movimiento aún la usa, se archiva en su lugar para que tu historial conserve la categoría.",
+    "deleted": "Categoría eliminada",
+    "archivedInstead": "Archivada en vez de eliminada: los movimientos anteriores conservan su categoría.",
+    "saveFailed": "No se ha podido guardar la categoría"
   },
   "rules": {
     "title": "Categorías automáticas",
