@@ -267,7 +267,20 @@
     "dueOn": "Vence el {date}",
     "overdueBy": "{n} día de retraso | {n} días de retraso",
     "empty": "Aún no hay facturas. Al añadirlas, la previsión empieza a servir de algo.",
-    "notOnCalendar": "Las facturas se quedan en esta sección: nunca aparecen en el calendario familiar ni en la pantalla de pared."
+    "notOnCalendar": "Las facturas se quedan en esta sección: nunca aparecen en el calendario familiar ni en la pantalla de pared.",
+    "manageTitle": "Todas las facturas",
+    "removeConfirm": "¿Eliminar «{name}»? Esto elimina la factura y su programación de forma permanente. Los movimientos que ya registraste no se ven afectados.",
+    "removed": "Factura eliminada",
+    "removeFailed": "No se pudo eliminar la factura",
+    "deleteTitle": "Eliminar factura",
+    "cadence": {
+      "once": "Una vez",
+      "weekly": "Semanal",
+      "biweekly": "Cada 2 semanas",
+      "monthly": "Mensual",
+      "yearly": "Anual",
+      "custom": "Personalizado"
+    }
   },
   "goals": {
     "title": "Objetivos de ahorro",

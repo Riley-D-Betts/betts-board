@@ -267,7 +267,20 @@
     "dueOn": "Due {date}",
     "overdueBy": "{n} day overdue | {n} days overdue",
     "empty": "No bills yet. Adding them makes the forecast worth reading.",
-    "notOnCalendar": "Bills stay in this section — they never appear on the family calendar or the wall display."
+    "notOnCalendar": "Bills stay in this section — they never appear on the family calendar or the wall display.",
+    "manageTitle": "All bills",
+    "removeConfirm": "Delete \"{name}\"? This permanently removes the bill and its schedule. Transactions you've already recorded aren't affected.",
+    "removed": "Bill deleted",
+    "removeFailed": "Couldn't delete the bill",
+    "deleteTitle": "Delete bill",
+    "cadence": {
+      "once": "One-off",
+      "weekly": "Weekly",
+      "biweekly": "Every 2 weeks",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "custom": "Custom"
+    }
   },
   "goals": {
     "title": "Savings goals",

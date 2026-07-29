@@ -168,6 +168,9 @@ function daysOverdue(dueDate: string) {
         </div>
       </UCard>
 
+      <!-- One row per bill (not per occurrence): the place to delete a bill. -->
+      <FinanceBillList @changed="refresh" />
+
       <p class="text-xs text-slate-500 dark:text-slate-400">{{ $t('finance.bills.notOnCalendar') }}</p>
     </div>
 
