@@ -84,6 +84,8 @@ async function saveSettings() {
 
       <FinanceCategories />
 
+      <FinanceRules />
+
       <UCard>
         <template #header>
           <h2 class="font-semibold">{{ $t('finance.settings.title') }}</h2>
