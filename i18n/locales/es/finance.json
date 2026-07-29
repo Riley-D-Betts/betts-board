@@ -231,6 +231,8 @@
     "noBudget": "Sin presupuesto",
     "totalBudgeted": "Presupuestado",
     "totalSpent": "Gastado hasta ahora",
+    "totalReserved": "Reservado",
+    "reservedAmount": "{amount} reservado para facturas",
     "carriedForward": "Copiado del mes pasado: cambia lo que quieras.",
     "empty": "Añade primero algunas categorías y luego marca cuánto quieres gastar."
   },
@@ -252,9 +254,13 @@
       "monthly": "Se repite: cada mes",
       "weekly": "Se repite: cada semana",
       "biweekly": "Se repite: cada 2 semanas",
+      "semimonthly": "Se repite: dos veces al mes",
       "yearly": "Se repite: cada año",
       "once": "Se repite: una sola vez"
     },
+    "semimonthlyDays": "¿Qué días?",
+    "lastDayOfMonth": "Último día",
+    "distinctDays": "Elige dos días distintos.",
     "until": "Hasta",
     "account": "Se paga desde",
     "autoPay": "Pago automático",
@@ -267,7 +273,21 @@
     "dueOn": "Vence el {date}",
     "overdueBy": "{n} día de retraso | {n} días de retraso",
     "empty": "Aún no hay facturas. Al añadirlas, la previsión empieza a servir de algo.",
-    "notOnCalendar": "Las facturas se quedan en esta sección: nunca aparecen en el calendario familiar ni en la pantalla de pared."
+    "notOnCalendar": "Las facturas se quedan en esta sección: nunca aparecen en el calendario familiar ni en la pantalla de pared.",
+    "manageTitle": "Todas las facturas",
+    "removeConfirm": "¿Eliminar «{name}»? Esto elimina la factura y su programación de forma permanente. Los movimientos que ya registraste no se ven afectados.",
+    "removed": "Factura eliminada",
+    "removeFailed": "No se pudo eliminar la factura",
+    "deleteTitle": "Eliminar factura",
+    "cadence": {
+      "once": "Una vez",
+      "weekly": "Semanal",
+      "biweekly": "Cada 2 semanas",
+      "semimonthly": "Dos veces al mes",
+      "monthly": "Mensual",
+      "yearly": "Anual",
+      "custom": "Personalizado"
+    }
   },
   "goals": {
     "title": "Objetivos de ahorro",

@@ -231,6 +231,8 @@
     "noBudget": "Aucun budget défini",
     "totalBudgeted": "Budgété",
     "totalSpent": "Dépensé à ce jour",
+    "totalReserved": "Réservé",
+    "reservedAmount": "{amount} réservé pour les factures",
     "carriedForward": "Copié du mois dernier — modifiez ce que vous voulez.",
     "empty": "Créez d'abord des catégories, puis fixez ce que vous voulez dépenser."
   },
@@ -252,9 +254,13 @@
       "monthly": "Répétition : tous les mois",
       "weekly": "Répétition : toutes les semaines",
       "biweekly": "Répétition : toutes les 2 semaines",
+      "semimonthly": "Répétition : deux fois par mois",
       "yearly": "Répétition : tous les ans",
       "once": "Répétition : une seule fois"
     },
+    "semimonthlyDays": "Quels jours ?",
+    "lastDayOfMonth": "Dernier jour",
+    "distinctDays": "Choisissez deux jours différents.",
     "until": "Jusqu'au",
     "account": "Payée depuis",
     "autoPay": "Prélèvement automatique",
@@ -267,7 +273,21 @@
     "dueOn": "À payer le {date}",
     "overdueBy": "{n} jour de retard | {n} jours de retard",
     "empty": "Aucune facture pour l'instant. En ajouter rend les prévisions vraiment utiles.",
-    "notOnCalendar": "Les factures restent dans cette section — elles n'apparaissent jamais sur le calendrier familial ni sur l'écran mural."
+    "notOnCalendar": "Les factures restent dans cette section — elles n'apparaissent jamais sur le calendrier familial ni sur l'écran mural.",
+    "manageTitle": "Toutes les factures",
+    "removeConfirm": "Supprimer « {name} » ? Cela supprime définitivement la facture et son échéancier. Les transactions déjà enregistrées ne sont pas affectées.",
+    "removed": "Facture supprimée",
+    "removeFailed": "Impossible de supprimer la facture",
+    "deleteTitle": "Supprimer la facture",
+    "cadence": {
+      "once": "Une fois",
+      "weekly": "Hebdomadaire",
+      "biweekly": "Toutes les 2 semaines",
+      "semimonthly": "Deux fois par mois",
+      "monthly": "Mensuel",
+      "yearly": "Annuel",
+      "custom": "Personnalisé"
+    }
   },
   "goals": {
     "title": "Objectifs d'épargne",

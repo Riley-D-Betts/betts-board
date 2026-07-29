@@ -3,6 +3,8 @@
      One editor so the two entry points (Bills page, transaction row) can never
      drift apart. Guarded upstream by requireFinanceAccess like every bill route. -->
 <script setup lang="ts">
+import { SEMIMONTHLY, LAST_DAY, semimonthlyRule, firstSemimonthlyOnOrAfter } from '#shared/utils/billCadence'
+
 const NO_CATEGORY = 'none'
 
 interface BillSeed {
@@ -37,6 +39,9 @@ const form = reactive({
   startDate: todayString(),
   frequency: 'FREQ=MONTHLY',
   categoryId: NO_CATEGORY,
+  // Only used when frequency is the twice-a-month sentinel.
+  dayA: 1,
+  dayB: 15,
 })
 // A transaction carries the account it was paid from; keep it as the bill's
 // "paid from" without a picker. Bare bills leave it null, matching today.
@@ -51,9 +56,27 @@ const frequencyItems = computed(() => [
   { value: 'FREQ=MONTHLY', label: t('finance.bills.frequencies.monthly') },
   { value: 'FREQ=WEEKLY', label: t('finance.bills.frequencies.weekly') },
   { value: 'FREQ=WEEKLY;INTERVAL=2', label: t('finance.bills.frequencies.biweekly') },
+  { value: SEMIMONTHLY, label: t('finance.bills.frequencies.semimonthly') },
   { value: 'FREQ=YEARLY', label: t('finance.bills.frequencies.yearly') },
   { value: 'once', label: t('finance.bills.frequencies.once') },
 ])
+
+// 1–28 plus "Last day": foolproof for pay dates — no short-month skips, and
+// -1 gives the true month-end. Deliberately omits 29–31 in favour of "Last day".
+const dayItems = computed(() => [
+  ...Array.from({ length: 28 }, (_, i) => ({ value: i + 1, label: String(i + 1) })),
+  { value: LAST_DAY, label: t('finance.bills.lastDayOfMonth') },
+])
+
+const isTwiceMonthly = computed(() => form.frequency === SEMIMONTHLY)
+// The two days must resolve to two different dates. Equal picks obviously fail;
+// so does 28 + "Last day", which land on the same date in a non-leap February.
+const daysValid = computed(() => {
+  if (!isTwiceMonthly.value) return true
+  if (form.dayA === form.dayB) return false
+  const picked = new Set([form.dayA, form.dayB])
+  return !(picked.has(28) && picked.has(LAST_DAY))
+})
 
 const categoryItems = computed(() => [
   { label: t('finance.transactions.uncategorized'), value: NO_CATEGORY },
@@ -74,8 +97,28 @@ watch(open, (isOpen) => {
   form.startDate = seed?.startDate ?? todayString()
   form.frequency = 'FREQ=MONTHLY'
   form.categoryId = seed?.categoryId ?? NO_CATEGORY
+  form.dayA = 1
+  form.dayB = 15
   seededAccountId.value = seed?.accountId ?? null
 }, { immediate: true })
+
+/** The frequency sentinel resolved to a stored value: an RRULE body, or null for a one-off. */
+function resolveRrule(): string | null {
+  if (form.frequency === 'once') return null
+  if (form.frequency === SEMIMONTHLY) return semimonthlyRule(form.dayA, form.dayB)
+  return form.frequency
+}
+
+/**
+ * Twice-a-month bills anchor on the next pay day (the expander always treats the
+ * startDate as an occurrence, so it must BE a pay day); everything else uses the
+ * date the user picked.
+ */
+function resolveStartDate(): string {
+  return form.frequency === SEMIMONTHLY
+    ? firstSemimonthlyOnOrAfter(todayString(), form.dayA, form.dayB)
+    : form.startDate
+}
 
 async function create() {
   const amountMinor = fromInput(form.amount, currency.value)
@@ -88,10 +131,11 @@ async function create() {
         name: form.name.trim().slice(0, 80),
         kind: form.kind,
         amountMinor: Math.abs(amountMinor),
-        startDate: form.startDate,
-        // "once" means no rule at all rather than a COUNT=1 rule — simpler to
-        // read back, and the expander already handles a null rrule.
-        rrule: form.frequency === 'once' ? null : form.frequency,
+        startDate: resolveStartDate(),
+        // "once" → no rule (the expander handles null); "twice a month" → a
+        // BYMONTHDAY rule built from the two chosen days; otherwise the picker
+        // value already IS the RRULE body.
+        rrule: resolveRrule(),
         categoryId: form.categoryId === NO_CATEGORY ? null : form.categoryId,
         ...(seededAccountId.value ? { accountId: seededAccountId.value } : {}),
       },
@@ -122,13 +166,26 @@ async function create() {
           </UFormField>
         </div>
         <div class="grid gap-3 sm:grid-cols-2">
-          <UFormField :label="$t('finance.bills.startDate')">
+          <UFormField v-if="!isTwiceMonthly" :label="$t('finance.bills.startDate')">
             <UInput v-model="form.startDate" type="date" class="w-full" />
           </UFormField>
-          <UFormField :label="$t('finance.bills.repeats')">
+          <UFormField
+            :label="$t('finance.bills.repeats')"
+            :class="isTwiceMonthly ? 'sm:col-span-2' : ''"
+          >
             <USelect v-model="form.frequency" :items="frequencyItems" class="w-full" />
           </UFormField>
         </div>
+        <UFormField v-if="isTwiceMonthly" :label="$t('finance.bills.semimonthlyDays')">
+          <div class="flex items-center gap-2">
+            <USelect v-model="form.dayA" :items="dayItems" class="flex-1" />
+            <span class="shrink-0 text-sm text-slate-500 dark:text-slate-400">&amp;</span>
+            <USelect v-model="form.dayB" :items="dayItems" class="flex-1" />
+          </div>
+          <p v-if="!daysValid" class="mt-1 text-sm text-red-600 dark:text-red-400">
+            {{ $t('finance.bills.distinctDays') }}
+          </p>
+        </UFormField>
         <UFormField :label="$t('finance.transactions.category')">
           <USelect v-model="form.categoryId" :items="categoryItems" class="w-full" />
         </UFormField>
@@ -136,7 +193,7 @@ async function create() {
           <UButton color="neutral" variant="ghost" @click="open = false">
             {{ $t('common.actions.cancel') }}
           </UButton>
-          <UButton type="submit" :loading="saving" :disabled="!form.name.trim() || !form.amount">
+          <UButton type="submit" :loading="saving" :disabled="!form.name.trim() || !form.amount || !daysValid">
             {{ $t('common.actions.save') }}
           </UButton>
         </div>

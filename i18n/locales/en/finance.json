@@ -231,6 +231,8 @@
     "noBudget": "No budget set",
     "totalBudgeted": "Budgeted",
     "totalSpent": "Spent so far",
+    "totalReserved": "Reserved",
+    "reservedAmount": "{amount} reserved for bills",
     "carriedForward": "Copied from last month — change anything you like.",
     "empty": "Add some categories first, then set what you want to spend."
   },
@@ -252,9 +254,13 @@
       "monthly": "Repeats: monthly",
       "weekly": "Repeats: weekly",
       "biweekly": "Repeats: every 2 weeks",
+      "semimonthly": "Repeats: twice a month",
       "yearly": "Repeats: yearly",
       "once": "Repeats: once"
     },
+    "semimonthlyDays": "Which days?",
+    "lastDayOfMonth": "Last day",
+    "distinctDays": "Pick two different days.",
     "until": "Until",
     "account": "Paid from",
     "autoPay": "Paid automatically",
@@ -267,7 +273,21 @@
     "dueOn": "Due {date}",
     "overdueBy": "{n} day overdue | {n} days overdue",
     "empty": "No bills yet. Adding them makes the forecast worth reading.",
-    "notOnCalendar": "Bills stay in this section — they never appear on the family calendar or the wall display."
+    "notOnCalendar": "Bills stay in this section — they never appear on the family calendar or the wall display.",
+    "manageTitle": "All bills",
+    "removeConfirm": "Delete \"{name}\"? This permanently removes the bill and its schedule. Transactions you've already recorded aren't affected.",
+    "removed": "Bill deleted",
+    "removeFailed": "Couldn't delete the bill",
+    "deleteTitle": "Delete bill",
+    "cadence": {
+      "once": "One-off",
+      "weekly": "Weekly",
+      "biweekly": "Every 2 weeks",
+      "semimonthly": "Twice a month",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "custom": "Custom"
+    }
   },
   "goals": {
     "title": "Savings goals",

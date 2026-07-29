@@ -11,6 +11,7 @@ interface BudgetLine {
   budgetId: string | null
   amountMinor: number
   spentMinor: number
+  committedMinor: number
   remainingMinor: number
   progress: number | null
   transactionCount: number
@@ -28,6 +29,7 @@ const { data, refresh } = await useFetch<{
   lines: BudgetLine[]
   totalBudgetedMinor: number
   totalSpentMinor: number
+  totalCommittedMinor: number
   uncategorizedMinor: number
 }>('/api/finance/budgets', {
   immediate: unlocked.value,
@@ -77,12 +79,31 @@ function shiftMonth(delta: number) {
   period.value = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
 }
 
-/** Colour by how far over, not a gradient — "am I over?" is the question. */
+/** Colour by how far over, not a gradient — "am I over?" is the question. This
+ *  is the SPENT segment's colour, driven by real spend; reservations show as a
+ *  separate violet segment and turn the "left"/"over" figure, not this bar. */
 function barColor(line: BudgetLine) {
   if (!line.amountMinor) return 'neutral'
   if (line.spentMinor > line.amountMinor) return 'error'
   if (line.spentMinor > line.amountMinor * 0.9) return 'warning'
   return 'primary'
+}
+
+function spentBarClass(line: BudgetLine) {
+  switch (barColor(line)) {
+    case 'error': return 'bg-rose-500'
+    case 'warning': return 'bg-amber-500'
+    case 'neutral': return 'bg-slate-400'
+    default: return 'bg-primary'
+  }
+}
+
+/** Segment widths as a % of the budget; spent first, then reserved, capped at 100% together. */
+function segWidth(line: BudgetLine) {
+  const base = line.amountMinor || 1
+  const spent = Math.max(0, Math.min(100, (line.spentMinor / base) * 100))
+  const committed = Math.max(0, Math.min(100 - spent, (line.committedMinor / base) * 100))
+  return { spent: `${spent}%`, committed: `${committed}%` }
 }
 </script>
 
@@ -121,6 +142,12 @@ function barColor(line: BudgetLine) {
             {{ $t('finance.budgets.totalSpent') }}
             <strong class="tabular-nums text-slate-900 dark:text-slate-100">
               {{ moneyShort(data.totalSpentMinor, data.currency) }}
+            </strong>
+          </span>
+          <span v-if="data.totalCommittedMinor" class="text-slate-500 dark:text-slate-400">
+            {{ $t('finance.budgets.totalReserved') }}
+            <strong class="tabular-nums text-violet-600 dark:text-violet-400">
+              {{ moneyShort(data.totalCommittedMinor, data.currency) }}
             </strong>
           </span>
         </div>
@@ -167,12 +194,15 @@ function barColor(line: BudgetLine) {
             </div>
 
             <div v-if="line.amountMinor" class="flex items-center gap-3">
-              <UProgress
-                :model-value="Math.min(100, Math.round((line.progress ?? 0) * 100))"
-                :color="barColor(line)"
-                size="sm"
-                class="flex-1"
-              />
+              <!-- Two segments: real spend, then money reserved by unpaid bills
+                   (violet). UProgress can only draw one fill, hence the hand-rolled
+                   track. -->
+              <div class="relative h-2 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+                <div class="flex h-full">
+                  <div class="h-full transition-[width]" :class="spentBarClass(line)" :style="{ width: segWidth(line).spent }" />
+                  <div class="h-full bg-violet-500 transition-[width] dark:bg-violet-400" :style="{ width: segWidth(line).committed }" />
+                </div>
+              </div>
               <span
                 class="w-32 shrink-0 text-right text-xs tabular-nums"
                 :class="line.remainingMinor < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-500 dark:text-slate-400'"
@@ -185,6 +215,10 @@ function barColor(line: BudgetLine) {
                 </template>
               </span>
             </div>
+
+            <p v-if="line.committedMinor" class="text-xs text-violet-600 tabular-nums dark:text-violet-400">
+              {{ $t('finance.budgets.reservedAmount', { amount: money(line.committedMinor, data.currency) }) }}
+            </p>
           </div>
         </div>
       </UCard>

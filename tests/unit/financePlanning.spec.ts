@@ -7,6 +7,7 @@ import {
   financeGoals, financeImportBatches, financeTransactions, households, profiles,
 } from '../../server/db/schema'
 import { installNitroGlobals } from '../support/nitroGlobals'
+import { semimonthlyRule } from '../../shared/utils/billCadence'
 import { projectCashFlow, averageDailySpend } from '../../server/services/finance/forecast'
 import type { BillOccurrence } from '../../server/services/finance/bills'
 
@@ -14,7 +15,7 @@ installNitroGlobals()
 
 const { budgetForMonth, carryForwardBudgets, monthWindow, previousMonth, setBudget }
   = await import('../../server/services/finance/budgets')
-const { createBill, expandBills, markBillOccurrence, clearBillOccurrence }
+const { createBill, deleteBill, expandBills, markBillOccurrence, clearBillOccurrence }
   = await import('../../server/services/finance/bills')
 const { contributeToGoal, createGoal, listGoals } = await import('../../server/services/finance/goals')
 const { createAccount } = await import('../../server/services/finance/accounts')
@@ -205,6 +206,27 @@ describe('expandBills', () => {
       .toEqual(['2026-03-14'])
   })
 
+  it('expands a twice-a-month income bill on both chosen days', () => {
+    // startDate is a real pay day (as the editor derives via firstSemimonthlyOnOrAfter),
+    // so the expander's always-include-the-start-date rule adds nothing spurious.
+    createBill(db, householdId, {
+      name: 'Paycheck', kind: 'income', amountMinor: 250000, currency: 'USD',
+      rrule: semimonthlyRule(5, 20), startDate: '2026-01-05',
+    })
+    const occ = expandBills(db, householdId, '2026-01-01', '2026-03-01')
+    expect(occ.map(o => o.dueDate)).toEqual(['2026-01-05', '2026-01-20', '2026-02-05', '2026-02-20'])
+    expect(occ.every(o => o.kind === 'income')).toBe(true)
+  })
+
+  it('expands a bare bi-weekly bill every 14 days from the start date', () => {
+    createBill(db, householdId, {
+      name: 'Allowance', kind: 'expense', amountMinor: 2000, currency: 'USD',
+      rrule: 'FREQ=WEEKLY;INTERVAL=2', startDate: '2026-01-02',
+    })
+    expect(expandBills(db, householdId, '2026-01-01', '2026-03-01').map(o => o.dueDate))
+      .toEqual(['2026-01-02', '2026-01-16', '2026-01-30', '2026-02-13', '2026-02-27'])
+  })
+
   it('materialises a row only when somebody marks an occurrence', () => {
     const bill = createBill(db, householdId, {
       name: 'Rent', kind: 'expense', amountMinor: 125000, currency: 'USD',
@@ -241,6 +263,45 @@ describe('expandBills', () => {
     markBillOccurrence(db, householdId, bill.id, { dueDate: '2026-02-01', status: 'paid' })
     markBillOccurrence(db, householdId, bill.id, { dueDate: '2026-02-01', status: 'skipped' })
     expect(db.select().from(financeBillPayments).all()).toHaveLength(1)
+  })
+})
+
+describe('deleting a bill', () => {
+  it('removes the bill so it stops expanding into occurrences', () => {
+    const bill = createBill(db, householdId, {
+      name: 'Rent', kind: 'expense', amountMinor: 125000, currency: 'USD',
+      rrule: 'FREQ=MONTHLY', startDate: '2026-01-01',
+    })
+    expect(expandBills(db, householdId, '2026-01-01', '2026-04-01')).not.toHaveLength(0)
+
+    deleteBill(db, householdId, bill.id)
+    expect(expandBills(db, householdId, '2026-01-01', '2026-04-01')).toHaveLength(0)
+  })
+
+  it('cascades its occurrence overrides — no orphaned payment rows', () => {
+    const bill = createBill(db, householdId, {
+      name: 'Rent', kind: 'expense', amountMinor: 125000, currency: 'USD',
+      rrule: 'FREQ=MONTHLY', startDate: '2026-01-01',
+    })
+    markBillOccurrence(db, householdId, bill.id, { dueDate: '2026-02-01', status: 'paid' })
+    expect(db.select().from(financeBillPayments).all()).toHaveLength(1)
+
+    deleteBill(db, householdId, bill.id)
+    expect(db.select().from(financeBillPayments).all()).toHaveLength(0)
+  })
+
+  it('refuses to delete a bill from another household', () => {
+    const other = db.insert(households).values({
+      name: 'Other', passwordHash: 'x', timezone: 'UTC', icsToken: 'tok2', settings: defaultHouseholdSettings,
+    }).returning().get().id
+    const bill = createBill(db, other, {
+      name: 'Theirs', kind: 'expense', amountMinor: 1000, currency: 'USD',
+      rrule: null, startDate: '2026-01-01',
+    })
+    expect(() => deleteBill(db, householdId, bill.id)).toThrow(/not found/i)
+    // Still there — the wrong-household guard must not delete it. (The table is
+    // cleared per test, so the lone survivor is that bill.)
+    expect(db.select().from(financeBills).all()).toHaveLength(1)
   })
 })
 
