@@ -48,8 +48,13 @@ your own server.
   Google Font by name — it's downloaded once and served from your own server
   afterwards, so no page view is ever reported to Google and it still works
   offline
-- 💰 **Money** — accounts, transactions, budgets, bills, savings goals, and a
-  cash-flow forecast, behind its own PIN. Connect a bank through
+- 🌐 **Languages** — the whole board speaks English, Spanish, or French, chosen
+  once for the household in Settings. Dates, times, and money amounts follow the
+  language too, and every translation is bundled and served from your own server,
+  so nothing is fetched from a translation service and it all works offline
+- 💰 **Money** — accounts, transactions (split a single receipt across
+  categories), budgets, bills, savings goals, and a cash-flow forecast, behind
+  its own PIN. Connect a bank through
   [SimpleFIN](https://beta-bridge.simplefin.org/) or import OFX/QFX/CSV
   statements. Deliberately never shown on the dashboard, the wall display, or
   the shared calendar — see [Money and privacy](#money-and-privacy)
@@ -151,15 +156,15 @@ the container does not reset it.
 | `NUXT_SESSION_PASSWORD` | auto-generated | Cookie-sealing secret; created as `.session-secret` in the data volume on first boot and reused. Treat it like a password — see [Backup & restore](#backup--restore) |
 | `BETTS_RESET_PASSWORD` | unset | Set to `1` to reset the household password. Acts on the **next boot only**: the board records that it ran and ignores the variable afterwards, so a copy left in `docker-compose.yml` can't reset the password on every restart. Remove it (or give it a different value) to arm it again |
 | `BETTS_RESET_FINANCE_PIN` | unset | Set to `1` to clear every Money PIN. Bank connections and history are untouched; whoever sets a PIN first afterwards becomes the Money owner. Same one-shot arming as `BETTS_RESET_PASSWORD` |
-| `BETTS_SIMPLEFIN_HOSTS` | `bridge.simplefin.org` | Comma-separated hosts the server may fetch bank data from. Only change this if you run your own SimpleFIN bridge |
+| `BETTS_SIMPLEFIN_HOSTS` | `bridge.simplefin.org, beta-bridge.simplefin.org` | Comma-separated hosts the server may fetch bank data from — both of SimpleFIN's public bridges by default. Only change this if you run your own SimpleFIN bridge |
 | `BETTS_ALLOW_PRIVATE_FETCH_HOSTS` | unset | Comma-separated hosts on your own network that the board is allowed to fetch from — e.g. `nas.lan,192.168.1.10`. By default every outbound fetch the app makes on someone's behalf (recipe import, calendar feed, font download) refuses to connect to a private, loopback or link-local address, because otherwise anyone who can paste a link can make the board knock on your router, your NAS, your printer, or a cloud metadata endpoint and never see the reply. Subscribing to a calendar hosted on your **own** NAS is a legitimate reason to reopen exactly that one host. Matching is exact and per-host, so allowing the NAS does not allow the router. It is a variable rather than a setting in the app on purpose: this should cost a deliberate edit here, not a checkbox anyone with an admin session can tick |
 | `NUXT_SESSION_COOKIE_SECURE` | `false` | Session cookies work over plain HTTP by default (LAN deployments). Set to `true` when serving behind HTTPS so the cookie is only ever sent encrypted |
 | `BETTS_TRUSTED_PROXY` | unset | Set to `1` only when a reverse proxy **you control** is the only route to the container. It makes the unlock rate limit read the client address from the last `X-Forwarded-For` element instead of the socket. Leave it unset if the container is reachable directly — the header is client-writable, and trusting it would let an attacker pick their own rate-limit bucket |
 | `PORT` | `3000` | HTTP port inside the container |
 
 Everything else — weather location, temperature unit, week start, meal times,
-default cook, appearance, slideshow behavior, feeds, notifications, API keys —
-is configured in the app under **Settings**.
+default cook, appearance, language, slideshow behavior, feeds, notifications,
+API keys — is configured in the app under **Settings**.
 
 ## Money and privacy
 
@@ -243,7 +248,8 @@ works and your history is intact; you'll be asked to reconnect the bank.
 Betts Board speaks [SimpleFIN](https://beta-bridge.simplefin.org/), which is a
 read-only, paid bridge to most US and Canadian banks. You paste a setup token;
 it's exchanged once, immediately, and never stored. The server will only ever
-fetch from `bridge.simplefin.org` (override with `BETTS_SIMPLEFIN_HOSTS`) over
+fetch from SimpleFIN's own bridge hosts (`bridge.simplefin.org` and
+`beta-bridge.simplefin.org`; override with `BETTS_SIMPLEFIN_HOSTS`) over
 HTTPS, refuses redirects, and refuses to fetch private or link-local addresses
 — a setup token is a URL your server is asked to call, and that shouldn't be a
 way to point it at your router.
@@ -262,8 +268,8 @@ undone in one click.
 Nuxt 4 full-stack (one Nitro server, no separate backend) · SQLite via Drizzle
 ORM with migrations applied automatically on boot · Nuxt UI v4 + Tailwind ·
 `rrule` for RFC 5545 recurrence · sharp for image processing · Web Push with
-auto-provisioned VAPID keys · vue-i18n (English today; the scaffolding is in
-place for more) · installable PWA.
+auto-provisioned VAPID keys · vue-i18n with English, Spanish, and French, all
+bundled and served locally · installable PWA.
 
 Everything is served from your own server. The app makes no outbound requests
 at page load — fonts, icons, and translations are all local — and the only

@@ -25,8 +25,13 @@ import { redactCredentials, sanitizeErrorList, sanitizeUpstreamMessage } from '.
  *   - TLS verification is Node's default and is never touched
  */
 
-const DEFAULT_HOSTS = 'bridge.simplefin.org'
-/** Comma-separated. The test stub sets 127.0.0.1; self-hosters set their bridge. */
+// Both of SimpleFIN's public bridge hosts. Real setup tokens issued today
+// decode to a claim URL on `beta-bridge.simplefin.org` — that is the live
+// bridge the README links people to — so leaving it out of the default made
+// every out-of-the-box connection fail the host check before it ever left the
+// box. `bridge.simplefin.org` stays in for anyone whose token points there.
+export const DEFAULT_HOSTS = 'bridge.simplefin.org,beta-bridge.simplefin.org'
+/** Comma-separated. The test stub sets 127.0.0.1; self-hosters add their own bridge. */
 const ALLOWED_HOSTS = new Set(
   (process.env.BETTS_SIMPLEFIN_HOSTS || DEFAULT_HOSTS)
     .split(',').map(h => h.trim().toLowerCase()).filter(Boolean),
