@@ -252,9 +252,12 @@
       "monthly": "Se repite: cada mes",
       "weekly": "Se repite: cada semana",
       "biweekly": "Se repite: cada 2 semanas",
+      "semimonthly": "Se repite: dos veces al mes",
       "yearly": "Se repite: cada año",
       "once": "Se repite: una sola vez"
     },
+    "semimonthlyDays": "¿Qué días?",
+    "lastDayOfMonth": "Último día",
     "until": "Hasta",
     "account": "Se paga desde",
     "autoPay": "Pago automático",
@@ -277,6 +280,7 @@
       "once": "Una vez",
       "weekly": "Semanal",
       "biweekly": "Cada 2 semanas",
+      "semimonthly": "Dos veces al mes",
       "monthly": "Mensual",
       "yearly": "Anual",
       "custom": "Personalizado"

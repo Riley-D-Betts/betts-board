@@ -252,9 +252,12 @@
       "monthly": "Répétition : tous les mois",
       "weekly": "Répétition : toutes les semaines",
       "biweekly": "Répétition : toutes les 2 semaines",
+      "semimonthly": "Répétition : deux fois par mois",
       "yearly": "Répétition : tous les ans",
       "once": "Répétition : une seule fois"
     },
+    "semimonthlyDays": "Quels jours ?",
+    "lastDayOfMonth": "Dernier jour",
     "until": "Jusqu'au",
     "account": "Payée depuis",
     "autoPay": "Prélèvement automatique",
@@ -277,6 +280,7 @@
       "once": "Une fois",
       "weekly": "Hebdomadaire",
       "biweekly": "Toutes les 2 semaines",
+      "semimonthly": "Deux fois par mois",
       "monthly": "Mensuel",
       "yearly": "Annuel",
       "custom": "Personnalisé"

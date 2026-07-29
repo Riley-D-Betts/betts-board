@@ -7,6 +7,7 @@ import {
   financeGoals, financeImportBatches, financeTransactions, households, profiles,
 } from '../../server/db/schema'
 import { installNitroGlobals } from '../support/nitroGlobals'
+import { semimonthlyRule } from '../../shared/utils/billCadence'
 import { projectCashFlow, averageDailySpend } from '../../server/services/finance/forecast'
 import type { BillOccurrence } from '../../server/services/finance/bills'
 
@@ -203,6 +204,27 @@ describe('expandBills', () => {
     })
     expect(expandBills(db, householdId, '2026-01-01', '2026-06-01').map(o => o.dueDate))
       .toEqual(['2026-03-14'])
+  })
+
+  it('expands a twice-a-month income bill on both chosen days', () => {
+    // startDate is a real pay day (as the editor derives via firstSemimonthlyOnOrAfter),
+    // so the expander's always-include-the-start-date rule adds nothing spurious.
+    createBill(db, householdId, {
+      name: 'Paycheck', kind: 'income', amountMinor: 250000, currency: 'USD',
+      rrule: semimonthlyRule(5, 20), startDate: '2026-01-05',
+    })
+    const occ = expandBills(db, householdId, '2026-01-01', '2026-03-01')
+    expect(occ.map(o => o.dueDate)).toEqual(['2026-01-05', '2026-01-20', '2026-02-05', '2026-02-20'])
+    expect(occ.every(o => o.kind === 'income')).toBe(true)
+  })
+
+  it('expands a bare bi-weekly bill every 14 days from the start date', () => {
+    createBill(db, householdId, {
+      name: 'Allowance', kind: 'expense', amountMinor: 2000, currency: 'USD',
+      rrule: 'FREQ=WEEKLY;INTERVAL=2', startDate: '2026-01-02',
+    })
+    expect(expandBills(db, householdId, '2026-01-01', '2026-03-01').map(o => o.dueDate))
+      .toEqual(['2026-01-02', '2026-01-16', '2026-01-30', '2026-02-13', '2026-02-27'])
   })
 
   it('materialises a row only when somebody marks an occurrence', () => {

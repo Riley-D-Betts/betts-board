@@ -252,9 +252,12 @@
       "monthly": "Repeats: monthly",
       "weekly": "Repeats: weekly",
       "biweekly": "Repeats: every 2 weeks",
+      "semimonthly": "Repeats: twice a month",
       "yearly": "Repeats: yearly",
       "once": "Repeats: once"
     },
+    "semimonthlyDays": "Which days?",
+    "lastDayOfMonth": "Last day",
     "until": "Until",
     "account": "Paid from",
     "autoPay": "Paid automatically",
@@ -277,6 +280,7 @@
       "once": "One-off",
       "weekly": "Weekly",
       "biweekly": "Every 2 weeks",
+      "semimonthly": "Twice a month",
       "monthly": "Monthly",
       "yearly": "Yearly",
       "custom": "Custom"

@@ -4,6 +4,8 @@
      the route, so it's offered to any unlocked finance member — same as the mark
      actions, not owner-only. -->
 <script setup lang="ts">
+import { isSemimonthly } from '#shared/utils/billCadence'
+
 const emit = defineEmits<{ changed: [] }>()
 
 const { unlocked } = useFinanceSession()
@@ -41,6 +43,7 @@ const CADENCE: Record<string, string> = {
 }
 function frequencyLabel(rrule: string | null): string {
   if (!rrule) return t('finance.bills.cadence.once')
+  if (isSemimonthly(rrule)) return t('finance.bills.cadence.semimonthly')
   return t(`finance.bills.cadence.${CADENCE[rrule] ?? 'custom'}`)
 }
 
