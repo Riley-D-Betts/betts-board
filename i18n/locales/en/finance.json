@@ -31,7 +31,39 @@
     "failedAttempts": "{n} failed unlock attempt since you last signed in. | {n} failed unlock attempts since you last signed in.",
     "resetArmed": "A PIN reset was armed on this server. Set a new PIN to claim the money section.",
     "expiresIn": "Locks in {time}",
-    "honest": "Anyone with access to this server can read this data. The PIN keeps it off the family tablet, not out of a determined attacker's hands."
+    "honest": "Anyone with access to this server can read this data. The PIN keeps it off the family tablet, not out of a determined attacker's hands.",
+    "entered": "{n} character entered | {n} characters entered",
+    "padLabel": "PIN keypad",
+    "clear": "Clear",
+    "backspace": "Delete last digit",
+    "useKeyboard": "Use a password instead",
+    "usePad": "Use the keypad"
+  },
+  "setup": {
+    "title": "Set up Money",
+    "subtitle": "Private to the people you choose",
+    "intro": "Money keeps the family's accounts, spending, budgets and bills in one place. It sits behind its own PIN, so it never shows on the wall display or the shared calendar.",
+    "cta": "Set up Money",
+    "adminOnly": "Money hasn't been set up yet. Ask an admin to set it up — they choose the PIN and can then give you access.",
+    "privacy": "Anyone with access to this server can read this data. The PIN keeps it off the family tablet, not out of a determined attacker's hands.",
+    "steps": {
+      "pin": {
+        "title": "Choose a PIN",
+        "body": "Six characters or more. You'll enter it whenever you open Money."
+      },
+      "accounts": {
+        "title": "Add an account",
+        "body": "Connect a bank through SimpleFIN, import a statement file, or keep an account by hand."
+      },
+      "people": {
+        "title": "Decide who can see it",
+        "body": "Money is private until you give someone access, each with their own PIN."
+      },
+      "plan": {
+        "title": "Set budgets and bills",
+        "body": "Optional. Budgets show what's left this month; bills give you a forecast worth reading."
+      }
+    }
   },
   "overview": {
     "netWorth": "Net worth",
@@ -60,8 +92,8 @@
     "openingBalance": "Current balance",
     "openingBalanceHelp": "What's in it right now. Everything you add afterwards adjusts this.",
     "empty": "No accounts yet. Connect a bank or add one you'll keep by hand.",
-    "hidden": "Hidden",
-    "hide": "Hide from totals",
+    "hidden": "Account hidden",
+    "hide": "Hide account",
     "archive": "Archive",
     "includeInNetWorth": "Count towards net worth",
     "fromBank": "From your bank",
@@ -79,7 +111,13 @@
     "remove": "Remove account",
     "removeConfirm": "Remove “{name}”? This permanently deletes the account and its transactions, and can’t be undone.",
     "removed": "Account removed",
-    "removeFailed": "Could not remove the account"
+    "removeFailed": "Could not remove the account",
+    "hideConfirm": "Hide “{name}”? It comes from your bank, so it can't be deleted — hiding takes it out of your accounts, totals and budgets, and it stays hidden after future syncs. Its transactions are kept.",
+    "restore": "Restore",
+    "restored": "Account restored",
+    "hiddenAccounts": "Hidden accounts",
+    "noHidden": "No hidden accounts.",
+    "disconnectHint": "To remove every account from this bank, disconnect it in"
   },
   "transactions": {
     "title": "Transactions",
@@ -141,6 +179,15 @@
     "runNow": "Run on existing transactions",
     "ran": "Updated {n} transaction. | Updated {n} transactions.",
     "neverOverwrites": "Rules never change a category you set yourself.",
+    "enabled": "Rule on",
+    "deleteTitle": "Delete rule",
+    "removed": "Rule deleted",
+    "removeConfirm": "Delete the rule for “{value}”? Transactions it already filed keep their category.",
+    "saveFailed": "Couldn't save the rule",
+    "renameHelp": "Optional — tidies a messy bank description into a name you recognise.",
+    "vendorTitle": "Always categorise this vendor",
+    "vendorHelp": "Files anything paid to “{vendor}” automatically, from now on.",
+    "vendorSaved": "Rule saved — {vendor} will be filed automatically.",
     "fields": {
       "description": "Description",
       "payee": "Paid to",
@@ -150,7 +197,11 @@
       "contains": "contains",
       "startsWith": "starts with",
       "equals": "is exactly"
-    }
+    },
+    "summary": "{field} {match} “{value}” → {category}",
+    "summaryRenameOnly": "{field} {match} “{value}”",
+    "enabledFor": "Rule for “{value}” on",
+    "unknownAccount": "A removed account"
   },
   "connections": {
     "title": "Bank connections",

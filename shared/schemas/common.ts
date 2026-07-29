@@ -87,3 +87,34 @@ export const zIanaTimezone = z.string().refine((tz) => {
     return false
   }
 }, 'unknown IANA timezone')
+
+/**
+ * A PATCH schema built from a CREATE schema: every field optional, and every
+ * `.default()` stripped.
+ *
+ * `create.partial()` looks like it does this but does NOT remove defaults — in
+ * zod 4 a `.partial()` field is `ZodOptional<ZodDefault<T>>`, and the default
+ * still fires when the key is absent. So `patch.parse({ enabled: false })`
+ * silently returns every other defaulted field too, and a service that does
+ * `db.update(...).set(patch)` writes them. That is how flipping a rule's
+ * on/off switch used to rewrite its match field, match type and priority.
+ *
+ * Validation is unchanged for the fields that ARE sent — only the "absent
+ * means take the default" behaviour goes away, which is what PATCH means.
+ */
+export function patchOf<Shape extends z.ZodRawShape>(schema: z.ZodObject<Shape>) {
+  const shape: Record<string, z.ZodTypeAny> = {}
+  for (const [key, field] of Object.entries(schema.shape)) {
+    // Peel optional/default wrappers; stop at nullable so `.nullish()` fields
+    // keep accepting an explicit null (which is a real value, not an absence).
+    // zod doesn't type `innerType` on the base def, hence the narrow cast.
+    let inner = field as z.ZodTypeAny
+    for (;;) {
+      const def = inner._def as unknown as { type?: string, innerType?: z.ZodTypeAny }
+      if ((def.type !== 'optional' && def.type !== 'default') || !def.innerType) break
+      inner = def.innerType
+    }
+    shape[key] = inner.optional()
+  }
+  return z.object(shape)
+}

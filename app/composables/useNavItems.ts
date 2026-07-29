@@ -11,11 +11,11 @@ export interface NavItem {
   /** Only for profiles that can manage chores (admin/adult). */
   requiresManage?: boolean
   /**
-   * Only for profiles with money access, and never on a wall-display device.
-   * Cosmetic only — the server rejects every finance request without a live
-   * finance session regardless of what the nav shows.
+   * Never on a device flagged as a wall display. Cosmetic only — the server
+   * rejects every finance request without a live finance session regardless
+   * of what the nav shows.
    */
-  requiresFinance?: boolean
+  hideOnWallDisplay?: boolean
 }
 
 export interface NavGroup {
@@ -37,13 +37,18 @@ export function useNavItems() {
   const canManage = computed(() =>
     activeProfile.value?.role === 'admin' || activeProfile.value?.role === 'adult')
 
-  // Money is hidden from profiles that have no access, and from any device
-  // flagged as a wall display — a kitchen tablet shouldn't even advertise the
-  // section. Both are cosmetic; the real gate is server-side.
-  const { state: financeState } = useFinanceSession()
+  // Money is always listed: a section you can only find by typing its URL is a
+  // section nobody sets up. Tapping it lands on the setup guide, the lock
+  // screen, or "ask the owner" — each of which explains itself. Still hidden
+  // from wall displays; a kitchen tablet shouldn't advertise the family's
+  // accounts. Cosmetic either way — the real gate is server-side.
   const { isDisplayDevice } = useDeviceMode()
-  const canSeeFinance = computed(() =>
-    financeState.value?.enrolled === true && !isDisplayDevice.value)
+  // isDisplayDevice comes from localStorage, so it is false during SSR. Gate on
+  // it only after mount, otherwise the server paints Money, the client removes
+  // it on a wall display, and Vue reports a hydration mismatch on every page.
+  const mounted = ref(false)
+  onMounted(() => { mounted.value = true })
+  const hideForDisplay = computed(() => mounted.value && isDisplayDevice.value)
 
   const groups = computed<NavGroup[]>(() => [
     {
@@ -74,7 +79,7 @@ export function useNavItems() {
         { to: '/chores/leaderboard', label: t('common.nav.leaderboard'), icon: 'i-lucide-trophy', phoneMenuOnly: true },
         { to: '/wishlists', label: t('common.nav.wishlists'), icon: 'i-lucide-gift' },
         { to: '/photos', label: t('common.nav.photos'), icon: 'i-lucide-image' },
-        { to: '/finance', label: t('common.nav.money'), icon: 'i-lucide-wallet', requiresFinance: true },
+        { to: '/finance', label: t('common.nav.money'), icon: 'i-lucide-wallet', hideOnWallDisplay: true },
       ],
     },
     {
@@ -93,7 +98,7 @@ export function useNavItems() {
 
   function permitted(item: NavItem) {
     if (item.requiresManage && !canManage.value) return false
-    if (item.requiresFinance && !canSeeFinance.value) return false
+    if (item.hideOnWallDisplay && hideForDisplay.value) return false
     return true
   }
 
@@ -103,7 +108,7 @@ export function useNavItems() {
     .filter(g => g.items.length > 0))
 
   /** The four phone tabs, in bar order. */
-  const tabs = computed(() => allItems.value.filter(i => i.tab))
+  const tabs = computed(() => allItems.value.filter(i => i.tab && permitted(i)))
 
   /** Desktop sidebar — everything except the phone-menu-only extras. */
   const sidebarItems = computed(() => allItems.value.filter(i => !i.phoneMenuOnly && permitted(i)))

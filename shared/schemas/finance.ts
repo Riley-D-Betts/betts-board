@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { zHexColor, zId } from './common'
+import { patchOf, zHexColor, zId } from './common'
 
 /** YYYY-MM-DD calendar date. Never timezone-converted (CLAUDE.md). */
 const zDateString = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'expected YYYY-MM-DD')
@@ -23,7 +23,11 @@ export const zAmountMinor = z.number().int().safe()
  * on a home LAN is about 13 bits; with the lockout schedule that is still a
  * week's work for someone who lives in the house.
  */
-export const zPin = z.string().min(6).max(64)
+/** Bounds live here so the keypad enforces exactly what the server does. */
+export const PIN_MIN_LENGTH = 6
+export const PIN_MAX_LENGTH = 64
+
+export const zPin = z.string().min(PIN_MIN_LENGTH).max(PIN_MAX_LENGTH)
 
 export const financeUnlockSchema = z.object({
   pin: zPin,
@@ -58,6 +62,11 @@ export const financeAccountCreateSchema = z.object({
   currency: zCurrency.optional(),
   openingBalanceMinor: zAmountMinor.default(0),
   includeInNetWorth: z.boolean().default(true),
+})
+
+/** `?includeArchived=true` so hidden accounts can be listed and restored. */
+export const financeAccountQuerySchema = z.object({
+  includeArchived: z.stringbool().default(false),
 })
 
 export const financeAccountPatchSchema = z.object({
@@ -137,7 +146,7 @@ export const financeCategoryCreateSchema = z.object({
   parentId: zId.nullish(),
 })
 
-export const financeCategoryPatchSchema = financeCategoryCreateSchema.partial().extend({
+export const financeCategoryPatchSchema = patchOf(financeCategoryCreateSchema).extend({
   sortOrder: z.number().int().min(0).max(9999).optional(),
   archived: z.boolean().optional(),
 })
@@ -154,7 +163,7 @@ export const financeRuleCreateSchema = z.object({
   priority: z.number().int().min(0).max(9999).default(0),
 })
 
-export const financeRulePatchSchema = financeRuleCreateSchema.partial().extend({
+export const financeRulePatchSchema = patchOf(financeRuleCreateSchema).extend({
   enabled: z.boolean().optional(),
 })
 
@@ -222,7 +231,7 @@ export const financeBillCreateSchema = z.object({
   notes: z.string().trim().max(2000).nullish(),
 })
 
-export const financeBillPatchSchema = financeBillCreateSchema.partial().extend({
+export const financeBillPatchSchema = patchOf(financeBillCreateSchema).extend({
   archived: z.boolean().optional(),
 })
 
@@ -248,7 +257,7 @@ export const financeGoalCreateSchema = z.object({
   color: zHexColor.nullish(),
 })
 
-export const financeGoalPatchSchema = financeGoalCreateSchema.partial().extend({
+export const financeGoalPatchSchema = patchOf(financeGoalCreateSchema).extend({
   archived: z.boolean().optional(),
 })
 

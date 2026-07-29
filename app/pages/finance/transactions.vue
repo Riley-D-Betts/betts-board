@@ -139,6 +139,21 @@ function onBillSaved() {
   bumpDataTick()
 }
 
+// ── Always categorise this vendor ─────────────────────────────────────────
+// Turns "this one is Dining out" into "everything from here is Dining out".
+const vendorOpen = ref(false)
+const vendorTxn = ref<TxnItem | null>(null)
+
+function openVendorRule(txn: TxnItem) {
+  vendorTxn.value = txn
+  vendorOpen.value = true
+}
+
+async function onVendorRuleSaved() {
+  await refresh()
+  bumpDataTick()
+}
+
 // ── Add ──────────────────────────────────────────────────────────────────
 const addOpen = ref(false)
 const saving = ref(false)
@@ -277,6 +292,15 @@ async function create() {
                   :aria-label="$t('finance.transactions.makeBill')"
                   @click="openBill(txn)"
                 />
+                <UButton
+                  icon="i-lucide-wand-sparkles"
+                  size="sm"
+                  color="neutral"
+                  variant="ghost"
+                  class="shrink-0"
+                  :aria-label="$t('finance.rules.vendorTitle')"
+                  @click="openVendorRule(txn)"
+                />
               </div>
 
               <span
@@ -310,6 +334,14 @@ async function create() {
       :transaction="splitting"
       :categories="categories ?? []"
       @saved="onSplitSaved"
+    />
+
+    <FinanceVendorRule
+      v-if="vendorTxn"
+      v-model:open="vendorOpen"
+      :transaction="vendorTxn"
+      :categories="categories ?? []"
+      @saved="onVendorRuleSaved"
     />
 
     <FinanceBillEditor

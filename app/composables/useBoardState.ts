@@ -45,6 +45,11 @@ export function useBoardState() {
 
   async function switchProfile(profileId: string) {
     await $fetch('/api/auth/profile', { method: 'POST', body: { profileId } })
+    // Money access is per profile, and useFinanceSession().ensureLoaded()
+    // early-returns on a populated state — so without dropping it here the new
+    // profile would inherit the previous one's answer and FinanceShell would
+    // paint the wrong screen (or show a lock screen for someone else).
+    useState<unknown>('finance-session').value = null
     await refresh()
   }
 

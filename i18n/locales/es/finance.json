@@ -31,7 +31,39 @@
     "failedAttempts": "{n} intento de desbloqueo fallido desde tu último acceso. | {n} intentos de desbloqueo fallidos desde tu último acceso.",
     "resetArmed": "Se ha activado un restablecimiento de PIN en este servidor. Crea un PIN nuevo para tomar el control de la sección de dinero.",
     "expiresIn": "Se bloquea en {time}",
-    "honest": "Cualquiera con acceso a este servidor puede leer estos datos. El PIN los mantiene fuera de la tablet familiar, no a salvo de alguien decidido a entrar."
+    "honest": "Cualquiera con acceso a este servidor puede leer estos datos. El PIN los mantiene fuera de la tablet familiar, no a salvo de alguien decidido a entrar.",
+    "entered": "{n} carácter introducido | {n} caracteres introducidos",
+    "padLabel": "Teclado del PIN",
+    "clear": "Borrar",
+    "backspace": "Borrar el último dígito",
+    "useKeyboard": "Usar una contraseña",
+    "usePad": "Usar el teclado numérico"
+  },
+  "setup": {
+    "title": "Configurar Dinero",
+    "subtitle": "Privado para quien tú elijas",
+    "intro": "Dinero reúne las cuentas, los gastos, los presupuestos y las facturas de la familia en un solo sitio. Está protegido con su propio PIN, así que nunca aparece en la pantalla de pared ni en el calendario compartido.",
+    "cta": "Configurar Dinero",
+    "adminOnly": "Todavía no se ha configurado Dinero. Pídele a un administrador que lo configure: él elige el PIN y luego puede darte acceso.",
+    "privacy": "Cualquiera con acceso a este servidor puede leer estos datos. El PIN los mantiene fuera de la tablet familiar, no a salvo de alguien decidido a entrar.",
+    "steps": {
+      "pin": {
+        "title": "Elige un PIN",
+        "body": "Seis caracteres o más. Lo introducirás cada vez que abras Dinero."
+      },
+      "accounts": {
+        "title": "Añade una cuenta",
+        "body": "Conecta un banco con SimpleFIN, importa un extracto o lleva una cuenta a mano."
+      },
+      "people": {
+        "title": "Decide quién puede verlo",
+        "body": "Dinero es privado hasta que des acceso a alguien, cada cual con su propio PIN."
+      },
+      "plan": {
+        "title": "Pon presupuestos y facturas",
+        "body": "Opcional. Los presupuestos muestran lo que queda este mes; las facturas hacen que la previsión sirva de algo."
+      }
+    }
   },
   "overview": {
     "netWorth": "Patrimonio neto",
@@ -60,8 +92,8 @@
     "openingBalance": "Saldo actual",
     "openingBalanceHelp": "Lo que hay ahora mismo. Todo lo que añadas después ajustará este saldo.",
     "empty": "Aún no hay cuentas. Conecta un banco o añade una que lleves a mano.",
-    "hidden": "Oculta",
-    "hide": "Ocultar de los totales",
+    "hidden": "Cuenta oculta",
+    "hide": "Ocultar cuenta",
     "archive": "Archivar",
     "includeInNetWorth": "Contar en el patrimonio neto",
     "fromBank": "De tu banco",
@@ -79,7 +111,13 @@
     "remove": "Eliminar cuenta",
     "removeConfirm": "¿Eliminar «{name}»? Esto borra la cuenta y sus movimientos de forma permanente y no se puede deshacer.",
     "removed": "Cuenta eliminada",
-    "removeFailed": "No se ha podido eliminar la cuenta"
+    "removeFailed": "No se ha podido eliminar la cuenta",
+    "hideConfirm": "¿Ocultar «{name}»? Viene de tu banco, así que no se puede eliminar: al ocultarla sale de tus cuentas, totales y presupuestos, y seguirá oculta tras las próximas sincronizaciones. Sus movimientos se conservan.",
+    "restore": "Restaurar",
+    "restored": "Cuenta restaurada",
+    "hiddenAccounts": "Cuentas ocultas",
+    "noHidden": "No hay cuentas ocultas.",
+    "disconnectHint": "Para quitar todas las cuentas de este banco, desconéctalo en"
   },
   "transactions": {
     "title": "Movimientos",
@@ -141,6 +179,15 @@
     "runNow": "Aplicar a movimientos existentes",
     "ran": "{n} movimiento actualizado. | {n} movimientos actualizados.",
     "neverOverwrites": "Las reglas nunca cambian una categoría que hayas puesto tú.",
+    "enabled": "Regla activada",
+    "deleteTitle": "Eliminar la regla",
+    "removed": "Regla eliminada",
+    "removeConfirm": "¿Eliminar la regla de «{value}»? Los movimientos ya clasificados conservan su categoría.",
+    "saveFailed": "No se pudo guardar la regla",
+    "renameHelp": "Opcional: convierte una descripción confusa del banco en un nombre que reconozcas.",
+    "vendorTitle": "Clasificar siempre este comercio",
+    "vendorHelp": "A partir de ahora clasifica automáticamente todo lo pagado a «{vendor}».",
+    "vendorSaved": "Regla guardada: {vendor} se clasificará automáticamente.",
     "fields": {
       "description": "Descripción",
       "payee": "Pagado a",
@@ -150,7 +197,11 @@
       "contains": "contiene",
       "startsWith": "empieza por",
       "equals": "es exactamente"
-    }
+    },
+    "summary": "{field} {match} «{value}» → {category}",
+    "summaryRenameOnly": "{field} {match} «{value}»",
+    "enabledFor": "Regla de «{value}» activada",
+    "unknownAccount": "Una cuenta eliminada"
   },
   "connections": {
     "title": "Bancos conectados",

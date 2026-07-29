@@ -3,12 +3,11 @@ const { activeProfile, lock } = useBoardState()
 const route = useRoute()
 const { tabs, sidebarItems, isTabActive } = useNavItems()
 
-// Whether the Money item appears at all. Cheap (no financial data — just
-// "does this profile have access"), and the nav needs the answer everywhere.
-const { ensureLoaded: ensureFinanceLoaded, refresh: refreshFinance } = useFinanceSession()
-await ensureFinanceLoaded()
-// The acting profile decides who may see Money, so re-ask on every switch.
-watch(() => activeProfile.value?.id, () => void refreshFinance())
+// The nav no longer asks whether this profile has money access — Money is
+// always listed — so nothing is fetched here. Invalidating the cached finance
+// session on a profile switch happens in useBoardState.switchProfile instead:
+// the switcher lives on /profiles, which uses a different layout, so a watcher
+// here would never fire for the case it exists to cover.
 
 // Phone-only full-screen menu. The tab bar holds four destinations; the raised
 // centre button opens the complete map of the board.
