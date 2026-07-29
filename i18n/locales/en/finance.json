@@ -84,6 +84,7 @@
   "transactions": {
     "title": "Transactions",
     "add": "Add transaction",
+    "makeBill": "Turn into a bill",
     "search": "Search transactions…",
     "empty": "Nothing here yet.",
     "noMatch": "No transactions match that.",
@@ -236,6 +237,7 @@
   "bills": {
     "title": "Bills",
     "add": "Add a bill",
+    "fromTransaction": "New bill from transaction",
     "addIncome": "Add income",
     "name": "What is it",
     "kind": "Kind",

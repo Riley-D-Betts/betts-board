@@ -84,6 +84,7 @@
   "transactions": {
     "title": "Transactions",
     "add": "Ajouter une transaction",
+    "makeBill": "Convertir en facture",
     "search": "Rechercher une transaction…",
     "empty": "Rien ici pour l'instant.",
     "noMatch": "Aucune transaction ne correspond.",
@@ -236,6 +237,7 @@
   "bills": {
     "title": "Factures",
     "add": "Ajouter une facture",
+    "fromTransaction": "Nouvelle facture depuis la transaction",
     "addIncome": "Ajouter un revenu",
     "name": "De quoi s'agit-il",
     "kind": "Type",

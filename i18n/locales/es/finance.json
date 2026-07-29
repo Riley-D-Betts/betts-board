@@ -84,6 +84,7 @@
   "transactions": {
     "title": "Movimientos",
     "add": "Añadir movimiento",
+    "makeBill": "Convertir en factura",
     "search": "Buscar movimientos…",
     "empty": "Aquí no hay nada todavía.",
     "noMatch": "Ningún movimiento coincide.",
@@ -236,6 +237,7 @@
   "bills": {
     "title": "Facturas",
     "add": "Añadir una factura",
+    "fromTransaction": "Nueva factura desde el movimiento",
     "addIncome": "Añadir un ingreso",
     "name": "¿Qué es?",
     "kind": "Tipo",

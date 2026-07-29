@@ -105,6 +105,8 @@
     "roleAdmin": "Admin",
     "roleAdult": "Adult",
     "roleKid": "Kid",
+    "changeRole": "Change role",
+    "lastAdmin": "You can't remove the last admin.",
     "addMember": "Add member",
     "addFailed": "Could not add profile",
     "removeConfirm": "Remove {name} from the board? Their history is kept."

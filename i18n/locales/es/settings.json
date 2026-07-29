@@ -105,6 +105,8 @@
     "roleAdmin": "Administrador",
     "roleAdult": "Adulto",
     "roleKid": "Peque",
+    "changeRole": "Cambiar el rol",
+    "lastAdmin": "No puedes quitar al último administrador.",
     "addMember": "Añadir miembro",
     "addFailed": "No se pudo añadir el perfil",
     "removeConfirm": "¿Quitar a {name} del tablero? Se conserva su historial."
