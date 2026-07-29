@@ -116,6 +116,29 @@ describe('ingestAccount', () => {
     expect(after.balanceMinor).toBe(-1000) // but still kept up to date
   })
 
+  /**
+   * The reported symptom: "transactions from this morning aren't there even
+   * after I sync." A same-day card payment arrives as a PENDING hold, so it
+   * has to reach the ledger flagged pending — visible, but not yet counted.
+   */
+  it('ingests a pending charge so today shows up right away', () => {
+    ingestAccount(db, connection, account({
+      transactions: [{
+        id: 'TRN-PENDING',
+        postedAt: new Date('2026-02-01T09:00:00Z'),
+        amountMinor: -1299,
+        description: 'Coffee this morning',
+        payee: null,
+        memo: null,
+        pending: true,
+      }],
+    }), WINDOW_START)
+
+    const row = db.select().from(financeTransactions).get()!
+    expect(row.description).toBe('Coffee this morning')
+    expect(row.pending).toBe(true)
+  })
+
   it('is idempotent: the same payload twice inserts nothing new', () => {
     ingestAccount(db, connection, account(), WINDOW_START)
     const second = ingestAccount(db, connection, account(), WINDOW_START)

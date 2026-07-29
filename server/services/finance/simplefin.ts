@@ -313,6 +313,13 @@ export async function fetchAccounts(accessUrl: string, opts: { startDate?: Date 
   if (opts.startDate) {
     url.searchParams.set('start-date', String(Math.floor(opts.startDate.getTime() / 1000)))
   }
+  // Without this SimpleFIN returns POSTED transactions only, so a card payment
+  // made this morning — still a pending hold at the bank — simply is not in the
+  // response, and re-syncing all day never surfaces it. Everything downstream
+  // was already built for pending rows: the column, the "Pending" badge, their
+  // exclusion from budgets and the forecast, and the sweep that drops a hold the
+  // bank later cancels. This request was the one place that never asked.
+  url.searchParams.set('pending', '1')
 
   const res = await simplefinFetch(url)
   if (res.status === 403) {

@@ -168,6 +168,32 @@ describe('fetchAccounts', () => {
     expect(account.transactions[1]!.pending).toBe(true)
   })
 
+  /**
+   * SimpleFIN returns POSTED transactions only unless asked otherwise. Without
+   * `pending=1` a card payment made this morning — still a hold at the bank —
+   * is absent from the response entirely, and re-syncing never surfaces it.
+   * Everything downstream already handles pending rows; this request is the
+   * only place that has to ask for them.
+   */
+  it('asks for pending transactions, or today never shows up', async () => {
+    respond = () => ({ status: 200, body: payload() })
+    const port = (stub.address() as AddressInfo).port
+    await fetchAccounts(ACCESS(port))
+
+    const asked = new URL(`http://x${calls.at(-1)!.url}`)
+    expect(asked.searchParams.get('pending')).toBe('1')
+  })
+
+  it('still sends start-date alongside it', async () => {
+    respond = () => ({ status: 200, body: payload() })
+    const port = (stub.address() as AddressInfo).port
+    await fetchAccounts(ACCESS(port), { startDate: new Date('2026-07-01T00:00:00Z') })
+
+    const asked = new URL(`http://x${calls.at(-1)!.url}`)
+    expect(asked.searchParams.get('start-date')).toBe(String(Math.floor(Date.UTC(2026, 6, 1) / 1000)))
+    expect(asked.searchParams.get('pending')).toBe('1')
+  })
+
   it('treats posted and balance-date as seconds, not milliseconds', async () => {
     respond = () => ({ status: 200, body: payload() })
     const port = (stub.address() as AddressInfo).port
