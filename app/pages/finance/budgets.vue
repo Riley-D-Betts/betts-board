@@ -200,7 +200,7 @@ function segWidth(line: BudgetLine) {
               <div class="relative h-2 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
                 <div class="flex h-full">
                   <div class="h-full transition-[width]" :class="spentBarClass(line)" :style="{ width: segWidth(line).spent }" />
-                  <div class="h-full bg-violet-400 transition-[width] dark:bg-violet-500" :style="{ width: segWidth(line).committed }" />
+                  <div class="h-full bg-violet-500 transition-[width] dark:bg-violet-400" :style="{ width: segWidth(line).committed }" />
                 </div>
               </div>
               <span

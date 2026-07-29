@@ -68,17 +68,15 @@ export function budgetForMonth(db: Db, householdId: string, period: string, curr
     spend.set(row.categoryId, entry)
   }
 
-  // Unpaid bills reserve their category's budget. Only status 'due' counts:
-  // marking a bill paid writes a finance_bill_payments row and NEVER a
-  // transaction, so its real spend reaches budgets only through an actual
-  // transaction — counting a paid bill here as well would double it.
-  const committed = new Map<string, number>()
+  // Unpaid bills reserve their category's budget. Sum only status 'due'
+  // occurrences (paid/skipped already happened or were dismissed).
+  const billsDue = new Map<string, number>()
   for (const o of expandBills(db, householdId, start, end)) {
-    if (o.status !== 'due') continue // exclude paid/skipped — the double-count guard
+    if (o.status !== 'due') continue
     if (o.kind !== 'expense') continue // income bills never reserve an expense budget
     if (o.currency !== currency) continue // never sum across currencies (mirrors spend)
     if (!o.categoryId) continue // uncategorized bills have no bar to reserve
-    committed.set(o.categoryId, (committed.get(o.categoryId) ?? 0) + o.amountMinor)
+    billsDue.set(o.categoryId, (billsDue.get(o.categoryId) ?? 0) + o.amountMinor)
   }
 
   const categories = db.select().from(financeCategories)
@@ -90,11 +88,16 @@ export function budgetForMonth(db: Db, householdId: string, period: string, curr
   // categories are shown for any month where they were actually used.
   const lines: BudgetLine[] = categories
     .filter(c => c.kind === 'expense'
-      && (!c.archivedAt || spend.has(c.id) || byCategory.has(c.id) || committed.has(c.id)))
+      && (!c.archivedAt || spend.has(c.id) || byCategory.has(c.id) || billsDue.has(c.id)))
     .map((c) => {
       const budget = byCategory.get(c.id)
       const spent = spend.get(c.id)?.total ?? 0
-      const reserved = committed.get(c.id) ?? 0
+      // Spend already made in the category covers its due bills first, so only
+      // the still-uncovered remainder is reserved. This keeps an unpaid bill and
+      // its real (synced/imported) transaction from subtracting twice: once the
+      // transaction posts, spent absorbs the bill and the reservation drops to 0
+      // — without needing the occurrence to be hand-marked paid.
+      const reserved = Math.max(0, (billsDue.get(c.id) ?? 0) - spent)
       const amountMinor = budget?.amountMinor ?? 0
       return {
         categoryId: c.id,

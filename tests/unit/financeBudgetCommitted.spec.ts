@@ -82,15 +82,37 @@ describe('unpaid bills reserve a budget', () => {
     expect(res.totalCommittedMinor).toBe(120000)
   })
 
-  it('spending plus a reservation can push a category over budget', () => {
-    budget(housing, 100000)
-    spend(housing, -70000)
-    bill({ name: 'Rent', kind: 'expense', amountMinor: 50000, categoryId: housing })
+  it('a posted transaction covers an unpaid bill without double-counting', () => {
+    // The autoPay case: the bill is still 'due' (never hand-marked) but its real
+    // charge already synced in. Spend absorbs the bill; nothing is reserved twice.
+    budget(housing, 200000)
+    bill({ name: 'Rent', kind: 'expense', amountMinor: 120000, categoryId: housing })
+    spend(housing, -120000)
 
     const l = lineFor(housing)
-    expect(l.spentMinor).toBe(70000)
-    expect(l.committedMinor).toBe(50000)
-    expect(l.remainingMinor).toBe(-20000) // client shows "over by"
+    expect(l.spentMinor).toBe(120000)
+    expect(l.committedMinor).toBe(0) // fully covered by the transaction
+    expect(l.remainingMinor).toBe(80000) // NOT over — 200000 − 120000
+  })
+
+  it('spend partially offsets the reservation', () => {
+    budget(housing, 200000)
+    bill({ name: 'Rent', kind: 'expense', amountMinor: 120000, categoryId: housing })
+    spend(housing, -80000)
+
+    const l = lineFor(housing)
+    expect(l.spentMinor).toBe(80000)
+    expect(l.committedMinor).toBe(40000) // 120000 due − 80000 already spent
+    expect(l.remainingMinor).toBe(80000) // 200000 − max(80000 spent, 120000 due)
+  })
+
+  it('goes over budget when the bills alone exceed it', () => {
+    budget(housing, 100000)
+    bill({ name: 'Rent', kind: 'expense', amountMinor: 150000, categoryId: housing })
+
+    const l = lineFor(housing)
+    expect(l.committedMinor).toBe(150000)
+    expect(l.remainingMinor).toBe(-50000) // client shows "over by"
   })
 
   it('a paid bill is not double-counted — its real spend comes through the transaction', () => {
