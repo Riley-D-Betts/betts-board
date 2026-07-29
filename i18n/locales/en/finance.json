@@ -258,6 +258,7 @@
     },
     "semimonthlyDays": "Which days?",
     "lastDayOfMonth": "Last day",
+    "distinctDays": "Pick two different days.",
     "until": "Until",
     "account": "Paid from",
     "autoPay": "Paid automatically",

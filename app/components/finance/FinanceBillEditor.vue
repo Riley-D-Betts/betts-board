@@ -69,8 +69,14 @@ const dayItems = computed(() => [
 ])
 
 const isTwiceMonthly = computed(() => form.frequency === SEMIMONTHLY)
-// Two distinct days are required — same day twice isn't twice a month.
-const daysValid = computed(() => !isTwiceMonthly.value || form.dayA !== form.dayB)
+// The two days must resolve to two different dates. Equal picks obviously fail;
+// so does 28 + "Last day", which land on the same date in a non-leap February.
+const daysValid = computed(() => {
+  if (!isTwiceMonthly.value) return true
+  if (form.dayA === form.dayB) return false
+  const picked = new Set([form.dayA, form.dayB])
+  return !(picked.has(28) && picked.has(LAST_DAY))
+})
 
 const categoryItems = computed(() => [
   { label: t('finance.transactions.uncategorized'), value: NO_CATEGORY },
@@ -163,7 +169,10 @@ async function create() {
           <UFormField v-if="!isTwiceMonthly" :label="$t('finance.bills.startDate')">
             <UInput v-model="form.startDate" type="date" class="w-full" />
           </UFormField>
-          <UFormField :label="$t('finance.bills.repeats')">
+          <UFormField
+            :label="$t('finance.bills.repeats')"
+            :class="isTwiceMonthly ? 'sm:col-span-2' : ''"
+          >
             <USelect v-model="form.frequency" :items="frequencyItems" class="w-full" />
           </UFormField>
         </div>
@@ -173,6 +182,9 @@ async function create() {
             <span class="shrink-0 text-sm text-slate-500 dark:text-slate-400">&amp;</span>
             <USelect v-model="form.dayB" :items="dayItems" class="flex-1" />
           </div>
+          <p v-if="!daysValid" class="mt-1 text-sm text-red-600 dark:text-red-400">
+            {{ $t('finance.bills.distinctDays') }}
+          </p>
         </UFormField>
         <UFormField :label="$t('finance.transactions.category')">
           <USelect v-model="form.categoryId" :items="categoryItems" class="w-full" />

@@ -258,6 +258,7 @@
     },
     "semimonthlyDays": "Quels jours ?",
     "lastDayOfMonth": "Dernier jour",
+    "distinctDays": "Choisissez deux jours différents.",
     "until": "Jusqu'au",
     "account": "Payée depuis",
     "autoPay": "Prélèvement automatique",
