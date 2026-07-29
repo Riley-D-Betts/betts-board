@@ -31,7 +31,39 @@
     "failedAttempts": "{n} intento de desbloqueo fallido desde tu último acceso. | {n} intentos de desbloqueo fallidos desde tu último acceso.",
     "resetArmed": "Se ha activado un restablecimiento de PIN en este servidor. Crea un PIN nuevo para tomar el control de la sección de dinero.",
     "expiresIn": "Se bloquea en {time}",
-    "honest": "Cualquiera con acceso a este servidor puede leer estos datos. El PIN los mantiene fuera de la tablet familiar, no a salvo de alguien decidido a entrar."
+    "honest": "Cualquiera con acceso a este servidor puede leer estos datos. El PIN los mantiene fuera de la tablet familiar, no a salvo de alguien decidido a entrar.",
+    "entered": "{n} carácter introducido | {n} caracteres introducidos",
+    "padLabel": "Teclado del PIN",
+    "clear": "Borrar",
+    "backspace": "Borrar el último dígito",
+    "useKeyboard": "Usar una contraseña",
+    "usePad": "Usar el teclado numérico"
+  },
+  "setup": {
+    "title": "Configurar Dinero",
+    "subtitle": "Privado para quien tú elijas",
+    "intro": "Dinero reúne las cuentas, los gastos, los presupuestos y las facturas de la familia en un solo sitio. Está protegido con su propio PIN, así que nunca aparece en la pantalla de pared ni en el calendario compartido.",
+    "cta": "Configurar Dinero",
+    "adminOnly": "Todavía no se ha configurado Dinero. Pídele a un administrador que lo configure: él elige el PIN y luego puede darte acceso.",
+    "privacy": "Cualquiera con acceso a este servidor puede leer estos datos. El PIN los mantiene fuera de la tablet familiar, no a salvo de alguien decidido a entrar.",
+    "steps": {
+      "pin": {
+        "title": "Elige un PIN",
+        "body": "Seis caracteres o más. Lo introducirás cada vez que abras Dinero."
+      },
+      "accounts": {
+        "title": "Añade una cuenta",
+        "body": "Conecta un banco con SimpleFIN, importa un extracto o lleva una cuenta a mano."
+      },
+      "people": {
+        "title": "Decide quién puede verlo",
+        "body": "Dinero es privado hasta que des acceso a alguien, cada cual con su propio PIN."
+      },
+      "plan": {
+        "title": "Pon presupuestos y facturas",
+        "body": "Opcional. Los presupuestos muestran lo que queda este mes; las facturas hacen que la previsión sirva de algo."
+      }
+    }
   },
   "overview": {
     "netWorth": "Patrimonio neto",

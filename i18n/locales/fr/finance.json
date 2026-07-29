@@ -31,7 +31,39 @@
     "failedAttempts": "{n} tentative de déverrouillage échouée depuis votre dernière connexion. | {n} tentatives de déverrouillage échouées depuis votre dernière connexion.",
     "resetArmed": "Une réinitialisation du code PIN a été autorisée sur ce serveur. Définissez un nouveau code PIN pour reprendre la section Argent.",
     "expiresIn": "Verrouillage dans {time}",
-    "honest": "Toute personne ayant accès à ce serveur peut lire ces données. Le code PIN les tient à l'écart de la tablette familiale, pas des mains d'un attaquant déterminé."
+    "honest": "Toute personne ayant accès à ce serveur peut lire ces données. Le code PIN les tient à l'écart de la tablette familiale, pas des mains d'un attaquant déterminé.",
+    "entered": "{n} caractère saisi | {n} caractères saisis",
+    "padLabel": "Pavé du code PIN",
+    "clear": "Effacer",
+    "backspace": "Effacer le dernier chiffre",
+    "useKeyboard": "Utiliser un mot de passe",
+    "usePad": "Utiliser le pavé numérique"
+  },
+  "setup": {
+    "title": "Configurer Argent",
+    "subtitle": "Privé, réservé aux personnes que vous choisissez",
+    "intro": "Argent réunit les comptes, les dépenses, les budgets et les factures de la famille au même endroit. La section est protégée par son propre code PIN : elle n'apparaît jamais sur l'écran mural ni sur le calendrier partagé.",
+    "cta": "Configurer Argent",
+    "adminOnly": "Argent n'est pas encore configuré. Demandez à un administrateur de s'en charger : il choisit le code PIN et peut ensuite vous donner accès.",
+    "privacy": "Toute personne ayant accès à ce serveur peut lire ces données. Le code PIN les tient à l'écart de la tablette familiale, pas des mains d'un attaquant déterminé.",
+    "steps": {
+      "pin": {
+        "title": "Choisissez un code PIN",
+        "body": "Six caractères au minimum. Vous le saisirez à chaque ouverture d'Argent."
+      },
+      "accounts": {
+        "title": "Ajoutez un compte",
+        "body": "Connectez une banque via SimpleFIN, importez un relevé, ou tenez un compte à la main."
+      },
+      "people": {
+        "title": "Décidez qui peut le voir",
+        "body": "Argent reste privé tant que vous n'y donnez pas accès, chacun avec son propre code PIN."
+      },
+      "plan": {
+        "title": "Définissez budgets et factures",
+        "body": "Facultatif. Les budgets montrent ce qu'il reste ce mois-ci ; les factures rendent les prévisions utiles."
+      }
+    }
   },
   "overview": {
     "netWorth": "Patrimoine net",

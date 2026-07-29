@@ -228,15 +228,18 @@ async function revokeSession(row: FinanceSessionRow) {
           <UFormField :label="$t('finance.members.role')">
             <USelect v-model="form.role" :items="roleItems" class="w-full" />
           </UFormField>
-          <UFormField
+          <!-- The pad renders its own label; the help sits under it. -->
+          <FinancePinPad
+            v-model="form.pin"
             :label="$t('finance.members.choosePin')"
-            :help="$t('finance.members.choosePinHelp')"
-          >
-            <UInput v-model="form.pin" type="password" autocomplete="new-password" class="w-full" />
-          </UFormField>
+            autocomplete="new-password"
+          />
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            {{ $t('finance.members.choosePinHelp') }}
+          </p>
           <p v-if="error" class="text-sm text-red-600 dark:text-red-400">{{ error }}</p>
           <div class="flex justify-end gap-2">
-            <UButton color="neutral" variant="ghost" @click="addOpen = false">
+            <UButton type="button" color="neutral" variant="ghost" @click="addOpen = false">
               {{ $t('common.actions.cancel') }}
             </UButton>
             <UButton type="submit" :loading="busy" :disabled="!form.profileId || form.pin.length < 6">

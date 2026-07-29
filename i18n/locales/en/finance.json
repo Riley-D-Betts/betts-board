@@ -31,7 +31,39 @@
     "failedAttempts": "{n} failed unlock attempt since you last signed in. | {n} failed unlock attempts since you last signed in.",
     "resetArmed": "A PIN reset was armed on this server. Set a new PIN to claim the money section.",
     "expiresIn": "Locks in {time}",
-    "honest": "Anyone with access to this server can read this data. The PIN keeps it off the family tablet, not out of a determined attacker's hands."
+    "honest": "Anyone with access to this server can read this data. The PIN keeps it off the family tablet, not out of a determined attacker's hands.",
+    "entered": "{n} character entered | {n} characters entered",
+    "padLabel": "PIN keypad",
+    "clear": "Clear",
+    "backspace": "Delete last digit",
+    "useKeyboard": "Use a password instead",
+    "usePad": "Use the keypad"
+  },
+  "setup": {
+    "title": "Set up Money",
+    "subtitle": "Private to the people you choose",
+    "intro": "Money keeps the family's accounts, spending, budgets and bills in one place. It sits behind its own PIN, so it never shows on the wall display or the shared calendar.",
+    "cta": "Set up Money",
+    "adminOnly": "Money hasn't been set up yet. Ask an admin to set it up — they choose the PIN and can then give you access.",
+    "privacy": "Anyone with access to this server can read this data. The PIN keeps it off the family tablet, not out of a determined attacker's hands.",
+    "steps": {
+      "pin": {
+        "title": "Choose a PIN",
+        "body": "Six characters or more. You'll enter it whenever you open Money."
+      },
+      "accounts": {
+        "title": "Add an account",
+        "body": "Connect a bank through SimpleFIN, import a statement file, or keep an account by hand."
+      },
+      "people": {
+        "title": "Decide who can see it",
+        "body": "Money is private until you give someone access, each with their own PIN."
+      },
+      "plan": {
+        "title": "Set budgets and bills",
+        "body": "Optional. Budgets show what's left this month; bills give you a forecast worth reading."
+      }
+    }
   },
   "overview": {
     "netWorth": "Net worth",

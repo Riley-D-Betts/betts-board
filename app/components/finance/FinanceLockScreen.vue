@@ -1,8 +1,15 @@
 <!-- The gate in front of every money screen. Purely presentational: the server
-     rejects finance requests without a live session no matter what renders. -->
+     rejects finance requests without a live session no matter what renders.
+
+     PIN entry is an on-screen keypad rather than a text field — this lives on a
+     kitchen tablet, where a keyboard covers half the screen. FinancePinPad
+     keeps a "use a password instead" escape hatch for PINs that contain
+     letters, which zPin still allows. -->
 <script setup lang="ts">
+import { canSubmit } from '#shared/utils/pinPad'
+
 const { state, pending, unlock, setPin, refresh } = useFinanceSession()
-const { activeProfile } = useBoardState()
+const { activeProfile, isAdmin } = useBoardState()
 const { t } = useI18n()
 const toast = useToast()
 
@@ -10,18 +17,19 @@ const pin = ref('')
 const newPin = ref('')
 const confirmPin = ref('')
 const error = ref('')
+/** Flipped by the guide's CTA — explain the section before asking for a secret. */
+const startedSetup = ref(false)
 
-const mode = computed<'unlock' | 'setup' | 'noAccess'>(() => {
-  // A member whose PIN was cleared by BETTS_RESET_FINANCE_PIN. This has to be
-  // checked BEFORE `enrolled`, or the screen offers an unlock form that can
-  // never succeed — unlockFinance refuses a profile with no stored hash — and
-  // the documented recovery path becomes unreachable from the app.
+const mode = computed<'unlock' | 'setup' | 'guide' | 'noAccess'>(() => {
+  // Still FIRST: a member whose hash BETTS_RESET_FINANCE_PIN cleared needs the
+  // PIN form, not a tour — they already know what Money is, and the documented
+  // recovery path must stay one screen away. Deliberately NOT admin-gated: the
+  // member recovering may not be an admin.
   if (state.value?.needsPin) return 'setup'
   if (state.value?.enrolled) return 'unlock'
-  // Trust on first use: with nobody enrolled, the household password is the
-  // only anchor there is, and demanding it again would add ceremony without
-  // security — everyone in the house knows it.
-  if (!state.value?.configured) return 'setup'
+  // Nothing set up yet. Trust on first use still applies, but explain what this
+  // is before asking anyone to invent a PIN.
+  if (!state.value?.configured) return startedSetup.value ? 'setup' : 'guide'
   return 'noAccess'
 })
 
@@ -46,8 +54,13 @@ async function submitUnlock() {
 
 async function submitSetup() {
   error.value = ''
-  if (newPin.value.length < 6) return (error.value = t('finance.lock.tooShort'))
-  if (newPin.value !== confirmPin.value) return (error.value = t('finance.lock.mismatch'))
+  if (!canSubmit(newPin.value)) return (error.value = t('finance.lock.tooShort'))
+  if (newPin.value !== confirmPin.value) {
+    // Clear the confirmation rather than leaving two mismatched buffers.
+    error.value = t('finance.lock.mismatch')
+    confirmPin.value = ''
+    return
+  }
   try {
     await setPin(newPin.value)
     toast.add({ title: t('finance.toast.pinSet'), color: 'success' })
@@ -82,7 +95,15 @@ function deviceLabel(): 'phone' | 'tablet' | 'computer' | undefined {
 
 <template>
   <div class="mx-auto flex max-w-md flex-col gap-4 py-10">
-    <UCard>
+    <!-- Nothing set up yet: explain what this is before asking for a PIN. -->
+    <FinanceSetupGuide
+      v-if="mode === 'guide'"
+      :can-set-up="isAdmin"
+      :owner-name="null"
+      @start="startedSetup = true"
+    />
+
+    <UCard v-if="mode !== 'guide'">
       <template #header>
         <div class="flex items-center gap-3">
           <div class="grid size-11 shrink-0 place-items-center rounded-full bg-primary/10">
@@ -99,24 +120,26 @@ function deviceLabel(): 'phone' | 'tablet' | 'computer' | undefined {
         </div>
       </template>
 
-      <!-- First run -->
+      <!-- First run / recovery: choose a PIN, then confirm it. -->
       <form v-if="mode === 'setup'" class="space-y-4" @submit.prevent="submitSetup">
         <p class="text-sm text-slate-600 dark:text-slate-300">{{ $t('finance.lock.setUpBody') }}</p>
-        <UFormField :label="$t('finance.lock.newPin')">
-          <UInput
-            v-model="newPin"
-            type="password"
-            autocomplete="new-password"
-            :placeholder="$t('finance.lock.pin')"
-            size="xl"
-            class="w-full"
-          />
-        </UFormField>
-        <UFormField :label="$t('finance.lock.confirmPin')">
-          <UInput v-model="confirmPin" type="password" autocomplete="new-password" size="xl" class="w-full" />
-        </UFormField>
+
+        <FinancePinPad
+          v-model="newPin"
+          :label="$t('finance.lock.newPin')"
+          autocomplete="new-password"
+          autofocus
+        />
+        <FinancePinPad
+          v-model="confirmPin"
+          :label="$t('finance.lock.confirmPin')"
+          autocomplete="new-password"
+        />
+
         <p v-if="error" class="text-sm text-red-600 dark:text-red-400">{{ error }}</p>
-        <UButton type="submit" size="xl" block :loading="pending">{{ $t('finance.lock.setUpCta') }}</UButton>
+        <UButton type="submit" size="xl" block :loading="pending" :disabled="!canSubmit(newPin)">
+          {{ $t('finance.lock.setUpCta') }}
+        </UButton>
       </form>
 
       <!-- Someone else owns it and hasn't given this profile access -->
@@ -129,17 +152,12 @@ function deviceLabel(): 'phone' | 'tablet' | 'computer' | undefined {
 
       <!-- Normal unlock -->
       <form v-else class="space-y-4" @submit.prevent="submitUnlock">
-        <UFormField :label="$t('finance.lock.prompt')">
-          <UInput
-            v-model="pin"
-            type="password"
-            autocomplete="current-password"
-            :placeholder="$t('finance.lock.pin')"
-            size="xl"
-            autofocus
-            class="w-full"
-          />
-        </UFormField>
+        <FinancePinPad
+          v-model="pin"
+          :label="$t('finance.lock.prompt')"
+          :disabled="lockedOutMinutes > 0"
+          autofocus
+        />
 
         <p v-if="lockedOutMinutes" class="text-sm text-red-600 dark:text-red-400">
           {{ $t('finance.lock.lockedOut', { minutes: lockedOutMinutes }) }}
@@ -161,7 +179,7 @@ function deviceLabel(): 'phone' | 'tablet' | 'computer' | undefined {
           size="xl"
           block
           :loading="pending"
-          :disabled="!pin || lockedOutMinutes > 0"
+          :disabled="!canSubmit(pin) || lockedOutMinutes > 0"
         >
           {{ $t('finance.lock.unlock') }}
         </UButton>
@@ -174,7 +192,7 @@ function deviceLabel(): 'phone' | 'tablet' | 'computer' | undefined {
 
     <!-- Say what this actually protects. Overstating it would be worse than
          not having it at all. -->
-    <p class="px-2 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+    <p v-if="mode !== 'guide'" class="px-2 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
       {{ $t('finance.lock.honest') }}
     </p>
   </div>

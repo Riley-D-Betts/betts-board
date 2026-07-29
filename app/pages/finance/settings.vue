@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { canSubmit } from '#shared/utils/pinPad'
+
 const { isOwner, setPin } = useFinanceSession()
 const { state, isAdmin, refresh: refreshBoard } = useBoardState()
 const { t } = useI18n()
@@ -133,21 +135,28 @@ async function saveSettings() {
     <UModal v-model:open="pinOpen" :title="$t('finance.lock.changeTitle')">
       <template #body>
         <form class="space-y-4" @submit.prevent="changePin">
-          <UFormField :label="$t('finance.lock.currentPin')">
-            <UInput v-model="currentPin" type="password" autocomplete="current-password" class="w-full" autofocus />
-          </UFormField>
-          <UFormField :label="$t('finance.lock.newPin')">
-            <UInput v-model="newPin" type="password" autocomplete="new-password" class="w-full" />
-          </UFormField>
-          <UFormField :label="$t('finance.lock.confirmPin')">
-            <UInput v-model="confirmPin" type="password" autocomplete="new-password" class="w-full" />
-          </UFormField>
+          <FinancePinPad
+            v-model="currentPin"
+            :label="$t('finance.lock.currentPin')"
+            autocomplete="current-password"
+            autofocus
+          />
+          <FinancePinPad
+            v-model="newPin"
+            :label="$t('finance.lock.newPin')"
+            autocomplete="new-password"
+          />
+          <FinancePinPad
+            v-model="confirmPin"
+            :label="$t('finance.lock.confirmPin')"
+            autocomplete="new-password"
+          />
           <p v-if="pinError" class="text-sm text-red-600 dark:text-red-400">{{ pinError }}</p>
           <div class="flex justify-end gap-2">
-            <UButton color="neutral" variant="ghost" @click="pinOpen = false">
+            <UButton type="button" color="neutral" variant="ghost" @click="pinOpen = false">
               {{ $t('common.actions.cancel') }}
             </UButton>
-            <UButton type="submit" :loading="savingPin" :disabled="!currentPin || !newPin">
+            <UButton type="submit" :loading="savingPin" :disabled="!currentPin || !canSubmit(newPin) || !confirmPin">
               {{ $t('common.actions.save') }}
             </UButton>
           </div>

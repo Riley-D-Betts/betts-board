@@ -23,7 +23,11 @@ export const zAmountMinor = z.number().int().safe()
  * on a home LAN is about 13 bits; with the lockout schedule that is still a
  * week's work for someone who lives in the house.
  */
-export const zPin = z.string().min(6).max(64)
+/** Bounds live here so the keypad enforces exactly what the server does. */
+export const PIN_MIN_LENGTH = 6
+export const PIN_MAX_LENGTH = 64
+
+export const zPin = z.string().min(PIN_MIN_LENGTH).max(PIN_MAX_LENGTH)
 
 export const financeUnlockSchema = z.object({
   pin: zPin,
