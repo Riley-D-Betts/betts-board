@@ -231,6 +231,8 @@
     "noBudget": "Aucun budget défini",
     "totalBudgeted": "Budgété",
     "totalSpent": "Dépensé à ce jour",
+    "totalReserved": "Réservé",
+    "reservedAmount": "{amount} réservé pour les factures",
     "carriedForward": "Copié du mois dernier — modifiez ce que vous voulez.",
     "empty": "Créez d'abord des catégories, puis fixez ce que vous voulez dépenser."
   },

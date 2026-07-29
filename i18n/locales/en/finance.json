@@ -231,6 +231,8 @@
     "noBudget": "No budget set",
     "totalBudgeted": "Budgeted",
     "totalSpent": "Spent so far",
+    "totalReserved": "Reserved",
+    "reservedAmount": "{amount} reserved for bills",
     "carriedForward": "Copied from last month — change anything you like.",
     "empty": "Add some categories first, then set what you want to spend."
   },

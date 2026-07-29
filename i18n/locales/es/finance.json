@@ -231,6 +231,8 @@
     "noBudget": "Sin presupuesto",
     "totalBudgeted": "Presupuestado",
     "totalSpent": "Gastado hasta ahora",
+    "totalReserved": "Reservado",
+    "reservedAmount": "{amount} reservado para facturas",
     "carriedForward": "Copiado del mes pasado: cambia lo que quieras.",
     "empty": "Añade primero algunas categorías y luego marca cuánto quieres gastar."
   },
