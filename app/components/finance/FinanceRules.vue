@@ -51,6 +51,22 @@ const accountItems = computed(() => [
 const categoryName = (id: string | null) =>
   (categories.value ?? []).find(c => c.id === id)?.name ?? t('finance.transactions.uncategorized')
 
+/** An archived or bank-removed account still named by a rule. */
+const accountLabel = (id: string) =>
+  (accountData.value?.accounts ?? []).find(a => a.id === id)?.name ?? t('finance.rules.unknownAccount')
+
+/**
+ * The whole rule as ONE translated sentence. A rename-only rule has no
+ * category, so it must not render a dangling arrow.
+ */
+function ruleSummary(rule: RuleRow) {
+  const field = t(`finance.rules.fields.${rule.matchField}`)
+  const match = t(`finance.rules.types.${rule.matchType}`)
+  return rule.setCategoryId
+    ? t('finance.rules.summary', { field, match, value: rule.matchValue, category: categoryName(rule.setCategoryId) })
+    : t('finance.rules.summaryRenameOnly', { field, match, value: rule.matchValue })
+}
+
 // ── Add ──────────────────────────────────────────────────────────────────
 const addOpen = ref(false)
 const saving = ref(false)
@@ -187,22 +203,20 @@ async function applyNow() {
     <div v-if="rules.length" class="divide-y divide-slate-200 dark:divide-slate-800">
       <div v-for="rule in rules" :key="rule.id" class="flex min-h-12 items-center gap-3 py-2">
         <div class="min-w-0 flex-1">
+          <!-- One ICU message rather than glued-together fragments: the word
+               order and the quote marks differ per language. -->
           <p class="truncate text-sm" :class="rule.enabled ? '' : 'text-slate-400 dark:text-slate-500'">
-            <span class="text-slate-500 dark:text-slate-400">{{ $t(`finance.rules.fields.${rule.matchField}`) }}</span>
-            {{ ' ' }}{{ $t(`finance.rules.types.${rule.matchType}`) }}
-            <strong>“{{ rule.matchValue }}”</strong>
-            <span class="text-slate-500 dark:text-slate-400"> → </span>
-            <strong v-if="rule.setCategoryId">{{ categoryName(rule.setCategoryId) }}</strong>
+            {{ ruleSummary(rule) }}
           </p>
           <p v-if="rule.setPayee || rule.accountId" class="truncate text-xs text-slate-500 dark:text-slate-400">
             <span v-if="rule.setPayee">{{ $t('finance.rules.alsoRename') }} “{{ rule.setPayee }}”</span>
             <span v-if="rule.setPayee && rule.accountId"> · </span>
-            <span v-if="rule.accountId">{{ accountItems.find(a => a.value === rule.accountId)?.label }}</span>
+            <span v-if="rule.accountId">{{ accountLabel(rule.accountId) }}</span>
           </p>
         </div>
         <USwitch
           :model-value="rule.enabled"
-          :aria-label="$t('finance.rules.enabled')"
+          :aria-label="$t('finance.rules.enabledFor', { value: rule.matchValue })"
           class="shrink-0"
           @update:model-value="(v: boolean) => toggle(rule, v)"
         />

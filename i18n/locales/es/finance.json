@@ -197,7 +197,11 @@
       "contains": "contiene",
       "startsWith": "empieza por",
       "equals": "es exactamente"
-    }
+    },
+    "summary": "{field} {match} «{value}» → {category}",
+    "summaryRenameOnly": "{field} {match} «{value}»",
+    "enabledFor": "Regla de «{value}» activada",
+    "unknownAccount": "Una cuenta eliminada"
   },
   "connections": {
     "title": "Bancos conectados",

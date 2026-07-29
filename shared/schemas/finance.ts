@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { zHexColor, zId } from './common'
+import { patchOf, zHexColor, zId } from './common'
 
 /** YYYY-MM-DD calendar date. Never timezone-converted (CLAUDE.md). */
 const zDateString = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'expected YYYY-MM-DD')
@@ -146,7 +146,7 @@ export const financeCategoryCreateSchema = z.object({
   parentId: zId.nullish(),
 })
 
-export const financeCategoryPatchSchema = financeCategoryCreateSchema.partial().extend({
+export const financeCategoryPatchSchema = patchOf(financeCategoryCreateSchema).extend({
   sortOrder: z.number().int().min(0).max(9999).optional(),
   archived: z.boolean().optional(),
 })
@@ -163,7 +163,7 @@ export const financeRuleCreateSchema = z.object({
   priority: z.number().int().min(0).max(9999).default(0),
 })
 
-export const financeRulePatchSchema = financeRuleCreateSchema.partial().extend({
+export const financeRulePatchSchema = patchOf(financeRuleCreateSchema).extend({
   enabled: z.boolean().optional(),
 })
 
@@ -231,7 +231,7 @@ export const financeBillCreateSchema = z.object({
   notes: z.string().trim().max(2000).nullish(),
 })
 
-export const financeBillPatchSchema = financeBillCreateSchema.partial().extend({
+export const financeBillPatchSchema = patchOf(financeBillCreateSchema).extend({
   archived: z.boolean().optional(),
 })
 
@@ -257,7 +257,7 @@ export const financeGoalCreateSchema = z.object({
   color: zHexColor.nullish(),
 })
 
-export const financeGoalPatchSchema = financeGoalCreateSchema.partial().extend({
+export const financeGoalPatchSchema = patchOf(financeGoalCreateSchema).extend({
   archived: z.boolean().optional(),
 })
 

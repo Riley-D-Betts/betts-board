@@ -4,12 +4,10 @@ const route = useRoute()
 const { tabs, sidebarItems, isTabActive } = useNavItems()
 
 // The nav no longer asks whether this profile has money access — Money is
-// always listed — so nothing is fetched here. But a profile switch must still
-// invalidate the cached answer: ensureLoaded() early-returns on a populated
-// state, and the previous profile's is the wrong one for this person.
-// FinanceShell refetches on demand when a money page is actually opened.
-const { state: financeState } = useFinanceSession()
-watch(() => activeProfile.value?.id, () => { financeState.value = null })
+// always listed — so nothing is fetched here. Invalidating the cached finance
+// session on a profile switch happens in useBoardState.switchProfile instead:
+// the switcher lives on /profiles, which uses a different layout, so a watcher
+// here would never fire for the case it exists to cover.
 
 // Phone-only full-screen menu. The tab bar holds four destinations; the raised
 // centre button opens the complete map of the board.

@@ -43,6 +43,12 @@ export function useNavItems() {
   // from wall displays; a kitchen tablet shouldn't advertise the family's
   // accounts. Cosmetic either way — the real gate is server-side.
   const { isDisplayDevice } = useDeviceMode()
+  // isDisplayDevice comes from localStorage, so it is false during SSR. Gate on
+  // it only after mount, otherwise the server paints Money, the client removes
+  // it on a wall display, and Vue reports a hydration mismatch on every page.
+  const mounted = ref(false)
+  onMounted(() => { mounted.value = true })
+  const hideForDisplay = computed(() => mounted.value && isDisplayDevice.value)
 
   const groups = computed<NavGroup[]>(() => [
     {
@@ -92,7 +98,7 @@ export function useNavItems() {
 
   function permitted(item: NavItem) {
     if (item.requiresManage && !canManage.value) return false
-    if (item.hideOnWallDisplay && isDisplayDevice.value) return false
+    if (item.hideOnWallDisplay && hideForDisplay.value) return false
     return true
   }
 

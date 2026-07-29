@@ -197,7 +197,11 @@
       "contains": "contains",
       "startsWith": "starts with",
       "equals": "is exactly"
-    }
+    },
+    "summary": "{field} {match} “{value}” → {category}",
+    "summaryRenameOnly": "{field} {match} “{value}”",
+    "enabledFor": "Rule for “{value}” on",
+    "unknownAccount": "A removed account"
   },
   "connections": {
     "title": "Bank connections",

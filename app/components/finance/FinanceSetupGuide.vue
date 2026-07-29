@@ -5,7 +5,6 @@
 defineProps<{
   /** Admins get the steps and the CTA; everyone else gets the note. */
   canSetUp: boolean
-  ownerName?: string | null
 }>()
 defineEmits<{ start: [] }>()
 

@@ -27,6 +27,29 @@ const model = defineModel<string>({ default: '' })
 const inputMode = useLocalStorage<'pad' | 'text'>('betts-pin-input', 'pad')
 
 /**
+ * The stored preference isn't known during SSR, so the grid only renders once
+ * mounted. Without this the server paints a pad, the client may want the text
+ * field, and Vue logs a hydration mismatch on every lock screen.
+ */
+const mounted = ref(false)
+onMounted(() => { mounted.value = true })
+const showPad = computed(() => mounted.value && inputMode.value === 'pad')
+
+/**
+ * Every key is @mousedown.prevent so tapping doesn't move the caret onto the
+ * button — but that alone leaves focus wherever it was, and the change-PIN
+ * modal has three pads. A physical Backspace would then edit whichever field
+ * happened to be focused (a masked one, so nothing looks wrong) and the save
+ * fails against the server, which counts it as a failed PIN attempt. Focus this
+ * pad's own input on every press so the keyboard follows the pad being tapped.
+ */
+const inputEl = useTemplateRef<{ inputRef?: HTMLInputElement }>('inputEl')
+function press(next: string) {
+  model.value = next
+  inputEl.value?.inputRef?.focus()
+}
+
+/**
  * Literal ASCII on purpose: the string that reaches argon2 must be exactly the
  * characters shown. The same reason machineFormat() exists — a locale-aware
  * digit here would emit non-Latin numerals under ar-SA and change the secret.
@@ -38,10 +61,11 @@ const DIGITS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const
   <div class="space-y-3">
     <UFormField :label="props.label">
       <UInput
+        ref="inputEl"
         v-model="model"
         type="password"
         :autocomplete="props.autocomplete"
-        :inputmode="inputMode === 'pad' ? 'none' : undefined"
+        :inputmode="showPad ? 'none' : undefined"
         :maxlength="PIN_MAX_LENGTH"
         :disabled="props.disabled"
         :autofocus="props.autofocus"
@@ -55,7 +79,7 @@ const DIGITS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const
     <p class="sr-only" aria-live="polite">{{ $t('finance.lock.entered', model.length) }}</p>
 
     <div
-      v-if="inputMode === 'pad'"
+      v-if="showPad"
       role="group"
       :aria-label="$t('finance.lock.padLabel')"
       class="grid grid-cols-3 gap-2"
@@ -72,7 +96,7 @@ const DIGITS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const
         class="min-h-14 w-full justify-center text-2xl font-semibold tabular-nums"
         :disabled="props.disabled"
         @mousedown.prevent
-        @click="model = appendDigit(model, d)"
+        @click="press(appendDigit(model, d))"
       >
         {{ d }}
       </UButton>
@@ -86,7 +110,7 @@ const DIGITS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const
         :disabled="props.disabled || !model"
         :aria-label="$t('finance.lock.clear')"
         @mousedown.prevent
-        @click="model = ''"
+        @click="press('')"
       >
         {{ $t('finance.lock.clear') }}
       </UButton>
@@ -99,7 +123,7 @@ const DIGITS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const
         class="min-h-14 w-full justify-center text-2xl font-semibold tabular-nums"
         :disabled="props.disabled"
         @mousedown.prevent
-        @click="model = appendDigit(model, '0')"
+        @click="press(appendDigit(model, '0'))"
       >
         0
       </UButton>
@@ -114,7 +138,7 @@ const DIGITS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const
         :disabled="props.disabled || !model"
         :aria-label="$t('finance.lock.backspace')"
         @mousedown.prevent
-        @click="model = backspace(model)"
+        @click="press(backspace(model))"
       />
     </div>
 
@@ -126,7 +150,7 @@ const DIGITS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const
       size="sm"
       @click="inputMode = inputMode === 'pad' ? 'text' : 'pad'"
     >
-      {{ inputMode === 'pad' ? $t('finance.lock.useKeyboard') : $t('finance.lock.usePad') }}
+      {{ showPad ? $t('finance.lock.useKeyboard') : $t('finance.lock.usePad') }}
     </UButton>
   </div>
 </template>

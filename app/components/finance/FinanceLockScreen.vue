@@ -25,18 +25,31 @@ const mode = computed<'unlock' | 'setup' | 'guide' | 'noAccess'>(() => {
   // PIN form, not a tour — they already know what Money is, and the documented
   // recovery path must stay one screen away. Deliberately NOT admin-gated: the
   // member recovering may not be an admin.
-  if (state.value?.needsPin) return 'setup'
-  if (state.value?.enrolled) return 'unlock'
+  // A failed /api/finance/session (offline, 401 mid-lock) leaves state null.
+  // Treating that as "not configured" would tell a household with Money fully
+  // set up that it isn't — show the lock screen and let the server answer.
+  if (!state.value) return 'unlock'
+  if (state.value.needsPin) return 'setup'
+  if (state.value.enrolled) return 'unlock'
   // Nothing set up yet. Trust on first use still applies, but explain what this
   // is before asking anyone to invent a PIN.
-  if (!state.value?.configured) return startedSetup.value ? 'setup' : 'guide'
+  if (!state.value.configured) return startedSetup.value ? 'setup' : 'guide'
   return 'noAccess'
+})
+
+// A ticking clock, not a one-shot read: the countdown has to fall to zero on
+// its own, or the pad stays disabled long after the lockout expired and the
+// only way back in is a page reload.
+const now = ref(Date.now())
+onMounted(() => {
+  const timer = setInterval(() => { now.value = Date.now() }, 1000)
+  onScopeDispose(() => clearInterval(timer))
 })
 
 const lockedOutMinutes = computed(() => {
   const until = state.value?.lockedUntil
-  if (!until || until <= Date.now()) return 0
-  return Math.ceil((until - Date.now()) / 60_000)
+  if (!until || until <= now.value) return 0
+  return Math.ceil((until - now.value) / 60_000)
 })
 
 async function submitUnlock() {
@@ -99,7 +112,6 @@ function deviceLabel(): 'phone' | 'tablet' | 'computer' | undefined {
     <FinanceSetupGuide
       v-if="mode === 'guide'"
       :can-set-up="isAdmin"
-      :owner-name="null"
       @start="startedSetup = true"
     />
 
@@ -137,7 +149,7 @@ function deviceLabel(): 'phone' | 'tablet' | 'computer' | undefined {
         />
 
         <p v-if="error" class="text-sm text-red-600 dark:text-red-400">{{ error }}</p>
-        <UButton type="submit" size="xl" block :loading="pending" :disabled="!canSubmit(newPin)">
+        <UButton type="submit" size="xl" block :loading="pending" :disabled="!canSubmit(newPin) || !confirmPin">
           {{ $t('finance.lock.setUpCta') }}
         </UButton>
       </form>

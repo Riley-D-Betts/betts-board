@@ -197,7 +197,11 @@
       "contains": "contient",
       "startsWith": "commence par",
       "equals": "est exactement"
-    }
+    },
+    "summary": "{field} {match} « {value} » → {category}",
+    "summaryRenameOnly": "{field} {match} « {value} »",
+    "enabledFor": "Règle pour « {value} » activée",
+    "unknownAccount": "Un compte supprimé"
   },
   "connections": {
     "title": "Connexions bancaires",
