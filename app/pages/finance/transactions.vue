@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { billSeedFromTransaction } from '#shared/utils/billFromTransaction'
+
 const { unlocked } = useFinanceSession()
 const { moneySigned, fromInput } = useMoney()
 const currency = useHouseholdCurrency()
@@ -110,6 +112,30 @@ function openSplit(txn: TxnItem) {
 
 async function onSplitSaved() {
   await refresh()
+  bumpDataTick()
+}
+
+// ── Turn into a bill ───────────────────────────────────────────────────────
+// Pre-fills a bill from this transaction; the user picks how it repeats before
+// saving. Creating the bill doesn't change the ledger, so only other views
+// (Bills, overview) need the nudge.
+const billOpen = ref(false)
+const billing = ref<TxnItem | null>(null)
+const billSeed = computed(() => billing.value ? billSeedFromTransaction(billing.value) : null)
+
+// A bill is always in the household currency (the server stamps it, there is no
+// FX). Only offer this on a transaction that already is, or a ¥5,000 charge
+// would silently become a 5,000-unit household-currency bill.
+function billableCurrency(txn: TxnItem) {
+  return txn.currency?.toUpperCase() === currency.value.toUpperCase()
+}
+
+function openBill(txn: TxnItem) {
+  billing.value = txn
+  billOpen.value = true
+}
+
+function onBillSaved() {
   bumpDataTick()
 }
 
@@ -241,6 +267,16 @@ async function create() {
                   :aria-label="$t('finance.splits.edit')"
                   @click="openSplit(txn)"
                 />
+                <UButton
+                  v-if="billableCurrency(txn)"
+                  icon="i-lucide-repeat"
+                  size="sm"
+                  color="neutral"
+                  variant="ghost"
+                  class="shrink-0"
+                  :aria-label="$t('finance.transactions.makeBill')"
+                  @click="openBill(txn)"
+                />
               </div>
 
               <span
@@ -274,6 +310,15 @@ async function create() {
       :transaction="splitting"
       :categories="categories ?? []"
       @saved="onSplitSaved"
+    />
+
+    <FinanceBillEditor
+      v-if="billSeed"
+      v-model:open="billOpen"
+      :title="$t('finance.bills.fromTransaction')"
+      :initial="billSeed"
+      :categories="categories ?? []"
+      @saved="onBillSaved"
     />
 
     <UModal v-model:open="addOpen" :title="$t('finance.transactions.add')">

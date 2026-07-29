@@ -82,6 +82,8 @@ async function saveSettings() {
 
       <FinanceMembers :is-owner="isOwner" />
 
+      <FinanceCategories />
+
       <UCard>
         <template #header>
           <h2 class="font-semibold">{{ $t('finance.settings.title') }}</h2>

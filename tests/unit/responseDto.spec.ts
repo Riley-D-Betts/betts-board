@@ -71,6 +71,8 @@ describe('profiles never carry the Money PIN hash out', () => {
   // promotes themselves could PATCH a profile and read back the argon2 hash of
   // a four-digit PIN — crackable offline in seconds, defeating the money gate.
   it('PATCH-shaped update returns no pinHash', () => {
+    // A second admin so demoting Dad isn't blocked by the last-admin guard.
+    db.insert(profiles).values({ householdId, name: 'Mum', color: '#112233', role: 'admin' }).run()
     const updated = updateProfile(db, dad, { role: 'kid' })
     expect(updated).not.toHaveProperty('pinHash')
     expect(JSON.stringify(updated)).not.toContain('PINHASHSECRET')
@@ -110,7 +112,9 @@ describe('profiles never carry the Money PIN hash out', () => {
     expect(isAdminProfile(db, kid)).toBe(false)
     expect(isAdminProfile(db, undefined)).toBe(false)
     // Demoted or archived in the database → not an admin any more, even though
-    // an already-issued session cookie still claims role: 'admin'.
+    // an already-issued session cookie still claims role: 'admin'. A second
+    // admin so the demotion isn't blocked by the last-admin guard.
+    db.insert(profiles).values({ householdId, name: 'Mum', color: '#112233', role: 'admin' }).run()
     updateProfile(db, dad, { role: 'adult' })
     expect(isAdminProfile(db, dad)).toBe(false)
   })

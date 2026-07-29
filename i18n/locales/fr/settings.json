@@ -105,6 +105,8 @@
     "roleAdmin": "Admin",
     "roleAdult": "Adulte",
     "roleKid": "Enfant",
+    "changeRole": "Changer le rôle",
+    "lastAdmin": "Vous ne pouvez pas retirer le dernier administrateur.",
     "addMember": "Ajouter un membre",
     "addFailed": "Impossible d'ajouter le profil",
     "removeConfirm": "Retirer {name} du tableau ? Son historique est conservé."

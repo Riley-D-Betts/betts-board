@@ -20,16 +20,48 @@ async function addProfile() {
   }
 }
 
-// The badge shows the stored enum; these are the labels the picker below uses.
-function roleLabel(role: string) {
-  const key = { admin: 'roleAdmin', adult: 'roleAdult', kid: 'roleKid' }[role]
-  return key ? t(`settings.profiles.${key}`) : role
+const roleItems = computed(() => [
+  { label: t('settings.profiles.roleAdmin'), value: 'admin' },
+  { label: t('settings.profiles.roleAdult'), value: 'adult' },
+  { label: t('settings.profiles.roleKid'), value: 'kid' },
+])
+
+// Both role writes fail the same one explainable way — the last-admin guard
+// returns 409. Anything else (offline, a concurrent change, a promotion that
+// couldn't have hit the guard) gets the generic message, not a misleading
+// "last admin" one.
+function roleWriteError(e: unknown) {
+  const status = (e as { statusCode?: number }).statusCode
+    ?? (e as { response?: { status?: number } }).response?.status
+  toast.add({
+    title: status === 409 ? t('settings.profiles.lastAdmin') : t('common.errors.generic'),
+    color: 'error',
+  })
+}
+
+async function changeRole(id: string, role: string) {
+  try {
+    await $fetch(`/api/profiles/${id}`, { method: 'PATCH', body: { role } })
+    // refresh() too: an admin demoting themselves must see admin-only sections
+    // disappear at once (isAdmin recomputes from the live row).
+    await Promise.all([reload(), refresh()])
+  }
+  catch (e) {
+    roleWriteError(e)
+    await reload() // snap the select back to the server's truth
+  }
 }
 
 async function archiveProfile(id: string, name: string) {
   if (!confirm(t('settings.profiles.removeConfirm', { name }))) return
-  await $fetch(`/api/profiles/${id}`, { method: 'DELETE' })
-  await Promise.all([reload(), refresh()])
+  try {
+    await $fetch(`/api/profiles/${id}`, { method: 'DELETE' })
+    await Promise.all([reload(), refresh()])
+  }
+  catch (e) {
+    // Removing the last admin is refused (409) — say so instead of nothing.
+    roleWriteError(e)
+  }
 }
 </script>
 
@@ -45,7 +77,14 @@ async function archiveProfile(id: string, name: string) {
       <div v-for="p in profileList ?? []" :key="p.id" class="flex items-center gap-3">
         <ProfileAvatar :profile="p" size="sm" />
         <span class="font-medium flex-1">{{ p.name }}</span>
-        <UBadge :label="roleLabel(p.role)" variant="soft" />
+        <USelect
+          :model-value="p.role"
+          :items="roleItems"
+          size="sm"
+          class="w-28"
+          :aria-label="$t('settings.profiles.changeRole')"
+          @update:model-value="(v: string) => changeRole(p.id, v)"
+        />
         <UButton icon="i-lucide-trash-2" variant="ghost" color="neutral" size="sm" @click="archiveProfile(p.id, p.name)" />
       </div>
 
@@ -54,7 +93,7 @@ async function archiveProfile(id: string, name: string) {
         <UInput v-model="newProfile.name" :placeholder="$t('settings.profiles.namePlaceholder')" class="flex-1" autofocus @keyup.enter="addProfile" />
         <USelect
           v-model="newProfile.role"
-          :items="[{ label: $t('settings.profiles.roleAdmin'), value: 'admin' }, { label: $t('settings.profiles.roleAdult'), value: 'adult' }, { label: $t('settings.profiles.roleKid'), value: 'kid' }]"
+          :items="roleItems"
           class="w-28"
         />
         <UButton icon="i-lucide-check" @click="addProfile" />

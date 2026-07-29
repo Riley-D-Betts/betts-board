@@ -75,11 +75,16 @@
       "investment": "Placement",
       "loan": "Prêt",
       "other": "Autre"
-    }
+    },
+    "remove": "Supprimer le compte",
+    "removeConfirm": "Supprimer « {name} » ? Cela supprime définitivement le compte et ses opérations, sans retour possible.",
+    "removed": "Compte supprimé",
+    "removeFailed": "Suppression du compte impossible"
   },
   "transactions": {
     "title": "Transactions",
     "add": "Ajouter une transaction",
+    "makeBill": "Convertir en facture",
     "search": "Rechercher une transaction…",
     "empty": "Rien ici pour l'instant.",
     "noMatch": "Aucune transaction ne correspond.",
@@ -112,7 +117,15 @@
       "expense": "Dépense",
       "income": "Revenu",
       "transfer": "Virement"
-    }
+    },
+    "edit": "Modifier la catégorie",
+    "color": "Couleur",
+    "colorNone": "Aucune couleur",
+    "empty": "Aucune catégorie pour l’instant.",
+    "removeConfirm": "Supprimer « {name} » ? Si une opération l’utilise encore, elle est archivée à la place pour que votre historique garde sa catégorie.",
+    "deleted": "Catégorie supprimée",
+    "archivedInstead": "Archivée plutôt que supprimée — les opérations passées gardent leur catégorie.",
+    "saveFailed": "Enregistrement de la catégorie impossible"
   },
   "rules": {
     "title": "Catégorisation auto",
@@ -224,6 +237,7 @@
   "bills": {
     "title": "Factures",
     "add": "Ajouter une facture",
+    "fromTransaction": "Nouvelle facture depuis la transaction",
     "addIncome": "Ajouter un revenu",
     "name": "De quoi s'agit-il",
     "kind": "Type",
