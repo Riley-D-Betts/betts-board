@@ -92,8 +92,8 @@
     "openingBalance": "Saldo actual",
     "openingBalanceHelp": "Lo que hay ahora mismo. Todo lo que añadas después ajustará este saldo.",
     "empty": "Aún no hay cuentas. Conecta un banco o añade una que lleves a mano.",
-    "hidden": "Oculta",
-    "hide": "Ocultar de los totales",
+    "hidden": "Cuenta oculta",
+    "hide": "Ocultar cuenta",
     "archive": "Archivar",
     "includeInNetWorth": "Contar en el patrimonio neto",
     "fromBank": "De tu banco",
@@ -111,7 +111,13 @@
     "remove": "Eliminar cuenta",
     "removeConfirm": "¿Eliminar «{name}»? Esto borra la cuenta y sus movimientos de forma permanente y no se puede deshacer.",
     "removed": "Cuenta eliminada",
-    "removeFailed": "No se ha podido eliminar la cuenta"
+    "removeFailed": "No se ha podido eliminar la cuenta",
+    "hideConfirm": "¿Ocultar «{name}»? Viene de tu banco, así que no se puede eliminar: al ocultarla sale de tus cuentas, totales y presupuestos, y seguirá oculta tras las próximas sincronizaciones. Sus movimientos se conservan.",
+    "restore": "Restaurar",
+    "restored": "Cuenta restaurada",
+    "hiddenAccounts": "Cuentas ocultas",
+    "noHidden": "No hay cuentas ocultas.",
+    "disconnectHint": "Para quitar todas las cuentas de este banco, desconéctalo en"
   },
   "transactions": {
     "title": "Movimientos",

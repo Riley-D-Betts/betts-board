@@ -92,8 +92,8 @@
     "openingBalance": "Solde actuel",
     "openingBalanceHelp": "Ce qu'il contient en ce moment. Tout ce que vous ajouterez ensuite viendra l'ajuster.",
     "empty": "Aucun compte pour l'instant. Connectez une banque ou créez-en un que vous tiendrez à la main.",
-    "hidden": "Masqué",
-    "hide": "Exclure des totaux",
+    "hidden": "Compte masqué",
+    "hide": "Masquer le compte",
     "archive": "Archiver",
     "includeInNetWorth": "Compter dans le patrimoine net",
     "fromBank": "Depuis votre banque",
@@ -111,7 +111,13 @@
     "remove": "Supprimer le compte",
     "removeConfirm": "Supprimer « {name} » ? Cela supprime définitivement le compte et ses opérations, sans retour possible.",
     "removed": "Compte supprimé",
-    "removeFailed": "Suppression du compte impossible"
+    "removeFailed": "Suppression du compte impossible",
+    "hideConfirm": "Masquer « {name} » ? Il vient de votre banque : il ne peut donc pas être supprimé. Le masquer le retire de vos comptes, totaux et budgets, et il le restera après les prochaines synchronisations. Ses transactions sont conservées.",
+    "restore": "Restaurer",
+    "restored": "Compte restauré",
+    "hiddenAccounts": "Comptes masqués",
+    "noHidden": "Aucun compte masqué.",
+    "disconnectHint": "Pour retirer tous les comptes de cette banque, déconnectez-la dans"
   },
   "transactions": {
     "title": "Transactions",

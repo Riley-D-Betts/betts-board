@@ -64,6 +64,11 @@ export const financeAccountCreateSchema = z.object({
   includeInNetWorth: z.boolean().default(true),
 })
 
+/** `?includeArchived=true` so hidden accounts can be listed and restored. */
+export const financeAccountQuerySchema = z.object({
+  includeArchived: z.stringbool().default(false),
+})
+
 export const financeAccountPatchSchema = z.object({
   name: z.string().trim().min(1).max(80).optional(),
   type: z.enum(financeAccountTypes).optional(),

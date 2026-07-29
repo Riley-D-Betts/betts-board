@@ -92,8 +92,8 @@
     "openingBalance": "Current balance",
     "openingBalanceHelp": "What's in it right now. Everything you add afterwards adjusts this.",
     "empty": "No accounts yet. Connect a bank or add one you'll keep by hand.",
-    "hidden": "Hidden",
-    "hide": "Hide from totals",
+    "hidden": "Account hidden",
+    "hide": "Hide account",
     "archive": "Archive",
     "includeInNetWorth": "Count towards net worth",
     "fromBank": "From your bank",
@@ -111,7 +111,13 @@
     "remove": "Remove account",
     "removeConfirm": "Remove “{name}”? This permanently deletes the account and its transactions, and can’t be undone.",
     "removed": "Account removed",
-    "removeFailed": "Could not remove the account"
+    "removeFailed": "Could not remove the account",
+    "hideConfirm": "Hide “{name}”? It comes from your bank, so it can't be deleted — hiding takes it out of your accounts, totals and budgets, and it stays hidden after future syncs. Its transactions are kept.",
+    "restore": "Restore",
+    "restored": "Account restored",
+    "hiddenAccounts": "Hidden accounts",
+    "noHidden": "No hidden accounts.",
+    "disconnectHint": "To remove every account from this bank, disconnect it in"
   },
   "transactions": {
     "title": "Transactions",

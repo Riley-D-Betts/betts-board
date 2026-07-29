@@ -12,7 +12,7 @@ import {
 } from '#shared/schemas/events'
 import { feedbackCreateSchema, feedbackSettingsSchema } from '#shared/schemas/feedback'
 import {
-  financeAccountCreateSchema, financeAccountPatchSchema, financeBillCreateSchema,
+  financeAccountCreateSchema, financeAccountPatchSchema, financeAccountQuerySchema, financeBillCreateSchema,
   financeBillMarkSchema, financeBillPatchSchema, financeBillQuerySchema,
   financeBudgetQuerySchema, financeBudgetSetSchema, financeCategoryCreateSchema,
   financeCategoryPatchSchema, financeConnectSchema, financeConnectionPatchSchema,
@@ -1188,7 +1188,8 @@ export const routeRegistry: RouteDoc[] = [
     summary: 'Accounts and net worth by currency.',
     tags: ['Finance'],
     auth: 'finance',
-    responseDescription: '`{ accounts, netWorth }`. Amounts are integer minor units plus a currency code and exponent — never floats.',
+    querySchema: financeAccountQuerySchema,
+    responseDescription: '`{ accounts, netWorth }`. Amounts are integer minor units plus a currency code and exponent — never floats. `?includeArchived=true` also returns hidden accounts; net worth always excludes them.',
   },
   {
     method: 'post',

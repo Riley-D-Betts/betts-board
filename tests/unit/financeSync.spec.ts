@@ -85,6 +85,37 @@ describe('ingestAccount', () => {
     expect(row.type).toBe('checking')
   })
 
+  /**
+   * The whole "hide a bank account" feature rests on this: the server refuses
+   * to DELETE a synced account because the next sync would recreate it, so the
+   * UI archives instead. If a sync ever cleared archivedAt, a hidden account
+   * would silently reappear on the family's board.
+   */
+  it('leaves a hidden account hidden across syncs', () => {
+    ingestAccount(db, connection, account(), WINDOW_START)
+    const row = db.select().from(financeAccounts).get()!
+    db.update(financeAccounts).set({ archivedAt: new Date('2026-02-02T00:00:00Z') })
+      .where(eq(financeAccounts.id, row.id)).run()
+
+    // A later sync brings a new balance and a new transaction.
+    ingestAccount(db, connection, account({
+      balanceMinor: -1000,
+      transactions: [{
+        id: 'TRN-2',
+        postedAt: new Date('2026-01-20T12:00:00Z'),
+        amountMinor: -500,
+        description: 'Later',
+        payee: null,
+        memo: null,
+        pending: false,
+      }],
+    }), WINDOW_START)
+
+    const after = db.select().from(financeAccounts).get()!
+    expect(after.archivedAt).not.toBeNull() // still hidden
+    expect(after.balanceMinor).toBe(-1000) // but still kept up to date
+  })
+
   it('is idempotent: the same payload twice inserts nothing new', () => {
     ingestAccount(db, connection, account(), WINDOW_START)
     const second = ingestAccount(db, connection, account(), WINDOW_START)
