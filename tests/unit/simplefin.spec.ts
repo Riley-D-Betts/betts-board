@@ -14,6 +14,7 @@ type SimpleFin = typeof import('../../server/services/finance/simplefin')
 let claimSetupToken: SimpleFin['claimSetupToken']
 let fetchAccounts: SimpleFin['fetchAccounts']
 let SimpleFinReauthError: SimpleFin['SimpleFinReauthError']
+let DEFAULT_HOSTS: SimpleFin['DEFAULT_HOSTS']
 
 let stub: Server
 let base: string
@@ -47,7 +48,7 @@ beforeAll(async () => {
 
   process.env.BETTS_SIMPLEFIN_HOSTS = '127.0.0.1'
   base = `http://127.0.0.1:${(stub.address() as AddressInfo).port}`
-  ;({ claimSetupToken, fetchAccounts, SimpleFinReauthError } = await import('../../server/services/finance/simplefin'))
+  ;({ claimSetupToken, fetchAccounts, SimpleFinReauthError, DEFAULT_HOSTS } = await import('../../server/services/finance/simplefin'))
 })
 
 afterAll(async () => {
@@ -65,6 +66,17 @@ beforeEach(() => {
 
 const token = (url: string) => Buffer.from(url, 'utf8').toString('base64')
 const ACCESS = (port: number) => `http://someuser:somepass@127.0.0.1:${port}/simplefin`
+
+describe('the default host allowlist', () => {
+  it('trusts both of SimpleFIN’s public bridges out of the box', () => {
+    // beta-bridge is where real setup tokens actually point — and where the
+    // README sends people — so leaving it out made every default install
+    // reject a valid token at the host check before the request ever left.
+    const hosts = DEFAULT_HOSTS.split(',').map(h => h.trim())
+    expect(hosts).toContain('bridge.simplefin.org')
+    expect(hosts).toContain('beta-bridge.simplefin.org')
+  })
+})
 
 describe('claimSetupToken', () => {
   it('POSTs to the decoded claim URL and returns the access URL', async () => {
