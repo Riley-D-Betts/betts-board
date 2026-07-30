@@ -13,5 +13,27 @@ export default defineAppConfig({
         content: 'z-50',
       },
     },
+    // The other half of the same disease: Nuxt UI sets no z-index on its
+    // floating layers either, and Reka's fixed positioner inherits the
+    // content's computed z-index. With the modal raised to z-50 above, an
+    // unranked select popover opened INSIDE a modal painted underneath it —
+    // aria said "open" while the screen showed nothing, and on a phone
+    // (no keyboard to type-and-Enter through it) the dropdown was simply
+    // unusable. Every layer that can open above a modal must outrank it.
+    select: {
+      slots: {
+        content: 'z-[60]',
+      },
+    },
+    dropdownMenu: {
+      slots: {
+        content: 'z-[60]',
+      },
+    },
+    tooltip: {
+      slots: {
+        content: 'z-[60]',
+      },
+    },
   },
 })
