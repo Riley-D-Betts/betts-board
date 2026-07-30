@@ -147,11 +147,21 @@ function payload(over: Record<string, unknown> = {}) {
       'balance-date': 978366153, // epoch SECONDS — Jan 2001
       'transactions': [
         { id: 'TRN-1', posted: 978366153, amount: '-33.53', description: 'Uncle Frank’s Bait Shop' },
-        { id: 'TRN-2', posted: 978366153, amount: '1200.00', description: 'PAYROLL', pending: true },
+        // A pending transaction has not posted: the spec sends posted: 0 and
+        // puts the real date in transacted_at. The fixture mirrors that —
+        // giving it a filled-in posted here once hid a bug that dropped every
+        // real pending row.
+        { id: 'TRN-2', posted: 0, transacted_at: 978366153, amount: '1200.00', description: 'PAYROLL', pending: true },
       ],
     }],
     ...over,
   })
+}
+
+async function fetchPayload(over: Record<string, unknown> = {}) {
+  respond = () => ({ status: 200, body: payload(over) })
+  const port = (stub.address() as AddressInfo).port
+  return fetchAccounts(ACCESS(port))
 }
 
 describe('fetchAccounts', () => {
@@ -244,6 +254,65 @@ describe('fetchAccounts', () => {
     respond = () => ({ status: 403, body: 'no' })
     const port = (stub.address() as AddressInfo).port
     await expect(fetchAccounts(ACCESS(port))).rejects.toBeInstanceOf(SimpleFinReauthError)
+  })
+
+  /**
+   * The reason `pending=1` alone didn't fix "this morning's payment never
+   * shows up": a pending transaction has `posted: 0` (or no `posted` at all)
+   * and carries its date in `transacted_at`. The normaliser used to require a
+   * non-zero `posted`, so it either dropped the row outright or dated it
+   * 1970-01-01 — the bottom of a list sorted by date, where nobody scrolls.
+   */
+  it('keeps a pending transaction whose date lives in transacted_at, not posted', async () => {
+    const { accounts } = await fetchPayload({
+      accounts: [{
+        id: 'ACT-1',
+        name: 'Checking',
+        currency: 'USD',
+        balance: '10.00',
+        transactions: [
+          { id: 'P-0', posted: 0, transacted_at: 1785000000, amount: '-12.50', description: 'CARD HOLD', pending: true },
+          { id: 'P-omitted', transacted_at: 1785000000, amount: '-4.00', description: 'COFFEE', pending: true },
+        ],
+      }],
+    })
+    const txns = accounts[0]!.transactions
+    expect(txns.map(t => t.id)).toEqual(['P-0', 'P-omitted'])
+    expect(txns[0]!.pending).toBe(true)
+    expect(txns[0]!.postedAt.getTime()).toBe(1785000000_000)
+    expect(txns[1]!.postedAt.getTime()).toBe(1785000000_000)
+  })
+
+  it('dates a pending transaction with no timestamp at all as now, never 1970', async () => {
+    const { accounts } = await fetchPayload({
+      accounts: [{
+        id: 'ACT-1',
+        name: 'Checking',
+        currency: 'USD',
+        balance: '10.00',
+        transactions: [
+          { id: 'P-bare', posted: 0, amount: '-9.99', description: 'AUTH', pending: true },
+        ],
+      }],
+    })
+    const txn = accounts[0]!.transactions[0]!
+    expect(Math.abs(txn.postedAt.getTime() - Date.now())).toBeLessThan(60_000)
+  })
+
+  it('still skips a POSTED transaction that has no usable date', async () => {
+    const { accounts } = await fetchPayload({
+      accounts: [{
+        id: 'ACT-1',
+        name: 'Checking',
+        currency: 'USD',
+        balance: '10.00',
+        transactions: [
+          { id: 'X', posted: 0, amount: '-1.00', description: 'no date, not pending' },
+          { id: 'OK', posted: 978366153, amount: '-2.00', description: 'fine' },
+        ],
+      }],
+    })
+    expect(accounts[0]!.transactions.map(t => t.id)).toEqual(['OK'])
   })
 
   it('skips an unparseable amount rather than losing the whole account', async () => {
