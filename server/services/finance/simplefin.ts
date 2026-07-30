@@ -234,6 +234,11 @@ function str(value: unknown): string | null {
   return typeof value === 'string' && value.trim() ? value.trim() : null
 }
 
+/** Positive epoch seconds, or null. `posted: 0` is the spec's "not posted yet". */
+function epochSeconds(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : null
+}
+
 /**
  * Normalises one raw account. Amounts arrive as decimal STRINGS and timestamps
  * as epoch SECONDS — both are easy to get wrong and neither failure is loud
@@ -256,7 +261,19 @@ function normalizeAccount(raw: Record<string, unknown>): SimpleFinAccount | null
     const txn = t as Record<string, unknown>
     const id = str(txn.id)
     const amountRaw = str(txn.amount)
-    const posted = typeof txn.posted === 'number' ? txn.posted : null
+    const pending = txn.pending === true
+    // A pending transaction has not posted, so the spec sends `posted: 0`
+    // (some bridges omit the field) and carries the real date in
+    // `transacted_at`. Requiring a non-zero `posted` therefore threw away
+    // every pending row the `pending=1` request went to the trouble of
+    // fetching — and accepting the literal 0 was worse: a row dated
+    // 1970-01-01, sorted to the bottom of history where nobody scrolls, and
+    // outside the window the stale-pending sweep is allowed to delete from.
+    // Date it by transacted_at, or by "now" as a last resort — a hold that
+    // just appeared in the feed happened about now, and the reconcile pass
+    // rewrites the date with the bank's real one the moment it settles.
+    const posted = epochSeconds(txn.posted) ?? epochSeconds(txn.transacted_at)
+      ?? (pending ? Math.floor(Date.now() / 1000) : null)
     if (!id || !amountRaw || posted == null) continue
     try {
       transactions.push({
@@ -266,7 +283,7 @@ function normalizeAccount(raw: Record<string, unknown>): SimpleFinAccount | null
         description: str(txn.description) ?? '(no description)',
         payee: str(txn.payee),
         memo: str(txn.memo),
-        pending: txn.pending === true,
+        pending,
       })
     }
     catch {
