@@ -1,0 +1,73 @@
+{
+  "$comment": "Nav for docs.betts-board — order, grouping and titles come from here, not from the filesystem. A file not listed here is not published.",
+  "groups": [
+    {
+      "title": "Getting started",
+      "pages": [
+        {
+          "slug": "introduction",
+          "title": "What is Betts Board?",
+          "file": "introduction.md",
+          "description": "A self-hosted family organizer for the kitchen tablet, the TV and everyone's phones — what it does, what it deliberately doesn't, and what it needs to run."
+        },
+        {
+          "slug": "install",
+          "title": "Install",
+          "file": "install.md",
+          "description": "Get Betts Board running with Docker Compose and finish the first-run setup wizard."
+        },
+        {
+          "slug": "https",
+          "title": "HTTPS and remote access",
+          "file": "https.md",
+          "description": "Which features need a secure context, and three ways to get one: a Caddy sidecar, an existing reverse proxy, or Tailscale."
+        }
+      ]
+    },
+    {
+      "title": "Using it",
+      "pages": [
+        {
+          "slug": "everyday-use",
+          "title": "Everyday use",
+          "file": "everyday-use.md",
+          "description": "Phones, the kitchen tablet, the TV, profiles, and subscribing calendars in both directions."
+        },
+        {
+          "slug": "configuration",
+          "title": "Configuration",
+          "file": "configuration.md",
+          "description": "Environment variables set at container start, and everything else configured in Settings."
+        }
+      ]
+    },
+    {
+      "title": "Operations",
+      "pages": [
+        {
+          "slug": "backup-restore",
+          "title": "Backup and restore",
+          "file": "backup-restore.md",
+          "description": "What lives in the data volume, how to back it up, how to restore it, and how to reset a forgotten password."
+        },
+        {
+          "slug": "troubleshooting",
+          "title": "Troubleshooting",
+          "file": "troubleshooting.md",
+          "description": "Fixes for the problems that actually come up: silent notifications, missing install prompts, dead scanners and stalled feeds."
+        }
+      ]
+    },
+    {
+      "title": "Project",
+      "pages": [
+        {
+          "slug": "contributing",
+          "title": "Contributing",
+          "file": "contributing.md",
+          "description": "Development commands, the vertical-slice architecture, and what the AGPL means for your changes."
+        }
+      ]
+    }
+  ]
+}

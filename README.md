@@ -5,6 +5,8 @@ phones.** One Docker container, one data volume, no subscriptions, no accounts
 with big tech — your family's calendar, chores, recipes, and photos stay on
 your own server.
 
+**Docs:** the full install and usage guide lives at [betts-board.pages.dev/docs](https://betts-board.pages.dev/docs).
+
 ![Dashboard](docs/screenshots/dashboard.png)
 
 | Calendar | Chores on a phone |
@@ -76,6 +78,9 @@ Open `http://your-server:3000` and follow the setup wizard: household name,
 one shared password, your town (for weather), and a profile for each family
 member. That's the whole install — the database, uploaded photos, and recipe
 images all live in the `betts-data` volume.
+
+Full walkthrough — including the setup wizard and updating — in the
+[install guide](https://betts-board.pages.dev/docs/install).
 
 ## HTTPS
 
@@ -299,6 +304,7 @@ same expansion pipeline as local events.
 
 Issues and PRs welcome. Before opening a PR: `npm test && npm run lint`, and
 keep changes inside their feature slice (see [CLAUDE.md](./CLAUDE.md)).
+More detail in the [contributing guide](https://betts-board.pages.dev/docs/contributing).
 
 ## License
 
