@@ -1,0 +1,24 @@
+# Rebuilds the docs site (Riley-D-Betts/betts-board-site) when the docs
+# content changes. Inert until the CF_PAGES_DEPLOY_HOOK secret is set to a
+# Cloudflare Pages deploy-hook URL.
+name: Deploy docs site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/content/**"
+
+jobs:
+  trigger-pages-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: POST the Cloudflare Pages deploy hook
+        env:
+          DEPLOY_HOOK: ${{ secrets.CF_PAGES_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$DEPLOY_HOOK" ]; then
+            echo "CF_PAGES_DEPLOY_HOOK is not set; skipping."
+            exit 0
+          fi
+          curl -sS -X POST "$DEPLOY_HOOK"

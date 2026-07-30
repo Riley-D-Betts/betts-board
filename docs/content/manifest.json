@@ -1,0 +1,72 @@
+{
+  "groups": [
+    {
+      "title": "Getting started",
+      "pages": [
+        {
+          "slug": "introduction",
+          "title": "What is Betts Board?",
+          "file": "introduction.md",
+          "description": "A self-hosted family organizer that runs as one Docker container on your own server."
+        },
+        {
+          "slug": "install",
+          "title": "Install",
+          "file": "install.md",
+          "description": "Docker Compose quick start, the first-run setup wizard, ports, and the data volume."
+        },
+        {
+          "slug": "https",
+          "title": "HTTPS",
+          "file": "https.md",
+          "description": "Push notifications, PWA install, and the camera scanner need a secure context. Three ways to get one."
+        }
+      ]
+    },
+    {
+      "title": "Using the board",
+      "pages": [
+        {
+          "slug": "everyday-use",
+          "title": "Everyday use",
+          "file": "everyday-use.md",
+          "description": "Phones, the kitchen tablet wall display, TV mode, profiles, and calendar feeds."
+        },
+        {
+          "slug": "configuration",
+          "title": "Configuration",
+          "file": "configuration.md",
+          "description": "Every environment variable, and a tour of the in-app Settings page."
+        }
+      ]
+    },
+    {
+      "title": "Operating it",
+      "pages": [
+        {
+          "slug": "backup-restore",
+          "title": "Backup & restore",
+          "file": "backup-restore.md",
+          "description": "What lives in the volume, how to back it up and restore it, and how to reset a forgotten password."
+        },
+        {
+          "slug": "troubleshooting",
+          "title": "Troubleshooting",
+          "file": "troubleshooting.md",
+          "description": "Fixes for the problems that actually come up, symptom by symptom."
+        }
+      ]
+    },
+    {
+      "title": "Contributing",
+      "pages": [
+        {
+          "slug": "contributing",
+          "title": "Contributing",
+          "file": "contributing.md",
+          "description": "Dev commands, the vertical-slice architecture, PR expectations, and what AGPL means here."
+        }
+      ]
+    }
+  ]
+}
