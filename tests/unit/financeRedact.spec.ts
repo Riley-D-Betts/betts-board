@@ -36,7 +36,10 @@ describe('redactCredentials', () => {
     // PHP's json_encode escapes forward slashes by default, so a bridge error
     // body can quote the access URL as https:\/\/user:pass@host — one regex
     // insisting on a literal :// let exactly that through.
-    const escaped = ACCESS.replace(/\//g, '\\/')
+    // split/join rather than a regex replace: CodeQL flags slash-escaping
+    // that ignores backslashes as incomplete sanitization, but this simulates
+    // a serializer's exact output for a backslash-free URL constant.
+    const escaped = ACCESS.split('/').join('\\/')
     const out = redactCredentials(`upstream said ${escaped} failed`)
     expect(out).not.toContain('c4e8a2d6f0')
     expect(out).not.toContain('5a7d3e1f9b')

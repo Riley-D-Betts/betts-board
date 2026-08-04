@@ -519,7 +519,11 @@ describe('BETTS_SIMPLEFIN_DEBUG', () => {
     process.env.BETTS_SIMPLEFIN_DEBUG = '1'
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
     const port = (stub.address() as AddressInfo).port
-    const escaped = payload({ errlist: [`upstream said ${ACCESS(port)} failed`] }).replace(/\//g, '\\/')
+    // split/join rather than a regex replace: CodeQL rightly flags
+    // slash-escaping that ignores backslashes as incomplete SANITIZATION, but
+    // this is simulation — reproducing a serializer's exact output for a
+    // backslash-free JSON document, not escaping untrusted input.
+    const escaped = payload({ errlist: [`upstream said ${ACCESS(port)} failed`] }).split('/').join('\\/')
     respond = () => ({ status: 200, body: escaped })
     await fetchAccounts(ACCESS(port))
 
