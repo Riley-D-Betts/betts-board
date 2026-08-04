@@ -32,6 +32,17 @@ describe('redactCredentials', () => {
     expect(redactCredentials(url)).toBe(url)
   })
 
+  it('redacts the JSON-escaped spelling some serializers emit', () => {
+    // PHP's json_encode escapes forward slashes by default, so a bridge error
+    // body can quote the access URL as https:\/\/user:pass@host — one regex
+    // insisting on a literal :// let exactly that through.
+    const escaped = ACCESS.replace(/\//g, '\\/')
+    const out = redactCredentials(`upstream said ${escaped} failed`)
+    expect(out).not.toContain('c4e8a2d6f0')
+    expect(out).not.toContain('5a7d3e1f9b')
+    expect(out).toContain('***:***@')
+  })
+
   it('leaves an ordinary sentence alone', () => {
     expect(redactCredentials('Chase needs re-authentication')).toBe('Chase needs re-authentication')
   })

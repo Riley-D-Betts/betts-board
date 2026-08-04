@@ -68,8 +68,20 @@ function debugEnabled(): boolean {
 /** Whole 90-day payloads fit comfortably; this cap only guards a pathological one. */
 const DEBUG_BODY_MAX_CHARS = 200_000
 
+/**
+ * Credentials scrubbed AND C0/C1 control characters stripped. The second half
+ * matters as much as the first: everything debug-logged here is
+ * bridge-controlled text, and a hostile bridge embedding `\n` or ANSI escapes
+ * could otherwise forge whole log lines — including fake "[simplefin]" lines —
+ * in the very output someone is reading to decide what their bridge sent.
+ */
+function scrubForLog(message: string): string {
+  // eslint-disable-next-line no-control-regex -- stripping them is the point
+  return redactCredentials(message).replace(/[\u0000-\u001F\u007F-\u009F]+/g, ' ')
+}
+
 export function simplefinDebugLog(message: string): void {
-  if (debugEnabled()) console.log(`[simplefin] ${redactCredentials(message)}`)
+  if (debugEnabled()) console.log(`[simplefin] ${scrubForLog(message)}`)
 }
 
 function assertFetchableUrl(raw: string, what: string): URL {
@@ -206,7 +218,12 @@ export async function claimSetupToken(setupToken: string): Promise<string> {
   }
 
   const claimUrl = assertFetchableUrl(decoded, 'The setup token')
-  simplefinDebugLog(`request: POST ${claimUrl.href} (claim)`)
+  // Origin only — never the full URL. The claim URL carries its single-use
+  // secret in the PATH, where credential redaction (built for `user:pass@`)
+  // cannot see it. Logging it on a FAILED claim would put a live, still-
+  // claimable token into a log the README calls safe to paste — and whoever
+  // claims it gets the family's bank access URL.
+  simplefinDebugLog(`request: POST ${claimUrl.origin}/… (claim)`)
   const res = await simplefinFetch(claimUrl, { method: 'POST' })
   // Status only — NEVER this body. The claim response IS the credentialed
   // access URL, and no debug flag is allowed to put that in a log.
@@ -349,7 +366,11 @@ function normalizeAccount(raw: Record<string, unknown>): SimpleFinAccount | null
     balanceMinor = balanceRaw == null ? null : parseDecimalToMinor(balanceRaw, currency)
   }
   catch {
-    console.warn(`[simplefin] account ${externalId}: could not parse balance ${JSON.stringify(balanceRaw)} — keeping the stored balance`)
+    // This one fires without the debug flag, so it gets the full sanitizer:
+    // externalId and the balance text are bridge-controlled, and an
+    // unconditional log line must neither quote a credentialed URL nor smuggle
+    // control characters into everyone's ordinary `docker logs`.
+    console.warn(`[simplefin] ${sanitizeUpstreamMessage(`account ${externalId}: could not parse balance ${JSON.stringify(balanceRaw)}`)} — keeping the stored balance`)
   }
 
   let availableBalanceMinor: number | null = null
@@ -405,13 +426,17 @@ export async function fetchAccounts(accessUrl: string, opts: { startDate?: Date 
   const res = await simplefinFetch(url)
   simplefinDebugLog(`response: HTTP ${res.status}, ${res.text.length} chars`)
   if (debugEnabled()) {
-    // Safe to dump THIS body: it is account data, not credentials (unlike the
-    // claim response, which IS the access URL and must never be logged).
-    // Redacted anyway — a bridge error string can quote the credentialed URL.
-    const body = res.text.length > DEBUG_BODY_MAX_CHARS
-      ? `${res.text.slice(0, DEBUG_BODY_MAX_CHARS)}… [truncated ${res.text.length - DEBUG_BODY_MAX_CHARS} chars]`
-      : res.text
-    console.log(`[simplefin] response body: ${redactCredentials(body)}`)
+    // This body is account data, not credentials (unlike the claim response,
+    // which IS the access URL and must never be logged) — but it is scrubbed
+    // anyway, best-effort: a bridge error string can quote the credentialed
+    // URL. Scrub BEFORE truncating, in that order — cutting first could slice
+    // a credentialed URL at the boundary and leave its unredacted front half
+    // as the last thing in the log.
+    const scrubbed = scrubForLog(res.text)
+    const body = scrubbed.length > DEBUG_BODY_MAX_CHARS
+      ? `${scrubbed.slice(0, DEBUG_BODY_MAX_CHARS)}… [truncated ${scrubbed.length - DEBUG_BODY_MAX_CHARS} chars]`
+      : scrubbed
+    console.log(`[simplefin] response body: ${body}`)
   }
   if (res.status === 403) {
     throw new SimpleFinReauthError('SimpleFIN rejected the stored credentials — reconnect this bank')

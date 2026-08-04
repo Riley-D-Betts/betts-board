@@ -10,8 +10,13 @@
 export function redactCredentials(input: string): string {
   // The userinfo part of a URL cannot contain '/', '@', or whitespace, so this
   // stops at the real authority rather than eating a later '@' in a path.
+  //
+  // `(?:\\?\/){2}` also matches the JSON-escaped spelling `https:\/\/…` — some
+  // serializers (PHP's json_encode, notably) escape forward slashes by
+  // default, and a credentialed URL quoted inside such a body would otherwise
+  // sail past a regex that insists on a literal `://`.
   return input.replace(
-    /\b([a-z][a-z0-9+.-]*:\/\/)([^/@\s]+)@/gi,
+    /\b([a-z][a-z0-9+.-]*:(?:\\?\/){2})([^/@\s]+)@/gi,
     (_match, scheme: string) => `${scheme}***:***@`,
   )
 }

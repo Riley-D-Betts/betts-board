@@ -352,9 +352,23 @@ describe('ingestAccount', () => {
 
     const row = db.select().from(financeAccounts).get()!
     expect(row.balanceMinor).toBe(-3329343)
-    expect(row.availableBalanceMinor).toBe(-3391199)
     // The as-of time describes the kept number, so it is kept too.
     expect(row.balanceAt?.toISOString()).toBe('2026-02-01T12:00:00.000Z')
+  })
+
+  it('still updates a good available balance while the main balance is unparseable', () => {
+    // The two are parsed independently, and a bridge can mangle one while
+    // sending the other intact — the fresh number must not be held hostage.
+    ingestAccount(db, connection, account(), WINDOW_START)
+    ingestAccount(db, connection, account({
+      balanceMinor: null,
+      availableBalanceMinor: 51233,
+      balanceAt: null,
+    }), WINDOW_START)
+
+    const row = db.select().from(financeAccounts).get()!
+    expect(row.balanceMinor).toBe(-3329343)
+    expect(row.availableBalanceMinor).toBe(51233)
   })
 
   it('still updates the balance when a later payload has one again', () => {
@@ -362,6 +376,19 @@ describe('ingestAccount', () => {
     ingestAccount(db, connection, account({ balanceMinor: null }), WINDOW_START)
     ingestAccount(db, connection, account({ balanceMinor: -100 }), WINDOW_START)
     expect(db.select().from(financeAccounts).get()!.balanceMinor).toBe(-100)
+  })
+
+  it('creates a first-sync account with a missing balance as 0, not a crash', () => {
+    ingestAccount(db, connection, account({
+      balanceMinor: null,
+      availableBalanceMinor: null,
+      balanceAt: new Date('2026-02-01T12:00:00Z'),
+    }), WINDOW_START)
+
+    const row = db.select().from(financeAccounts).get()!
+    expect(row.balanceMinor).toBe(0)
+    // No balance means the as-of time describes nothing — it must not be set.
+    expect(row.balanceAt).toBeNull()
   })
 
   it('stores a zero-decimal currency without inflating the balance', () => {
