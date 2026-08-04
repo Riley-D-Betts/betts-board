@@ -194,14 +194,14 @@ export function ingestAccount(
     db.update(financeAccounts).set({
       orgName: incoming.orgName,
       // A payload with no parseable balance keeps the stored one — including
-      // its as-of time, which describes THAT number, not this sync.
+      // its as-of time, which describes THAT number, not this sync. The
+      // available balance is parsed independently and rides on its own: a
+      // bridge can mangle `balance` while still sending a good
+      // `available-balance`, and that fresh number should not be hostage.
       ...(incoming.balanceMinor != null
-        ? {
-            balanceMinor: incoming.balanceMinor,
-            availableBalanceMinor: incoming.availableBalanceMinor,
-            balanceAt: incoming.balanceAt,
-          }
+        ? { balanceMinor: incoming.balanceMinor, balanceAt: incoming.balanceAt }
         : {}),
+      availableBalanceMinor: incoming.availableBalanceMinor,
       currency: incoming.currency,
       currencyExponent: exponent,
     }).where(eq(financeAccounts.id, account.id)).run()

@@ -445,6 +445,11 @@ describe('fetchAccounts', () => {
 })
 
 describe('BETTS_SIMPLEFIN_DEBUG', () => {
+  beforeEach(() => {
+    // An inherited flag from the runner's environment would flip the
+    // flag-off test; every test in here states its own.
+    delete process.env.BETTS_SIMPLEFIN_DEBUG
+  })
   afterEach(() => {
     delete process.env.BETTS_SIMPLEFIN_DEBUG
     vi.restoreAllMocks()
@@ -489,5 +494,79 @@ describe('BETTS_SIMPLEFIN_DEBUG', () => {
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
     await fetchPayload()
     expect(log.mock.calls.flat().join('\n')).not.toContain('[simplefin]')
+  })
+
+  it('never logs the claim token — the secret lives in the URL PATH', async () => {
+    // A claim URL is https://…/claim/<single-use token>. Credential redaction
+    // scrubs user:pass@ userinfo and cannot see a path, so the only safe log
+    // line is one that never contains the path — especially on a FAILED
+    // claim, which leaves the logged token alive and claimable by whoever
+    // reads the pasted log.
+    process.env.BETTS_SIMPLEFIN_DEBUG = '1'
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    respond = () => 'destroy' // the failed-claim case is the dangerous one
+    await expect(claimSetupToken(token(`${base}/claim/SECRET-TOKEN-XYZ`))).rejects.toBeTruthy()
+
+    const text = log.mock.calls.flat().join('\n')
+    expect(text).toContain('claim') // the request WAS logged…
+    expect(text).not.toContain('SECRET-TOKEN-XYZ') // …without its secret
+  })
+
+  it('redacts a credentialed URL even when the JSON escapes its slashes', async () => {
+    // PHP's json_encode escapes "/" by default, so a bridge error string can
+    // quote the access URL as https:\/\/user:pass@host — which a redaction
+    // regex demanding a literal :// would sail right past.
+    process.env.BETTS_SIMPLEFIN_DEBUG = '1'
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const port = (stub.address() as AddressInfo).port
+    // split/join rather than a regex replace: CodeQL rightly flags
+    // slash-escaping that ignores backslashes as incomplete SANITIZATION, but
+    // this is simulation — reproducing a serializer's exact output for a
+    // backslash-free JSON document, not escaping untrusted input.
+    const escaped = payload({ errlist: [`upstream said ${ACCESS(port)} failed`] }).split('/').join('\\/')
+    respond = () => ({ status: 200, body: escaped })
+    await fetchAccounts(ACCESS(port))
+
+    const text = log.mock.calls.flat().join('\n')
+    expect(text).not.toContain('someuser')
+    expect(text).not.toContain('somepass')
+  })
+
+  it('strips control characters a hostile bridge could use to forge log lines', async () => {
+    process.env.BETTS_SIMPLEFIN_DEBUG = '1'
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    await fetchPayload({
+      accounts: [{
+        id: 'EVIL-1',
+        name: 'Checking\u001b[2J\n[simplefin] forged line',
+        currency: 'USD',
+        balance: '10.00',
+        transactions: [],
+      }],
+    })
+
+    const lines = log.mock.calls.map(args => args.join(' '))
+    expect(lines.join('')).not.toContain('\u001b')
+    // The newline was stripped, so the forged text rides INSIDE a real line
+    // rather than standing alone as its own.
+    expect(lines.some(l => l.startsWith('[simplefin] forged line'))).toBe(false)
+  })
+
+  it('redacts before truncating, so a credential straddling the cap never half-leaks', async () => {
+    process.env.BETTS_SIMPLEFIN_DEBUG = '1'
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const port = (stub.address() as AddressInfo).port
+    // Pad so the credentialed URL sits across the 200k boundary; truncating
+    // first would end the log with an unredacted "https://someuser:somepa".
+    respond = () => ({
+      status: 200,
+      body: payload({ errlist: [`${'x'.repeat(200_010)} see ${ACCESS(port)} there`] }),
+    })
+    await fetchAccounts(ACCESS(port))
+
+    const text = log.mock.calls.flat().join('\n')
+    expect(text).toContain('[truncated')
+    expect(text).not.toContain('someuser')
+    expect(text).not.toContain('somepa')
   })
 })
