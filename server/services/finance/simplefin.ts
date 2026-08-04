@@ -50,6 +50,28 @@ export class SimpleFinReauthError extends Error {
   readonly needsReauth = true
 }
 
+/**
+ * Set BETTS_SIMPLEFIN_DEBUG=1 to log every SimpleFIN request, the raw response
+ * body, and what the normaliser made of it — the container log then shows
+ * exactly what the bridge sent versus what was stored. Read per call, not at
+ * module load, so tests can flip it.
+ *
+ * Every line funnels through here and is credential-redacted: the access URL
+ * (and anything quoting it) embeds live basic-auth for the family's bank data,
+ * and a debug flag must never be the thing that leaks it into a pasted log.
+ */
+function debugEnabled(): boolean {
+  const flag = process.env.BETTS_SIMPLEFIN_DEBUG
+  return flag === '1' || flag === 'true'
+}
+
+/** Whole 90-day payloads fit comfortably; this cap only guards a pathological one. */
+const DEBUG_BODY_MAX_CHARS = 200_000
+
+export function simplefinDebugLog(message: string): void {
+  if (debugEnabled()) console.log(`[simplefin] ${redactCredentials(message)}`)
+}
+
 function assertFetchableUrl(raw: string, what: string): URL {
   let url: URL
   try {
@@ -184,7 +206,11 @@ export async function claimSetupToken(setupToken: string): Promise<string> {
   }
 
   const claimUrl = assertFetchableUrl(decoded, 'The setup token')
+  simplefinDebugLog(`request: POST ${claimUrl.href} (claim)`)
   const res = await simplefinFetch(claimUrl, { method: 'POST' })
+  // Status only — NEVER this body. The claim response IS the credentialed
+  // access URL, and no debug flag is allowed to put that in a log.
+  simplefinDebugLog(`claim response: HTTP ${res.status}`)
 
   if (res.status === 403) {
     throw createError({
@@ -218,7 +244,8 @@ export interface SimpleFinAccount {
   orgName: string | null
   name: string
   currency: string
-  balanceMinor: number
+  /** Null when the bridge sent no parseable balance — keep the stored one. */
+  balanceMinor: number | null
   availableBalanceMinor: number | null
   balanceAt: Date | null
   transactions: SimpleFinTransaction[]
@@ -232,6 +259,20 @@ export interface SimpleFinResult {
 
 function str(value: unknown): string | null {
   return typeof value === 'string' && value.trim() ? value.trim() : null
+}
+
+/**
+ * The spec says amounts and balances are decimal STRINGS, but bridges exist in
+ * the wild that emit raw JSON numbers. Refusing those was not safety: `str()`
+ * returning null for a numeric balance quietly became "the balance is 0", and
+ * a numeric amount made the whole transaction vanish. A finite number is
+ * accepted and stringified for the exact string-based parser — String() of any
+ * realistic money value round-trips exactly, and an absurd one lands in
+ * exponent notation, which parseDecimalToMinor rejects loudly.
+ */
+function decimalStr(value: unknown): string | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value)
+  return str(value)
 }
 
 /** Positive epoch seconds, or null. `posted: 0` is the spec's "not posted yet". */
@@ -252,15 +293,16 @@ function normalizeAccount(raw: Record<string, unknown>): SimpleFinAccount | null
   // letters is stored verbatim and treated as opaque rather than crashing.
   const currency = str(raw.currency) ?? 'USD'
   const org = raw.org as Record<string, unknown> | undefined
-  const balanceRaw = str(raw.balance)
-  const availableRaw = str(raw['available-balance'])
+  const balanceRaw = decimalStr(raw.balance)
+  const availableRaw = decimalStr(raw['available-balance'])
   const balanceDate = typeof raw['balance-date'] === 'number' ? raw['balance-date'] : null
 
   const transactions: SimpleFinTransaction[] = []
+  let dropped = 0
   for (const t of Array.isArray(raw.transactions) ? raw.transactions : []) {
     const txn = t as Record<string, unknown>
     const id = str(txn.id)
-    const amountRaw = str(txn.amount)
+    const amountRaw = decimalStr(txn.amount)
     const pending = txn.pending === true
     // A pending transaction has not posted, so the spec sends `posted: 0`
     // (some bridges omit the field) and carries the real date in
@@ -274,7 +316,11 @@ function normalizeAccount(raw: Record<string, unknown>): SimpleFinAccount | null
     // rewrites the date with the bank's real one the moment it settles.
     const posted = epochSeconds(txn.posted) ?? epochSeconds(txn.transacted_at)
       ?? (pending ? Math.floor(Date.now() / 1000) : null)
-    if (!id || !amountRaw || posted == null) continue
+    if (!id || !amountRaw || posted == null) {
+      dropped++
+      simplefinDebugLog(`account ${externalId}: dropped transaction ${JSON.stringify(txn.id)} — missing ${!id ? 'id' : !amountRaw ? 'amount' : 'posted date'}`)
+      continue
+    }
     try {
       transactions.push({
         id,
@@ -288,15 +334,23 @@ function normalizeAccount(raw: Record<string, unknown>): SimpleFinAccount | null
     }
     catch {
       // One unparseable amount must not lose the other 200 rows.
+      dropped++
+      simplefinDebugLog(`account ${externalId}: dropped transaction ${id} — unparseable amount ${JSON.stringify(amountRaw)}`)
       continue
     }
   }
 
-  let balanceMinor = 0
+  // Null means "the bridge sent no usable balance", and the ingest keeps the
+  // stored one. It must NOT collapse to 0 here: this number overwrites the
+  // account row on every sync, and a bad payload zeroing a family's checking
+  // account balance is exactly the wrong kind of quiet.
+  let balanceMinor: number | null = null
   try {
-    balanceMinor = balanceRaw ? parseDecimalToMinor(balanceRaw, currency) : 0
+    balanceMinor = balanceRaw == null ? null : parseDecimalToMinor(balanceRaw, currency)
   }
-  catch { /* leave at 0 and let balanceAt stay null — better than a wrong number */ }
+  catch {
+    console.warn(`[simplefin] account ${externalId}: could not parse balance ${JSON.stringify(balanceRaw)} — keeping the stored balance`)
+  }
 
   let availableBalanceMinor: number | null = null
   try {
@@ -304,10 +358,18 @@ function normalizeAccount(raw: Record<string, unknown>): SimpleFinAccount | null
   }
   catch { /* optional field */ }
 
+  const name = str(raw.name) ?? 'Account'
+  simplefinDebugLog(
+    `account ${externalId} "${name}" (${currency}): balance ${JSON.stringify(raw.balance)} → ${balanceMinor ?? 'none (stored balance kept)'}, `
+    + `available ${JSON.stringify(raw['available-balance'])} → ${availableBalanceMinor ?? 'none'}, `
+    + `balance-date ${JSON.stringify(raw['balance-date'])}, `
+    + `${transactions.length} transactions kept (${transactions.filter(t => t.pending).length} pending), ${dropped} dropped`,
+  )
+
   return {
     externalId,
     orgName: str(org?.name) ?? str(org?.domain),
-    name: str(raw.name) ?? 'Account',
+    name,
     currency,
     balanceMinor,
     availableBalanceMinor,
@@ -338,7 +400,19 @@ export async function fetchAccounts(accessUrl: string, opts: { startDate?: Date 
   // bank later cancels. This request was the one place that never asked.
   url.searchParams.set('pending', '1')
 
+  // The href still carries the userinfo here; simplefinDebugLog redacts it.
+  simplefinDebugLog(`request: GET ${url.href}`)
   const res = await simplefinFetch(url)
+  simplefinDebugLog(`response: HTTP ${res.status}, ${res.text.length} chars`)
+  if (debugEnabled()) {
+    // Safe to dump THIS body: it is account data, not credentials (unlike the
+    // claim response, which IS the access URL and must never be logged).
+    // Redacted anyway — a bridge error string can quote the credentialed URL.
+    const body = res.text.length > DEBUG_BODY_MAX_CHARS
+      ? `${res.text.slice(0, DEBUG_BODY_MAX_CHARS)}… [truncated ${res.text.length - DEBUG_BODY_MAX_CHARS} chars]`
+      : res.text
+    console.log(`[simplefin] response body: ${redactCredentials(body)}`)
+  }
   if (res.status === 403) {
     throw new SimpleFinReauthError('SimpleFIN rejected the stored credentials — reconnect this bank')
   }
@@ -358,6 +432,7 @@ export async function fetchAccounts(accessUrl: string, opts: { startDate?: Date 
     .map(a => normalizeAccount(a as Record<string, unknown>))
     .filter((a): a is SimpleFinAccount => a !== null)
 
+  simplefinDebugLog(`normalised ${accounts.length} accounts; errlist ${JSON.stringify(sanitizeErrorList(payload.errlist))}`)
   return { accounts, errors: sanitizeErrorList(payload.errlist) }
 }
 

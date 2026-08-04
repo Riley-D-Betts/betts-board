@@ -9,7 +9,7 @@ import { rebalanceSplits, setSplits, singleSplit } from './splits'
 import { applyRules, listRules } from './rules'
 import {
   INITIAL_HISTORY_DAYS, SYNC_OVERLAP_DAYS, SimpleFinReauthError,
-  describeSyncError, fetchAccounts, type SimpleFinAccount,
+  describeSyncError, fetchAccounts, simplefinDebugLog, type SimpleFinAccount,
 } from './simplefin'
 
 export type ConnectionRow = typeof financeConnections.$inferSelect
@@ -185,17 +185,23 @@ export function ingestAccount(
       currencyExponent: exponent,
       // The bank owns this number. Never recomputed from transactions.
       balanceSource: 'bank',
-      balanceMinor: incoming.balanceMinor,
+      balanceMinor: incoming.balanceMinor ?? 0,
       availableBalanceMinor: incoming.availableBalanceMinor,
-      balanceAt: incoming.balanceAt,
+      balanceAt: incoming.balanceMinor != null ? incoming.balanceAt : null,
     }).returning().get()
   }
   else {
     db.update(financeAccounts).set({
       orgName: incoming.orgName,
-      balanceMinor: incoming.balanceMinor,
-      availableBalanceMinor: incoming.availableBalanceMinor,
-      balanceAt: incoming.balanceAt,
+      // A payload with no parseable balance keeps the stored one — including
+      // its as-of time, which describes THAT number, not this sync.
+      ...(incoming.balanceMinor != null
+        ? {
+            balanceMinor: incoming.balanceMinor,
+            availableBalanceMinor: incoming.availableBalanceMinor,
+            balanceAt: incoming.balanceAt,
+          }
+        : {}),
       currency: incoming.currency,
       currencyExponent: exponent,
     }).where(eq(financeAccounts.id, account.id)).run()
@@ -312,6 +318,13 @@ export function ingestAccount(
     }
   }
 
+  simplefinDebugLog(
+    `ingested "${incoming.name}" (${incoming.externalId}): `
+    + (incoming.balanceMinor != null
+      ? `stored balance ${incoming.balanceMinor} minor`
+      : `no balance in payload — kept stored ${account.balanceMinor} minor`)
+    + `, ${inserted} inserted, ${updated} updated, ${stale.length} pending removed`,
+  )
   return { inserted, updated, removedPending: stale.length }
 }
 
