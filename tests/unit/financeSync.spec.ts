@@ -336,6 +336,34 @@ describe('ingestAccount', () => {
     expect(db.select().from(financeTransactions).get()!.payee).toBe('Uncle Frank')
   })
 
+  /**
+   * A payload with no parseable balance arrives as balanceMinor: null. Writing
+   * 0 in that case zeroed the family's real balance on every sync — the bug
+   * behind "it syncs transactions but not account values".
+   */
+  it('keeps the stored balance when the payload has none', () => {
+    ingestAccount(db, connection, account(), WINDOW_START)
+
+    ingestAccount(db, connection, account({
+      balanceMinor: null,
+      availableBalanceMinor: null,
+      balanceAt: null,
+    }), WINDOW_START)
+
+    const row = db.select().from(financeAccounts).get()!
+    expect(row.balanceMinor).toBe(-3329343)
+    expect(row.availableBalanceMinor).toBe(-3391199)
+    // The as-of time describes the kept number, so it is kept too.
+    expect(row.balanceAt?.toISOString()).toBe('2026-02-01T12:00:00.000Z')
+  })
+
+  it('still updates the balance when a later payload has one again', () => {
+    ingestAccount(db, connection, account(), WINDOW_START)
+    ingestAccount(db, connection, account({ balanceMinor: null }), WINDOW_START)
+    ingestAccount(db, connection, account({ balanceMinor: -100 }), WINDOW_START)
+    expect(db.select().from(financeAccounts).get()!.balanceMinor).toBe(-100)
+  })
+
   it('stores a zero-decimal currency without inflating the balance', () => {
     ingestAccount(db, connection, account({ currency: 'JPY', balanceMinor: 1000, transactions: [] }), WINDOW_START)
     const row = db.select().from(financeAccounts).get()!

@@ -1,6 +1,6 @@
 import { createServer, type Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { installNitroGlobals } from '../support/nitroGlobals'
 
 installNitroGlobals()
@@ -336,6 +336,45 @@ describe('fetchAccounts', () => {
     expect(accounts[0]!.transactions.map(t => t.id)).toEqual(['B'])
   })
 
+  /**
+   * The spec says balances and amounts are decimal strings, but bridges exist
+   * that send raw JSON numbers. `str()` used to reject those, and a rejected
+   * balance quietly became "the balance is 0" — written over the stored one on
+   * every sync. "It syncs transactions but not account values" was this.
+   */
+  it('accepts a balance and amount sent as JSON numbers, not strings', async () => {
+    const { accounts } = await fetchPayload({
+      accounts: [{
+        id: 'ACT-1',
+        name: 'Checking',
+        currency: 'USD',
+        'balance': 1234.56,
+        'available-balance': 1200,
+        'transactions': [
+          { id: 'N', posted: 978366153, amount: -33.53, description: 'numeric amount' },
+        ],
+      }],
+    })
+    expect(accounts[0]!.balanceMinor).toBe(123456)
+    expect(accounts[0]!.availableBalanceMinor).toBe(120000)
+    expect(accounts[0]!.transactions[0]!.amountMinor).toBe(-3353)
+  })
+
+  it('reports a missing or unparseable balance as null, never 0', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const { accounts } = await fetchPayload({
+      accounts: [
+        { id: 'NOBAL', name: 'No balance', currency: 'USD', transactions: [] },
+        { id: 'BADBAL', name: 'Bad balance', currency: 'USD', balance: 'N/A', transactions: [] },
+      ],
+    })
+    expect(accounts.map(a => a.balanceMinor)).toEqual([null, null])
+    // The unparseable one (not the merely absent one) warns even without the
+    // debug flag — a bridge mangling balances should not be silent.
+    expect(warn.mock.calls.flat().join('\n')).toContain('BADBAL')
+    warn.mockRestore()
+  })
+
   it('handles a zero-decimal currency without inflating the balance', async () => {
     respond = () => ({
       status: 200,
@@ -402,5 +441,53 @@ describe('fetchAccounts', () => {
     respond = () => ({ status: 200, body: 'short', headers: { 'Content-Length': '999999999' } })
     const port = (stub.address() as AddressInfo).port
     await expect(fetchAccounts(ACCESS(port))).rejects.toMatchObject({ statusCode: 502 })
+  })
+})
+
+describe('BETTS_SIMPLEFIN_DEBUG', () => {
+  afterEach(() => {
+    delete process.env.BETTS_SIMPLEFIN_DEBUG
+    vi.restoreAllMocks()
+  })
+
+  it('logs the request URL and the raw response body when enabled', async () => {
+    process.env.BETTS_SIMPLEFIN_DEBUG = '1'
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    await fetchPayload()
+
+    const lines = log.mock.calls.map(args => args.join(' '))
+    expect(lines.some(l => l.includes('request: GET') && l.includes('/simplefin/accounts'))).toBe(true)
+    expect(lines.some(l => l.includes('response body') && l.includes('Uncle Frank'))).toBe(true)
+    // The per-account summary shows what the normaliser made of the payload.
+    expect(lines.some(l => l.includes('ACT-123') && l.includes('balance'))).toBe(true)
+  })
+
+  /**
+   * The debug flag exists to be turned on and its output pasted into an issue.
+   * So the strongest requirement is negative: no line it produces may contain
+   * the basic-auth credentials — not the request URL (which carries them until
+   * the fetch strips them), not a response body whose errlist quotes the
+   * credentialed URL, and not the claim response (which IS the access URL).
+   */
+  it('never leaks credentials into the debug log', async () => {
+    process.env.BETTS_SIMPLEFIN_DEBUG = '1'
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const port = (stub.address() as AddressInfo).port
+
+    respond = () => ({ status: 200, body: payload({ errlist: [`upstream said ${ACCESS(port)} failed`] }) })
+    await fetchAccounts(ACCESS(port))
+    respond = () => ({ status: 200, body: ACCESS(port) })
+    await claimSetupToken(token(`${base}/claim/abc`))
+
+    const text = log.mock.calls.flat().join('\n')
+    expect(text).toContain('[simplefin]') // the flag actually logged something
+    expect(text).not.toContain('someuser')
+    expect(text).not.toContain('somepass')
+  })
+
+  it('is silent when the flag is off', async () => {
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    await fetchPayload()
+    expect(log.mock.calls.flat().join('\n')).not.toContain('[simplefin]')
   })
 })
