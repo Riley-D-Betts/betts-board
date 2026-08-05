@@ -25,6 +25,14 @@ interface Overview {
     lowest: { date: string, balanceMinor: number }
     shortfall: { date: string, balanceMinor: number } | null
     openingBalanceMinor: number
+    // Which accounts the opening balance was built from, and which were left
+    // out because nobody has said what they are. The chart names the second
+    // list — real money silently missing from the projection is what made this
+    // whole card read as a catastrophe.
+    accounts: {
+      counted: { id: string, name: string, balanceMinor: number }[]
+      unclassified: { id: string, name: string, balanceMinor: number }[]
+    }
   }
 }
 

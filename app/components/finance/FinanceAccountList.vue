@@ -84,6 +84,48 @@ async function confirmRemove() {
   }
 }
 
+// ── Type ──────────────────────────────────────────────────────────────────
+// A bank account's type is GUESSED from its name on first sync, and SimpleFIN
+// has no type field to do better with. A current account whose name says
+// nothing about what it is ("Riley and Kylee (2822)") lands in `other`, and the
+// forecast counts spendable cash only — so the household's actual money went
+// missing from the projection with no way to say otherwise. The PATCH route
+// always accepted `type`; nothing ever sent it. The guess is only made when the
+// account is first created, so a correction made here survives every sync.
+const typeOpen = ref(false)
+const typing = ref<AccountRow | null>(null)
+const typeValue = ref('checking')
+const typeBusy = ref(false)
+
+function askType(account: AccountRow) {
+  typing.value = account
+  typeValue.value = account.type
+  typeOpen.value = true
+}
+
+async function saveType() {
+  if (!typing.value) return
+  typeBusy.value = true
+  try {
+    await $fetch(`/api/finance/accounts/${typing.value.id}`, {
+      method: 'PATCH',
+      body: { type: typeValue.value },
+    })
+    typeOpen.value = false
+    toast.add({ title: t('finance.toast.saved'), color: 'success' })
+    emit('changed')
+  }
+  catch (e) {
+    toast.add({
+      title: (e as { statusMessage?: string }).statusMessage || t('common.errors.generic'),
+      color: 'error',
+    })
+  }
+  finally {
+    typeBusy.value = false
+  }
+}
+
 // ── Hidden accounts ───────────────────────────────────────────────────────
 // Fetched lazily: hiding an account must be undoable, but most people never
 // open this, so it costs nothing until they do.
@@ -184,6 +226,11 @@ async function create() {
           <div class="min-w-0 flex-1">
             <p class="truncate text-sm font-medium">{{ account.name }}</p>
             <p class="truncate text-xs text-slate-500 dark:text-slate-400">
+              <!-- The type is on screen because it decides whether this money
+                   reaches the forecast, and for a synced account it started as
+                   a guess from the name. An unreadable guess has to be visible
+                   before anyone thinks to correct it. -->
+              <span>{{ $t(`finance.accounts.types.${account.type}`) }} · </span>
               <span v-if="account.orgName">{{ account.orgName }} · </span>
               <span v-if="account.connectionId && account.balanceAt">
                 {{ $t('finance.overview.asOf', { time: formatTime(account.balanceAt) }) }}
@@ -212,6 +259,18 @@ async function create() {
             </p>
           </div>
         </NuxtLink>
+        <!-- Offered for every account, synced or not: the type is the one field
+             a bank never tells us, so it is the one a person always has to be
+             able to set. -->
+        <UButton
+          icon="i-lucide-pencil"
+          size="sm"
+          color="neutral"
+          variant="ghost"
+          class="shrink-0"
+          :aria-label="$t('finance.accounts.changeType', { name: account.name })"
+          @click="askType(account)"
+        />
         <!-- Manual: owner-only hard delete. Bank: anyone with money access can
              hide it (the PATCH route is requireFinanceAccess). -->
         <UButton
@@ -254,6 +313,25 @@ async function create() {
             <UButton type="submit" :loading="saving" :disabled="!form.name.trim()">
               {{ $t('common.actions.save') }}
             </UButton>
+          </div>
+        </form>
+      </template>
+    </UModal>
+
+    <UModal v-model:open="typeOpen" :title="$t('finance.accounts.accountType')">
+      <template #body>
+        <form class="space-y-4" @submit.prevent="saveType">
+          <UFormField
+            :label="$t('finance.accounts.type')"
+            :help="$t('finance.accounts.typeHelp')"
+          >
+            <USelect v-model="typeValue" :items="typeItems" class="w-full" />
+          </UFormField>
+          <div class="flex justify-end gap-2">
+            <UButton color="neutral" variant="ghost" @click="typeOpen = false">
+              {{ $t('common.actions.cancel') }}
+            </UButton>
+            <UButton type="submit" :loading="typeBusy">{{ $t('common.actions.save') }}</UButton>
           </div>
         </form>
       </template>

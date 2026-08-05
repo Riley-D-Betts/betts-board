@@ -130,7 +130,10 @@
     "restored": "Cuenta restaurada",
     "hiddenAccounts": "Cuentas ocultas",
     "noHidden": "No hay cuentas ocultas.",
-    "disconnectHint": "Para quitar todas las cuentas de este banco, desconéctalo en"
+    "disconnectHint": "Para quitar todas las cuentas de este banco, desconéctalo en",
+    "accountType": "Tipo de cuenta",
+    "typeHelp": "Solo las cuentas corrientes, de ahorro y de efectivo cuentan como dinero disponible en tu previsión de flujo de caja. Los bancos no envían el tipo, así que empieza siendo una suposición a partir del nombre de la cuenta.",
+    "changeType": "Cambiar el tipo de {name}"
   },
   "transactions": {
     "title": "Movimientos",
@@ -298,7 +301,9 @@
     "totalReserved": "Reservado",
     "reservedAmount": "{amount} reservado para facturas",
     "carriedForward": "Copiado del mes pasado: cambia lo que quieras.",
-    "empty": "Añade primero algunas categorías y luego marca cuánto quieres gastar."
+    "empty": "Añade primero algunas categorías y luego marca cuánto quieres gastar.",
+    "billCount": "{n} factura este mes | {n} facturas este mes",
+    "showBills": "Mostrar las facturas de {category}"
   },
   "bills": {
     "title": "Facturas",
@@ -353,7 +358,12 @@
       "monthly": "Mensual",
       "yearly": "Anual",
       "custom": "Personalizado"
-    }
+    },
+    "received": "Recibido",
+    "sortBy": "Ordenar facturas",
+    "sortDueDate": "Por fecha de vencimiento",
+    "sortCategory": "Por categoría",
+    "uncategorized": "Sin categoría"
   },
   "goals": {
     "title": "Objetivos de ahorro",
@@ -378,7 +388,8 @@
     "title": "Flujo de caja",
     "days": "{n} día | {n} días",
     "explain": "El saldo disponible de hoy, más tus facturas e ingresos, menos lo que sueles gastar en el día a día.",
-    "basedOn": "El gasto diario es la media de los últimos 90 días."
+    "basedOn": "El gasto diario es la media de los últimos 90 días.",
+    "notCounted": "Aquí no se cuenta: {accounts} ({amount}). Cambia el tipo de cuenta a Cuenta corriente, Ahorro o Efectivo para incluirla."
   },
   "members": {
     "title": "Quién puede ver el dinero",

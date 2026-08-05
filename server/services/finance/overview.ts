@@ -14,17 +14,34 @@ const TRAILING_DAYS = 90
 /** Only spendable money projects forward; a credit limit is not cash. */
 const CASH_TYPES = new Set(['checking', 'savings', 'cash'])
 
+/**
+ * Which accounts the opening balance was built from, and which ones were left
+ * out for want of a type.
+ *
+ * The forecast counts spendable cash only, and a bank account's type is GUESSED
+ * from its name on first sync — so a current account called "Riley and Kylee
+ * (2822)" lands in `other` and is silently dropped from the projection. The
+ * headline then reads as a catastrophe while the money is sitting right there
+ * in the account list one card away. `credit`, `loan` and `investment` are
+ * excluded on purpose and are not reported here; `other` means "nobody has said
+ * what this is yet", which is a question for the household, not a decision.
+ */
+export interface ForecastAccounts {
+  counted: { id: string, name: string, balanceMinor: number }[]
+  unclassified: { id: string, name: string, balanceMinor: number }[]
+}
+
 export function buildForecast(db: Db, householdId: string, args: {
   currency: string
   currencyExponent: number
   days: number
-}): ForecastResult {
+}): ForecastResult & { accounts: ForecastAccounts } {
   const today = todayString()
   const accounts = listAccounts(db, householdId)
 
-  const openingBalanceMinor = accounts
-    .filter(a => !a.isHidden && a.currency === args.currency && CASH_TYPES.has(a.type))
-    .reduce((acc, a) => acc + a.balanceMinor, 0)
+  const visible = accounts.filter(a => !a.isHidden && a.currency === args.currency)
+  const counted = visible.filter(a => CASH_TYPES.has(a.type))
+  const openingBalanceMinor = counted.reduce((acc, a) => acc + a.balanceMinor, 0)
 
   const trailingStart = addDaysToDateString(today, -TRAILING_DAYS)
   // Only spend that actually leaves the cash accounts we projected from.
@@ -106,19 +123,28 @@ export function buildForecast(db: Db, householdId: string, args: {
     : TRAILING_DAYS
   const historyDays = Math.min(TRAILING_DAYS, Math.max(14, observedDays))
 
-  return projectCashFlow({
-    today,
-    days: args.days,
-    currency: args.currency,
-    currencyExponent: args.currencyExponent,
-    openingBalanceMinor,
-    occurrences,
-    dailyDiscretionaryMinor: averageDailySpend({
-      transactions: discretionary,
-      days: historyDays,
+  const summarize = (a: { id: string, name: string, balanceMinor: number }) =>
+    ({ id: a.id, name: a.name, balanceMinor: a.balanceMinor })
+
+  return {
+    ...projectCashFlow({
+      today,
+      days: args.days,
       currency: args.currency,
+      currencyExponent: args.currencyExponent,
+      openingBalanceMinor,
+      occurrences,
+      dailyDiscretionaryMinor: averageDailySpend({
+        transactions: discretionary,
+        days: historyDays,
+        currency: args.currency,
+      }),
     }),
-  })
+    accounts: {
+      counted: counted.map(summarize),
+      unclassified: visible.filter(a => a.type === 'other').map(summarize),
+    },
+  }
 }
 
 /** Everything the finance landing page needs, in one round trip. */

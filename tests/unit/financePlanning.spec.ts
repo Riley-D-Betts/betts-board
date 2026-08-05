@@ -365,6 +365,7 @@ function occurrence(over: Partial<BillOccurrence>): BillOccurrence {
     status: 'due',
     paidAmountMinor: null,
     transactionId: null,
+    autoMatched: false,
     ...over,
   }
 }
@@ -426,6 +427,26 @@ describe('projectCashFlow', () => {
     })
     expect(result.lowest).toEqual({ date: '2026-07-03', balanceMinor: 20000 })
     expect(result.endingBalanceMinor).toBe(320000)
+  })
+
+  // The floor has to be a day the projection actually contains. Seeding it with
+  // the opening balance dated `today` reported a number that appears nowhere in
+  // `days` — day 0 carries the same date but a different balance once its own
+  // bills, income and spending are applied — so the headline disagreed with the
+  // point the chart drew for it.
+  it('reports a low point that is a real projected day, not the opening balance', () => {
+    const result = projectCashFlow({
+      ...base,
+      occurrences: [occurrence({ kind: 'income', amountMinor: 100000, dueDate: '2026-07-01' })],
+    })
+    expect(result.lowest).toEqual({ date: '2026-07-01', balanceMinor: 300000 })
+    expect(result.days.find(d => d.date === result.lowest.date)!.balanceMinor)
+      .toBe(result.lowest.balanceMinor)
+  })
+
+  it('falls back to the opening balance only when there is nothing to project', () => {
+    const result = projectCashFlow({ ...base, days: 0 })
+    expect(result.lowest).toEqual({ date: '2026-07-01', balanceMinor: 200000 })
   })
 
   it('flags the first day the projection goes negative', () => {
