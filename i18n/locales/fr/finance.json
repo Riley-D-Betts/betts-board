@@ -1,5 +1,16 @@
 {
   "title": "Argent",
+  "diagnostics": {
+    "title": "Détails de synchronisation",
+    "show": "Afficher",
+    "hide": "Masquer",
+    "copy": "Copier",
+    "copied": "Copié",
+    "couldNotCopy": "Copie impossible — sélectionnez le texte et copiez-le à la main.",
+    "refresh": "Actualiser",
+    "collapsedHint": "Soldes, autorisations en attente et résultat de la dernière synchronisation de chaque compte, sous forme de texte à copier.",
+    "help": "Si un solde ne correspond pas à votre banque, copiez ceci et envoyez-le. Il ne contient ni mot de passe ni identifiants bancaires."
+  },
   "nav": {
     "overview": "Aperçu",
     "transactions": "Transactions",
@@ -99,6 +110,8 @@
     "fromBank": "Depuis votre banque",
     "manual": "Tenu à la main",
     "balanceIsBank": "Ce solde vient de votre banque et ne peut pas être modifié ici.",
+    "pendingHolds": "{n} en attente | {n} en attente",
+    "withPending": "{amount} avec {holds}",
     "types": {
       "checking": "Compte courant",
       "savings": "Épargne",
@@ -290,6 +303,7 @@
   "bills": {
     "title": "Factures",
     "add": "Ajouter une facture",
+    "edit": "Modifier la facture",
     "fromTransaction": "Nouvelle facture depuis la transaction",
     "addIncome": "Ajouter un revenu",
     "name": "De quoi s'agit-il",
@@ -307,7 +321,8 @@
       "biweekly": "Répétition : toutes les 2 semaines",
       "semimonthly": "Répétition : deux fois par mois",
       "yearly": "Répétition : tous les ans",
-      "once": "Répétition : une seule fois"
+      "once": "Répétition : une seule fois",
+      "custom": "Répétition : programmation personnalisée"
     },
     "semimonthlyDays": "Quels jours ?",
     "lastDayOfMonth": "Dernier jour",

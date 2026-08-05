@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { LAST_DAY, firstSemimonthlyOnOrAfter, isSemimonthly, semimonthlyRule } from '../../shared/utils/billCadence'
+import { LAST_DAY, firstSemimonthlyOnOrAfter, isSemimonthly, semimonthlyDays, semimonthlyRule } from '../../shared/utils/billCadence'
 
 describe('semimonthlyRule', () => {
   it('builds a BYMONTHDAY rule from two days', () => {
@@ -51,5 +51,31 @@ describe('firstSemimonthlyOnOrAfter', () => {
   it('resolves the last day of the month, honouring month length', () => {
     expect(firstSemimonthlyOnOrAfter('2026-02-16', 15, LAST_DAY)).toBe('2026-02-28')
     expect(firstSemimonthlyOnOrAfter('2026-01-16', 15, LAST_DAY)).toBe('2026-01-31')
+  })
+})
+
+// Reading a rule back out is what lets the editor reopen an existing bill on
+// the days it actually has, rather than snapping it to the 1st-and-15th default.
+
+describe('semimonthlyDays', () => {
+  it('round-trips the days semimonthlyRule wrote', () => {
+    expect(semimonthlyDays(semimonthlyRule(5, 20))).toEqual([5, 20])
+    expect(semimonthlyDays(semimonthlyRule(20, 5))).toEqual([5, 20])
+  })
+
+  it('keeps the last day sorted last, matching the rule builder', () => {
+    expect(semimonthlyDays(semimonthlyRule(15, LAST_DAY))).toEqual([15, LAST_DAY])
+  })
+
+  it('declines anything that is not a twice-a-month rule', () => {
+    expect(semimonthlyDays(null)).toBeNull()
+    expect(semimonthlyDays('FREQ=MONTHLY')).toBeNull()
+    expect(semimonthlyDays('FREQ=WEEKLY;INTERVAL=2')).toBeNull()
+  })
+
+  it('declines a three-day rule instead of silently dropping one', () => {
+    // Only reachable via the API. Two pickers cannot express it, so the editor
+    // must leave the rule alone rather than rewrite it on the next save.
+    expect(semimonthlyDays('FREQ=MONTHLY;BYMONTHDAY=1,10,20')).toBeNull()
   })
 })

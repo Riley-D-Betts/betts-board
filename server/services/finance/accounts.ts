@@ -16,6 +16,11 @@ export interface AccountDto {
   balanceSource: 'bank' | 'ledger'
   balanceMinor: number
   availableBalanceMinor: number | null
+  /** Signed sum of the account's pending holds — negative for charges. */
+  pendingMinor: number
+  pendingCount: number
+  /** `balanceMinor` with the pending holds applied. What the card actually left you. */
+  balanceWithPendingMinor: number
   balanceAt: number | null
   isHidden: boolean
   includeInNetWorth: boolean
@@ -38,6 +43,39 @@ function ledgerBalance(db: Db, accountId: string, openingMinor: number): number 
   return openingMinor + (row?.total ?? 0)
 }
 
+/**
+ * Pending holds, summed per account.
+ *
+ * The bank's `balance` is its POSTED balance. A card swiped this morning is a
+ * pending authorisation the bank has not settled, so it is absent from that
+ * number while sitting right there in the transaction list — which is what made
+ * the board disagree with the bank's own app, and only for the day or two a
+ * hold takes to settle. Reporting `balance` alone was never wrong, it was
+ * incomplete, and the missing part is already in the ledger.
+ *
+ * Amounts are signed the way the bank sends them (a charge is negative), so
+ * applying them is an addition and never a branch on account type. That matters:
+ * SimpleFIN's `available-balance` is NOT the same quantity across types — on
+ * checking it is the balance minus holds, on a credit card it is the remaining
+ * credit limit, so swapping to it wholesale would turn card balances into
+ * nonsense. This is computed from rows we already store and means one thing
+ * everywhere.
+ */
+function pendingByAccount(db: Db): Map<string, { sumMinor: number, count: number }> {
+  const out = new Map<string, { sumMinor: number, count: number }>()
+  for (const r of db.select({
+    accountId: financeTransactions.accountId,
+    sumMinor: sql<number>`coalesce(sum(${financeTransactions.amountMinor}), 0)`,
+    count: sql<number>`count(*)`,
+  }).from(financeTransactions)
+    .where(eq(financeTransactions.pending, true))
+    .groupBy(financeTransactions.accountId)
+    .all()) {
+    out.set(r.accountId, { sumMinor: r.sumMinor, count: r.count })
+  }
+  return out
+}
+
 export function listAccounts(db: Db, householdId: string, includeArchived = false): AccountDto[] {
   const rows = db.select({ account: financeAccounts, connection: financeConnections })
     .from(financeAccounts)
@@ -56,26 +94,41 @@ export function listAccounts(db: Db, householdId: string, includeArchived = fals
     counts.set(r.accountId, r.n)
   }
 
-  return rows.map(({ account: a, connection: c }) => ({
-    id: a.id,
-    connectionId: a.connectionId,
-    connectionNickname: c?.nickname ?? null,
-    connectionStatus: c?.status ?? null,
-    orgName: a.orgName,
-    name: a.name,
-    type: a.type,
-    currency: a.currency,
-    currencyExponent: a.currencyExponent,
-    balanceSource: a.balanceSource,
-    balanceMinor: a.balanceSource === 'ledger' ? ledgerBalance(db, a.id, a.balanceMinor) : a.balanceMinor,
-    availableBalanceMinor: a.availableBalanceMinor,
-    balanceAt: a.balanceAt?.getTime() ?? null,
-    isHidden: a.isHidden,
-    includeInNetWorth: a.includeInNetWorth,
-    sortOrder: a.sortOrder,
-    archivedAt: a.archivedAt?.getTime() ?? null,
-    transactionCount: counts.get(a.id) ?? 0,
-  }))
+  const pending = pendingByAccount(db)
+
+  return rows.map(({ account: a, connection: c }) => {
+    // Posted only, for both sources: the bank's `balance` excludes holds, and
+    // ledgerBalance() sums `pending = false` rows. So the pending delta below
+    // applies the same way whichever kind of account this is.
+    const balanceMinor = a.balanceSource === 'ledger'
+      ? ledgerBalance(db, a.id, a.balanceMinor)
+      : a.balanceMinor
+    const held = pending.get(a.id) ?? { sumMinor: 0, count: 0 }
+
+    return {
+      id: a.id,
+      connectionId: a.connectionId,
+      connectionNickname: c?.nickname ?? null,
+      connectionStatus: c?.status ?? null,
+      orgName: a.orgName,
+      name: a.name,
+      type: a.type,
+      currency: a.currency,
+      currencyExponent: a.currencyExponent,
+      balanceSource: a.balanceSource,
+      balanceMinor,
+      availableBalanceMinor: a.availableBalanceMinor,
+      pendingMinor: held.sumMinor,
+      pendingCount: held.count,
+      balanceWithPendingMinor: balanceMinor + held.sumMinor,
+      balanceAt: a.balanceAt?.getTime() ?? null,
+      isHidden: a.isHidden,
+      includeInNetWorth: a.includeInNetWorth,
+      sortOrder: a.sortOrder,
+      archivedAt: a.archivedAt?.getTime() ?? null,
+      transactionCount: counts.get(a.id) ?? 0,
+    }
+  })
 }
 
 export function getAccount(db: Db, householdId: string, id: string) {

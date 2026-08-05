@@ -1,5 +1,16 @@
 {
   "title": "Dinero",
+  "diagnostics": {
+    "title": "Detalles de sincronización",
+    "show": "Mostrar",
+    "hide": "Ocultar",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "couldNotCopy": "No se pudo copiar: selecciona el texto y cópialo a mano.",
+    "refresh": "Actualizar",
+    "collapsedHint": "Saldos, cargos pendientes y el resultado de la última sincronización de cada cuenta, como texto que puedes copiar.",
+    "help": "Si un saldo no coincide con tu banco, copia esto y envíalo. No contiene contraseñas ni credenciales bancarias."
+  },
   "nav": {
     "overview": "Resumen",
     "transactions": "Movimientos",
@@ -99,6 +110,8 @@
     "fromBank": "De tu banco",
     "manual": "A mano",
     "balanceIsBank": "Este saldo viene de tu banco y no se puede editar aquí.",
+    "pendingHolds": "{n} pendiente | {n} pendientes",
+    "withPending": "{amount} con {holds}",
     "types": {
       "checking": "Cuenta corriente",
       "savings": "Ahorro",
@@ -290,6 +303,7 @@
   "bills": {
     "title": "Facturas",
     "add": "Añadir una factura",
+    "edit": "Editar factura",
     "fromTransaction": "Nueva factura desde el movimiento",
     "addIncome": "Añadir un ingreso",
     "name": "¿Qué es?",
@@ -307,7 +321,8 @@
       "biweekly": "Se repite: cada 2 semanas",
       "semimonthly": "Se repite: dos veces al mes",
       "yearly": "Se repite: cada año",
-      "once": "Se repite: una sola vez"
+      "once": "Se repite: una sola vez",
+      "custom": "Se repite: pauta personalizada"
     },
     "semimonthlyDays": "¿Qué días?",
     "lastDayOfMonth": "Último día",

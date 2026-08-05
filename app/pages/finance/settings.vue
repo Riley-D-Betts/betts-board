@@ -82,6 +82,10 @@ async function saveSettings() {
     <div class="space-y-4">
       <FinanceConnections :is-owner="isOwner" />
 
+      <!-- Directly under the connections it explains. Collapsed by default:
+           it is the thing you go looking for, not the thing you scroll past. -->
+      <FinanceSyncLog />
+
       <FinanceMembers :is-owner="isOwner" />
 
       <FinanceCategories />

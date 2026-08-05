@@ -1,5 +1,16 @@
 {
   "title": "Money",
+  "diagnostics": {
+    "title": "Sync details",
+    "show": "Show",
+    "hide": "Hide",
+    "copy": "Copy",
+    "copied": "Copied",
+    "couldNotCopy": "Could not copy — select the text and copy it by hand.",
+    "refresh": "Refresh",
+    "collapsedHint": "Balances, pending holds and the last sync result for every account, as text you can copy.",
+    "help": "If a balance doesn't match your bank, copy this and send it along. It contains no passwords or bank credentials."
+  },
   "nav": {
     "overview": "Overview",
     "transactions": "Transactions",
@@ -99,6 +110,8 @@
     "fromBank": "From your bank",
     "manual": "Kept by hand",
     "balanceIsBank": "This balance comes from your bank and can't be edited here.",
+    "pendingHolds": "{n} pending | {n} pending",
+    "withPending": "{amount} with {holds}",
     "types": {
       "checking": "Checking",
       "savings": "Savings",
@@ -290,6 +303,7 @@
   "bills": {
     "title": "Bills",
     "add": "Add a bill",
+    "edit": "Edit bill",
     "fromTransaction": "New bill from transaction",
     "addIncome": "Add income",
     "name": "What is it",
@@ -307,7 +321,8 @@
       "biweekly": "Repeats: every 2 weeks",
       "semimonthly": "Repeats: twice a month",
       "yearly": "Repeats: yearly",
-      "once": "Repeats: once"
+      "once": "Repeats: once",
+      "custom": "Repeats: custom schedule"
     },
     "semimonthlyDays": "Which days?",
     "lastDayOfMonth": "Last day",
