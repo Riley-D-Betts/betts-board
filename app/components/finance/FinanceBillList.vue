@@ -1,8 +1,8 @@
 <!-- Lists each recurring bill once (the template, not its occurrences) so it can
-     be deleted. Occurrences are shown and marked paid on the Bills page; this is
-     the one place the underlying bill itself is removed. requireFinanceAccess on
-     the route, so it's offered to any unlocked finance member — same as the mark
-     actions, not owner-only. -->
+     be edited or deleted. Occurrences are shown and marked paid on the Bills
+     page; this is the one place the underlying bill itself is changed or
+     removed. requireFinanceAccess on the route, so it's offered to any unlocked
+     finance member — same as the mark actions, not owner-only. -->
 <script setup lang="ts">
 import { isSemimonthly } from '#shared/utils/billCadence'
 
@@ -20,13 +20,22 @@ interface BillRow {
   amountMinor: number
   currency: string
   rrule: string | null
+  startDate: string
+  categoryId: string | null
+  accountId: string | null
 }
 
 const { data: bills, refresh } = await useFetch<BillRow[]>('/api/finance/bills', {
   immediate: unlocked.value,
   default: () => [],
 })
-watch(unlocked, u => u && refresh())
+// The editor needs these for its category picker. Same endpoint the Bills page
+// loads; Nuxt dedupes the two by key, so this is not a second request.
+const { data: categories, refresh: refreshCategories } = await useFetch<{ id: string, name: string }[]>('/api/finance/categories', {
+  immediate: unlocked.value,
+  default: () => [],
+})
+watch(unlocked, u => u && Promise.all([refresh(), refreshCategories()]))
 // Adding a bill (editor) or paying one bumps the shared tick; keep this list in
 // step so a newly created bill shows up here without a manual reload.
 useLiveRefresh(() => unlocked.value && refresh())
@@ -45,6 +54,23 @@ function frequencyLabel(rrule: string | null): string {
   if (!rrule) return t('finance.bills.cadence.once')
   if (isSemimonthly(rrule)) return t('finance.bills.cadence.semimonthly')
   return t(`finance.bills.cadence.${CADENCE[rrule] ?? 'custom'}`)
+}
+
+// ── Edit ─────────────────────────────────────────────────────────────────
+// The same editor the Add button uses, handed the bill instead of a seed, so
+// the two paths validate identically.
+const editOpen = ref(false)
+const editing = ref<BillRow | null>(null)
+
+function askEdit(bill: BillRow) {
+  editing.value = bill
+  editOpen.value = true
+}
+
+async function onEdited() {
+  await refresh()
+  emit('changed') // the page reloads its occurrence lists
+  bumpDataTick()
 }
 
 // ── Delete ───────────────────────────────────────────────────────────────
@@ -104,6 +130,15 @@ async function confirmRemove() {
           </p>
         </div>
         <UButton
+          icon="i-lucide-pencil"
+          size="sm"
+          color="neutral"
+          variant="ghost"
+          class="shrink-0"
+          :aria-label="$t('common.actions.edit')"
+          @click="askEdit(bill)"
+        />
+        <UButton
           icon="i-lucide-trash-2"
           size="sm"
           color="neutral"
@@ -114,6 +149,17 @@ async function confirmRemove() {
         />
       </div>
     </div>
+
+    <!-- v-if, not just v-model:open — the editor seeds on the open watcher, so
+         a fresh instance per bill is what guarantees it never shows the last
+         bill's values for a moment. -->
+    <FinanceBillEditor
+      v-if="editing"
+      v-model:open="editOpen"
+      :bill="editing"
+      :categories="categories ?? []"
+      @saved="onEdited"
+    />
 
     <UModal v-model:open="removeOpen" :title="$t('finance.bills.deleteTitle')">
       <template #body>

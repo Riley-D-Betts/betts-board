@@ -27,6 +27,25 @@ export function isSemimonthly(rrule: string | null | undefined): boolean {
   return rrule != null && /^FREQ=MONTHLY;BYMONTHDAY=-?\d+(?:,-?\d+)+$/.test(rrule)
 }
 
+/**
+ * The two chosen days read back out of a twice-a-month rule, so re-opening the
+ * editor on an existing bill shows the days it actually has rather than the
+ * 1st-and-15th default. The inverse of `semimonthlyRule`.
+ *
+ * Returns null for anything the two pickers cannot represent — including a
+ * three-day BYMONTHDAY rule, which only the API can create. Declining lets the
+ * caller keep the rule untouched; guessing two of the three days would quietly
+ * delete the third the next time somebody pressed Save.
+ */
+export function semimonthlyDays(rrule: string | null | undefined): [number, number] | null {
+  if (!isSemimonthly(rrule)) return null
+  const raw = /BYMONTHDAY=(.+)$/.exec(rrule!)?.[1]
+  if (!raw) return null
+  const days = raw.split(',').map(Number).sort((a, b) => order(a) - order(b))
+  if (days.length !== 2 || days.some(Number.isNaN)) return null
+  return [days[0]!, days[1]!]
+}
+
 /** Resolve a BYMONTHDAY value (incl. -1 = last day) to a YYYY-MM-DD in a given month. */
 function resolveDay(year: number, month0: number, day: number): string {
   const dom = day === LAST_DAY ? new Date(Date.UTC(year, month0 + 1, 0)).getUTCDate() : day

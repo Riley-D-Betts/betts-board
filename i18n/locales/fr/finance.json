@@ -303,6 +303,7 @@
   "bills": {
     "title": "Factures",
     "add": "Ajouter une facture",
+    "edit": "Modifier la facture",
     "fromTransaction": "Nouvelle facture depuis la transaction",
     "addIncome": "Ajouter un revenu",
     "name": "De quoi s'agit-il",
@@ -320,7 +321,8 @@
       "biweekly": "Répétition : toutes les 2 semaines",
       "semimonthly": "Répétition : deux fois par mois",
       "yearly": "Répétition : tous les ans",
-      "once": "Répétition : une seule fois"
+      "once": "Répétition : une seule fois",
+      "custom": "Répétition : programmation personnalisée"
     },
     "semimonthlyDays": "Quels jours ?",
     "lastDayOfMonth": "Dernier jour",

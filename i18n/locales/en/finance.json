@@ -303,6 +303,7 @@
   "bills": {
     "title": "Bills",
     "add": "Add a bill",
+    "edit": "Edit bill",
     "fromTransaction": "New bill from transaction",
     "addIncome": "Add income",
     "name": "What is it",
@@ -320,7 +321,8 @@
       "biweekly": "Repeats: every 2 weeks",
       "semimonthly": "Repeats: twice a month",
       "yearly": "Repeats: yearly",
-      "once": "Repeats: once"
+      "once": "Repeats: once",
+      "custom": "Repeats: custom schedule"
     },
     "semimonthlyDays": "Which days?",
     "lastDayOfMonth": "Last day",
