@@ -130,7 +130,10 @@
     "restored": "Compte restauré",
     "hiddenAccounts": "Comptes masqués",
     "noHidden": "Aucun compte masqué.",
-    "disconnectHint": "Pour retirer tous les comptes de cette banque, déconnectez-la dans"
+    "disconnectHint": "Pour retirer tous les comptes de cette banque, déconnectez-la dans",
+    "accountType": "Type de compte",
+    "typeHelp": "Seuls les comptes courants, d’épargne et d’espèces comptent comme argent disponible dans votre prévision de trésorerie. Les banques n’envoient pas le type, il commence donc par une supposition à partir du nom du compte.",
+    "changeType": "Modifier le type de {name}"
   },
   "transactions": {
     "title": "Transactions",
@@ -298,7 +301,9 @@
     "totalReserved": "Réservé",
     "reservedAmount": "{amount} réservé pour les factures",
     "carriedForward": "Copié du mois dernier — modifiez ce que vous voulez.",
-    "empty": "Créez d'abord des catégories, puis fixez ce que vous voulez dépenser."
+    "empty": "Créez d'abord des catégories, puis fixez ce que vous voulez dépenser.",
+    "billCount": "{n} facture ce mois-ci | {n} factures ce mois-ci",
+    "showBills": "Afficher les factures de {category}"
   },
   "bills": {
     "title": "Factures",
@@ -353,7 +358,12 @@
       "monthly": "Mensuel",
       "yearly": "Annuel",
       "custom": "Personnalisé"
-    }
+    },
+    "received": "Reçu",
+    "sortBy": "Trier les factures",
+    "sortDueDate": "Par date d’échéance",
+    "sortCategory": "Par catégorie",
+    "uncategorized": "Sans catégorie"
   },
   "goals": {
     "title": "Objectifs d'épargne",
@@ -378,7 +388,8 @@
     "title": "Trésorerie",
     "days": "{n} jour | {n} jours",
     "explain": "Votre solde disponible aujourd'hui, plus vos factures et vos revenus, moins ce que vous dépensez habituellement au quotidien.",
-    "basedOn": "Les dépenses courantes sont moyennées sur les 90 derniers jours."
+    "basedOn": "Les dépenses courantes sont moyennées sur les 90 derniers jours.",
+    "notCounted": "Non compté ici : {accounts} ({amount}). Choisissez le type Compte courant, Épargne ou Espèces pour l’inclure."
   },
   "members": {
     "title": "Qui peut voir la section Argent",

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const { unlocked } = useFinanceSession()
 const { money, moneyShort, toInput, fromInput } = useMoney()
-const { formatMonthYear } = useDateFormat()
+const { formatMonthYear, formatDayMonth } = useDateFormat()
 
 interface BudgetLine {
   categoryId: string
@@ -72,6 +72,74 @@ async function save(line: BudgetLine) {
 
 /** `period` is a "YYYY-MM" machine key; anchor it to the 1st for display only. */
 const monthLabel = computed(() => formatMonthYear(`${data.value?.period ?? period.value}-01`))
+
+// ── Bills behind the reservation ──────────────────────────────────────────
+// The violet segment says HOW MUCH of a category is spoken for; this says BY
+// WHAT. Same expansion the reserved figure was computed from (the /upcoming
+// route takes any window), fetched over the same month, grouped client-side —
+// a second shape of the same server data, not a second source of truth.
+interface MonthOccurrence {
+  billId: string
+  name: string
+  kind: 'expense' | 'income'
+  dueDate: string
+  amountMinor: number
+  currency: string
+  categoryId: string | null
+  status: 'due' | 'paid' | 'skipped'
+}
+
+/** Half-open month window, matching the server's monthWindow(). */
+const monthQuery = computed(() => {
+  const [y, m] = period.value.split('-').map(Number)
+  const next = new Date(y!, m!, 1) // month is 1-based here, so this IS the next month
+  return {
+    start: `${period.value}-01`,
+    end: `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, '0')}-01`,
+  }
+})
+
+const { data: monthBills, refresh: refreshBills } = await useFetch<MonthOccurrence[]>(
+  '/api/finance/bills/upcoming', {
+    immediate: unlocked.value,
+    default: () => [],
+    query: monthQuery,
+  },
+)
+watch(unlocked, u => u && refreshBills())
+
+// Bill statuses change from OTHER places — marked paid on a phone, or settled
+// server-side when a sync lands the matching deposit — so this view has to
+// poll like every other finance view that shows bill state. Both fetches ride
+// along: the reserved figures come from the same rows the chips do, and
+// refreshing one without the other would show a chip contradicting its bar.
+useLiveRefresh(() => unlocked.value && Promise.all([refresh(), refreshBills()]))
+
+// Expense occurrences only: an income bill never reserves an expense budget
+// (mirrors the `kind === 'expense'` filter the reserved figure is built with).
+const billsByCategory = computed(() => {
+  const map = new Map<string, MonthOccurrence[]>()
+  for (const o of monthBills.value) {
+    if (o.kind !== 'expense' || !o.categoryId) continue
+    const list = map.get(o.categoryId) ?? []
+    list.push(o)
+    map.set(o.categoryId, list)
+  }
+  return map
+})
+
+// Per-category, not one global flag, so comparing two categories side by side
+// doesn't force them open and shut in lockstep.
+const expanded = ref(new Set<string>())
+function toggleBills(categoryId: string) {
+  const next = new Set(expanded.value)
+  if (!next.delete(categoryId)) next.add(categoryId)
+  expanded.value = next
+}
+
+function billsFor(line: BudgetLine): MonthOccurrence[] {
+  return billsByCategory.value.get(line.categoryId) ?? []
+}
 
 function shiftMonth(delta: number) {
   const [y, m] = period.value.split('-').map(Number)
@@ -216,9 +284,64 @@ function segWidth(line: BudgetLine) {
               </span>
             </div>
 
-            <p v-if="line.committedMinor" class="text-xs text-violet-600 tabular-nums dark:text-violet-400">
+            <!-- The reserved line doubles as the toggle whenever there are
+                 bills to show. Shown even with nothing reserved — "everything
+                 here is already paid" is exactly what someone opening this
+                 wants to confirm. -->
+            <UButton
+              v-if="billsFor(line).length"
+              size="sm"
+              color="neutral"
+              variant="link"
+              class="px-0 text-xs"
+              :class="line.committedMinor ? 'text-violet-600 dark:text-violet-400' : ''"
+              :icon="expanded.has(line.categoryId) ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
+              :aria-label="$t('finance.budgets.showBills', { category: line.categoryName })"
+              @click="toggleBills(line.categoryId)"
+            >
+              <span class="tabular-nums">
+                {{ line.committedMinor
+                  ? $t('finance.budgets.reservedAmount', { amount: money(line.committedMinor, data.currency) })
+                  : $t('finance.budgets.billCount', billsFor(line).length) }}
+              </span>
+            </UButton>
+            <p v-else-if="line.committedMinor" class="text-xs text-violet-600 tabular-nums dark:text-violet-400">
               {{ $t('finance.budgets.reservedAmount', { amount: money(line.committedMinor, data.currency) }) }}
             </p>
+
+            <div
+              v-if="expanded.has(line.categoryId)"
+              class="ml-7 divide-y divide-slate-200 rounded-lg bg-slate-50 px-3 dark:divide-slate-800 dark:bg-slate-900/50"
+            >
+              <div
+                v-for="o in billsFor(line)"
+                :key="`${o.billId}-${o.dueDate}`"
+                class="flex items-center gap-3 py-2"
+              >
+                <div class="min-w-0 flex-1">
+                  <p class="truncate text-sm">{{ o.name }}</p>
+                  <p class="text-xs text-slate-500 dark:text-slate-400">
+                    {{ $t('finance.bills.dueOn', { date: formatDayMonth(o.dueDate) }) }}
+                  </p>
+                </div>
+                <span class="shrink-0 text-sm tabular-nums">{{ money(o.amountMinor, o.currency) }}</span>
+                <!-- Three fates, told apart at a glance: paid, dismissed
+                     (skipped), and still due — the violet money the bar above
+                     is reserving. Only expense occurrences reach this list, so
+                     the "received" tag auto-matched income wears elsewhere
+                     never applies here. -->
+                <UBadge
+                  size="sm"
+                  variant="subtle"
+                  :color="o.status === 'due' ? 'primary' : o.status === 'paid' ? 'success' : 'neutral'"
+                  :class="o.status === 'due' ? 'bg-violet-100 text-violet-700 dark:bg-violet-950/60 dark:text-violet-300' : ''"
+                >
+                  {{ o.status === 'due'
+                    ? $t('finance.budgets.totalReserved')
+                    : o.status === 'skipped' ? $t('finance.bills.skipped') : $t('finance.bills.paid') }}
+                </UBadge>
+              </div>
+            </div>
           </div>
         </div>
       </UCard>

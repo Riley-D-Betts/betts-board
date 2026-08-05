@@ -7,6 +7,10 @@ const props = defineProps<{
     lowest: { date: string, balanceMinor: number }
     shortfall: { date: string, balanceMinor: number } | null
     openingBalanceMinor: number
+    accounts?: {
+      counted: { id: string, name: string, balanceMinor: number }[]
+      unclassified: { id: string, name: string, balanceMinor: number }[]
+    }
   }
   currency: string
 }>()
@@ -17,6 +21,13 @@ const { formatDayMonth } = useDateFormat()
 const W = 600
 const H = 160
 const PAD = 4
+
+// Only accounts holding money are worth naming — an empty `other` account is
+// noise, and warning about it would train people to ignore the whole notice.
+const unclassified = computed(() =>
+  (props.forecast.accounts?.unclassified ?? []).filter(a => a.balanceMinor !== 0))
+const unclassifiedTotal = computed(() =>
+  unclassified.value.reduce((acc, a) => acc + a.balanceMinor, 0))
 
 const geometry = computed(() => {
   const points = props.forecast.days
@@ -123,6 +134,24 @@ const geometry = computed(() => {
 
       <p class="text-xs text-slate-500 dark:text-slate-400">
         {{ $t('finance.forecast.explain') }} {{ $t('finance.forecast.basedOn') }}
+      </p>
+
+      <!-- Whose money this line is made of, named, whenever an account was left
+           out for want of a type. The projection counts spendable cash, and a
+           synced account's type is a guess from its name — so real money can go
+           missing from the forecast while sitting in the account list one card
+           away, and every number here reads as a catastrophe. Saying which
+           accounts were skipped turns an unexplainable figure into a fixable
+           one; the account list is where it gets fixed. -->
+      <p
+        v-if="unclassified.length"
+        class="rounded-lg bg-amber-50 p-2 text-xs text-amber-800 dark:bg-amber-950/40 dark:text-amber-200"
+      >
+        <UIcon name="i-lucide-triangle-alert" class="mr-1 inline size-3.5 align-[-2px]" />
+        {{ $t('finance.forecast.notCounted', {
+          accounts: unclassified.map(a => a.name).join(', '),
+          amount: moneyShort(unclassifiedTotal, currency),
+        }) }}
       </p>
     </div>
   </UCard>

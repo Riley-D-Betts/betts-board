@@ -130,7 +130,10 @@
     "restored": "Account restored",
     "hiddenAccounts": "Hidden accounts",
     "noHidden": "No hidden accounts.",
-    "disconnectHint": "To remove every account from this bank, disconnect it in"
+    "disconnectHint": "To remove every account from this bank, disconnect it in",
+    "accountType": "Account type",
+    "typeHelp": "Only checking, savings and cash accounts count as spendable money in your cash flow forecast. Banks don’t send a type, so it starts as a guess from the account name.",
+    "changeType": "Change the type of {name}"
   },
   "transactions": {
     "title": "Transactions",
@@ -298,7 +301,9 @@
     "totalReserved": "Reserved",
     "reservedAmount": "{amount} reserved for bills",
     "carriedForward": "Copied from last month — change anything you like.",
-    "empty": "Add some categories first, then set what you want to spend."
+    "empty": "Add some categories first, then set what you want to spend.",
+    "billCount": "{n} bill this month | {n} bills this month",
+    "showBills": "Show the bills in {category}"
   },
   "bills": {
     "title": "Bills",
@@ -353,7 +358,12 @@
       "monthly": "Monthly",
       "yearly": "Yearly",
       "custom": "Custom"
-    }
+    },
+    "received": "Received",
+    "sortBy": "Sort bills",
+    "sortDueDate": "By due date",
+    "sortCategory": "By category",
+    "uncategorized": "Uncategorized"
   },
   "goals": {
     "title": "Savings goals",
@@ -378,7 +388,8 @@
     "title": "Cash flow",
     "days": "{n} day | {n} days",
     "explain": "Today's spendable balance, plus your bills and income, minus what you usually spend day to day.",
-    "basedOn": "Everyday spending is averaged from the last 90 days."
+    "basedOn": "Everyday spending is averaged from the last 90 days.",
+    "notCounted": "Not counted here: {accounts} ({amount}). Set the account type to Checking, Savings or Cash to include it."
   },
   "members": {
     "title": "Who can see money",

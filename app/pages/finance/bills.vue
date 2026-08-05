@@ -14,6 +14,8 @@ interface Occurrence {
   currency: string
   categoryName: string | null
   status: 'due' | 'paid' | 'skipped'
+  /** Settled by a deposit the server matched, not by a person. */
+  autoMatched: boolean
 }
 
 const windowStart = computed(() => addDaysToDateString(todayString(), -30))
@@ -35,6 +37,36 @@ const today = todayString()
 const overdue = computed(() => data.value.filter(o => o.status === 'due' && o.dueDate < today))
 const upcoming = computed(() => data.value.filter(o => o.status === 'due' && o.dueDate >= today))
 const handled = computed(() => data.value.filter(o => o.status !== 'due').slice(0, 20))
+
+// ── Sort ──────────────────────────────────────────────────────────────────
+// "What's due next" and "where does the money go" are different questions
+// about the same rows. Date order answers the first; grouping by category
+// answers the second without a separate report page. Overdue stays in date
+// order regardless — it is an urgency list, and urgency is a date.
+const sortMode = ref<'date' | 'category'>('date')
+const sortItems = computed(() => [
+  { value: 'date', label: t('finance.bills.sortDueDate') },
+  { value: 'category', label: t('finance.bills.sortCategory') },
+])
+
+const upcomingGroups = computed(() => {
+  if (sortMode.value === 'date') return [{ key: '', label: null as string | null, items: upcoming.value }]
+  const groups = new Map<string, Occurrence[]>()
+  for (const o of upcoming.value) {
+    const key = o.categoryName ?? ''
+    const list = groups.get(key) ?? []
+    list.push(o)
+    groups.set(key, list)
+  }
+  // Named categories alphabetically, uncategorized last — a bucket defined by
+  // what it lacks belongs after every bucket somebody actually named. Rows
+  // inside each group keep the server's date order. `key` stays the raw map
+  // key: the v-for keys on it, and keying on the display label would collide
+  // if a real category were literally named "Uncategorized".
+  return [...groups.entries()]
+    .sort(([a], [b]) => Number(a === '') - Number(b === '') || a.localeCompare(b))
+    .map(([key, items]) => ({ key, label: key || t('finance.bills.uncategorized'), items }))
+})
 
 async function mark(occurrence: Occurrence, status: 'paid' | 'skipped') {
   await $fetch(`/api/finance/bills/${occurrence.billId}/mark`, {
@@ -72,7 +104,15 @@ function daysOverdue(dueDate: string) {
 <template>
   <FinanceShell :title="$t('finance.bills.title')">
     <div class="space-y-4">
-      <div class="flex justify-end">
+      <div class="flex flex-wrap items-center justify-end gap-2">
+        <USelect
+          v-model="sortMode"
+          :items="sortItems"
+          size="sm"
+          class="w-44"
+          :aria-label="$t('finance.bills.sortBy')"
+          icon="i-lucide-arrow-up-down"
+        />
         <UButton icon="i-lucide-plus" @click="addOpen = true">{{ $t('finance.bills.add') }}</UButton>
       </div>
 
@@ -87,7 +127,16 @@ function daysOverdue(dueDate: string) {
             class="flex flex-wrap items-center gap-3 py-2"
           >
             <div class="min-w-0 flex-1">
-              <p class="truncate text-sm font-medium">{{ o.name }}</p>
+              <p class="truncate text-sm font-medium">
+                {{ o.name }}
+                <!-- The badge the upcoming list already had. Unmatched past
+                     income lands here too, and without it a late paycheck is
+                     indistinguishable from an unpaid bill — same red row,
+                     opposite direction of money. -->
+                <UBadge v-if="o.kind === 'income'" size="sm" color="success" variant="subtle" class="ml-1">
+                  {{ $t('finance.bills.kinds.income') }}
+                </UBadge>
+              </p>
               <p class="text-xs text-rose-600 dark:text-rose-400">
                 {{ $t('finance.bills.overdueBy', daysOverdue(o.dueDate)) }}
               </p>
@@ -111,28 +160,42 @@ function daysOverdue(dueDate: string) {
         <template #header>
           <h2 class="font-semibold">{{ $t('finance.overview.upcoming') }}</h2>
         </template>
-        <div v-if="upcoming.length" class="divide-y divide-slate-200 dark:divide-slate-800">
-          <div
-            v-for="o in upcoming"
-            :key="`${o.billId}-${o.dueDate}`"
-            class="flex flex-wrap items-center gap-3 py-2"
-          >
-            <div class="min-w-0 flex-1">
-              <p class="truncate text-sm font-medium">
-                {{ o.name }}
-                <UBadge v-if="o.kind === 'income'" size="sm" color="success" variant="subtle" class="ml-1">
-                  {{ $t('finance.bills.kinds.income') }}
-                </UBadge>
-              </p>
-              <p class="text-xs text-slate-500 dark:text-slate-400">
-                {{ $t('finance.bills.dueOn', { date: formatDayMonth(o.dueDate) }) }}
-                <span v-if="o.categoryName"> · {{ o.categoryName }}</span>
-              </p>
+        <div v-if="upcoming.length" class="space-y-3">
+          <div v-for="group in upcomingGroups" :key="group.key">
+            <!-- Group headers only exist in category order; in date order the
+                 whole list is one unlabelled group. -->
+            <p
+              v-if="group.label"
+              class="pt-1 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400"
+            >
+              {{ group.label }}
+            </p>
+            <div class="divide-y divide-slate-200 dark:divide-slate-800">
+              <div
+                v-for="o in group.items"
+                :key="`${o.billId}-${o.dueDate}`"
+                class="flex flex-wrap items-center gap-3 py-2"
+              >
+                <div class="min-w-0 flex-1">
+                  <p class="truncate text-sm font-medium">
+                    {{ o.name }}
+                    <UBadge v-if="o.kind === 'income'" size="sm" color="success" variant="subtle" class="ml-1">
+                      {{ $t('finance.bills.kinds.income') }}
+                    </UBadge>
+                  </p>
+                  <p class="text-xs text-slate-500 dark:text-slate-400">
+                    {{ $t('finance.bills.dueOn', { date: formatDayMonth(o.dueDate) }) }}
+                    <!-- The category tail is dropped in category order: it
+                         would repeat the header the row sits under. -->
+                    <span v-if="o.categoryName && sortMode === 'date'"> · {{ o.categoryName }}</span>
+                  </p>
+                </div>
+                <span class="shrink-0 text-sm font-semibold tabular-nums">{{ money(o.amountMinor, o.currency) }}</span>
+                <UButton size="sm" variant="soft" class="min-h-11" @click="mark(o, 'paid')">
+                  {{ $t('finance.bills.markPaid') }}
+                </UButton>
+              </div>
             </div>
-            <span class="shrink-0 text-sm font-semibold tabular-nums">{{ money(o.amountMinor, o.currency) }}</span>
-            <UButton size="sm" variant="soft" class="min-h-11" @click="mark(o, 'paid')">
-              {{ $t('finance.bills.markPaid') }}
-            </UButton>
           </div>
         </div>
         <p v-else class="py-4 text-center text-sm text-slate-500 dark:text-slate-400">
@@ -156,12 +219,27 @@ function daysOverdue(dueDate: string) {
             />
             <div class="min-w-0 flex-1">
               <p class="truncate text-sm">{{ o.name }}</p>
-              <p class="text-xs text-slate-500 dark:text-slate-400">{{ formatDayMonth(o.dueDate) }}</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                {{ formatDayMonth(o.dueDate) }}
+                <!-- Says where the status came from: nobody ticked their own
+                     wages off, the deposit did it. -->
+                <span v-if="o.autoMatched"> · {{ $t('finance.bills.received') }}</span>
+              </p>
             </div>
             <span class="shrink-0 text-sm tabular-nums text-slate-500 dark:text-slate-400">
               {{ money(o.amountMinor, o.currency) }}
             </span>
-            <UButton size="sm" color="neutral" variant="ghost" class="min-h-11" @click="unmark(o)">
+            <!-- No "mark due" for a matched deposit: the status is derived from
+                 the transaction on every read, so deleting an override that was
+                 never written would look like a button that does nothing. -->
+            <UButton
+              v-if="!o.autoMatched"
+              size="sm"
+              color="neutral"
+              variant="ghost"
+              class="min-h-11"
+              @click="unmark(o)"
+            >
               {{ $t('finance.bills.markDue') }}
             </UButton>
           </div>

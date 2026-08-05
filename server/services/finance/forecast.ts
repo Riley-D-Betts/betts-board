@@ -76,7 +76,6 @@ export function projectCashFlow(snapshot: ForecastSnapshot): ForecastResult {
   let balance = snapshot.openingBalanceMinor
   let totalBills = 0
   let totalIncome = 0
-  let lowest = { date: snapshot.today, balanceMinor: balance }
 
   for (let i = 0; i < snapshot.days; i++) {
     const date = addDaysToDateString(snapshot.today, i)
@@ -94,7 +93,23 @@ export function projectCashFlow(snapshot: ForecastSnapshot): ForecastResult {
       incomeMinor: entry.income,
       discretionaryMinor: discretionary,
     })
-    if (balance < lowest.balanceMinor) lowest = { date, balanceMinor: balance }
+  }
+
+  // The floor has to be a day the projection actually contains. Seeding it with
+  // the OPENING balance dated `today` reported a number that appears nowhere in
+  // `days`: day 0 carries the same date but a different balance, once its own
+  // bills, income and everyday spend are applied. The headline then disagreed
+  // with the point the chart draws for `lowest.date` — which resolves to day 0
+  // — and on a day money comes in, it under-reported the floor outright. The
+  // opening balance is where the money is now, not somewhere it is projected to
+  // go, so it is only the answer when there is nothing to project at all.
+  let lowest = days[0]
+    ? { date: days[0].date, balanceMinor: days[0].balanceMinor }
+    : { date: snapshot.today, balanceMinor: snapshot.openingBalanceMinor }
+  for (const day of days) {
+    if (day.balanceMinor < lowest.balanceMinor) {
+      lowest = { date: day.date, balanceMinor: day.balanceMinor }
+    }
   }
 
   const shortfallDay = days.find(d => d.balanceMinor < 0) ?? null
