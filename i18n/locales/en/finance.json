@@ -1,5 +1,16 @@
 {
   "title": "Money",
+  "diagnostics": {
+    "title": "Sync details",
+    "show": "Show",
+    "hide": "Hide",
+    "copy": "Copy",
+    "copied": "Copied",
+    "couldNotCopy": "Could not copy — select the text and copy it by hand.",
+    "refresh": "Refresh",
+    "collapsedHint": "Balances, pending holds and the last sync result for every account, as text you can copy.",
+    "help": "If a balance doesn't match your bank, copy this and send it along. It contains no passwords or bank credentials."
+  },
   "nav": {
     "overview": "Overview",
     "transactions": "Transactions",

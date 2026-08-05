@@ -1,5 +1,16 @@
 {
   "title": "Dinero",
+  "diagnostics": {
+    "title": "Detalles de sincronización",
+    "show": "Mostrar",
+    "hide": "Ocultar",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "couldNotCopy": "No se pudo copiar: selecciona el texto y cópialo a mano.",
+    "refresh": "Actualizar",
+    "collapsedHint": "Saldos, cargos pendientes y el resultado de la última sincronización de cada cuenta, como texto que puedes copiar.",
+    "help": "Si un saldo no coincide con tu banco, copia esto y envíalo. No contiene contraseñas ni credenciales bancarias."
+  },
   "nav": {
     "overview": "Resumen",
     "transactions": "Movimientos",

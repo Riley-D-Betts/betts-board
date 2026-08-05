@@ -1346,6 +1346,14 @@ export const routeRegistry: RouteDoc[] = [
     responseDescription: 'Status (`ok`/`partial`/`error`/`needs_reauth`/`disabled`), last attempt and last success as separate fields, next attempt, failure count, and any per-institution errors. Never the stored credentials.',
   },
   {
+    method: 'get',
+    path: '/api/finance/diagnostics',
+    summary: 'A paste-able snapshot of sync state and balance arithmetic.',
+    tags: ['Finance'],
+    auth: 'finance',
+    responseDescription: 'Per connection: status, bridge hostname, the window the next sync will request, and the stored errors. Per account: posted balance, pending holds and their sum, the bank’s `available-balance`, and transaction counts — enough to see why a balance disagrees with the bank. Deliberately carries no access URL, no account `externalId`, and no transaction descriptions.',
+  },
+  {
     method: 'post',
     path: '/api/finance/connections',
     summary: 'Connect a bank with a SimpleFIN setup token (owner only).',

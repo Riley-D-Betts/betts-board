@@ -1,5 +1,16 @@
 {
   "title": "Argent",
+  "diagnostics": {
+    "title": "Détails de synchronisation",
+    "show": "Afficher",
+    "hide": "Masquer",
+    "copy": "Copier",
+    "copied": "Copié",
+    "couldNotCopy": "Copie impossible — sélectionnez le texte et copiez-le à la main.",
+    "refresh": "Actualiser",
+    "collapsedHint": "Soldes, autorisations en attente et résultat de la dernière synchronisation de chaque compte, sous forme de texte à copier.",
+    "help": "Si un solde ne correspond pas à votre banque, copiez ceci et envoyez-le. Il ne contient ni mot de passe ni identifiants bancaires."
+  },
   "nav": {
     "overview": "Aperçu",
     "transactions": "Transactions",
