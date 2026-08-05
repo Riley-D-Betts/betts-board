@@ -99,6 +99,8 @@
     "fromBank": "De tu banco",
     "manual": "A mano",
     "balanceIsBank": "Este saldo viene de tu banco y no se puede editar aquí.",
+    "pendingHolds": "{n} pendiente | {n} pendientes",
+    "withPending": "{amount} con {holds}",
     "types": {
       "checking": "Cuenta corriente",
       "savings": "Ahorro",

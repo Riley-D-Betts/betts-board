@@ -9,7 +9,13 @@ const { formatDayMonth } = useDateFormat()
 interface Overview {
   currency: string
   netWorth: { currency: string, currencyExponent: number, assetsMinor: number, liabilitiesMinor: number, netMinor: number }[]
-  accounts: { id: string, name: string, type: string, currency: string, balanceMinor: number, balanceAt: number | null, connectionId: string | null, orgName: string | null }[]
+  accounts: {
+    id: string, name: string, type: string, currency: string
+    // balanceMinor is POSTED only; the pending trio is what the account list
+    // uses to show what a hold has already taken out of the account.
+    balanceMinor: number, pendingMinor: number, pendingCount: number, balanceWithPendingMinor: number
+    balanceAt: number | null, connectionId: string | null, orgName: string | null
+  }[]
   upcomingBills: { billId: string, name: string, dueDate: string, amountMinor: number, currency: string, kind: string }[]
   overdueBills: { billId: string, name: string, dueDate: string, amountMinor: number, currency: string, kind: string }[]
   budget: { period: string, totalBudgetedMinor: number, totalSpentMinor: number, uncategorizedMinor: number, overspent: number }

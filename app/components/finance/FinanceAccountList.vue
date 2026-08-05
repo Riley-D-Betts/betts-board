@@ -4,7 +4,12 @@ interface AccountRow {
   name: string
   type: string
   currency: string
+  /** The bank's POSTED balance. Pending holds are not in it — see below. */
   balanceMinor: number
+  /** Signed sum of the pending holds; negative for charges. */
+  pendingMinor: number
+  pendingCount: number
+  balanceWithPendingMinor: number
   balanceAt: number | null
   connectionId: string | null
   orgName: string | null
@@ -186,12 +191,26 @@ async function create() {
               <span v-else-if="!account.connectionId">{{ $t('finance.accounts.manual') }}</span>
             </p>
           </div>
-          <span
-            class="shrink-0 text-sm font-semibold tabular-nums"
-            :class="account.balanceMinor < 0 ? 'text-rose-600 dark:text-rose-400' : ''"
-          >
-            {{ money(account.balanceMinor, account.currency) }}
-          </span>
+          <!-- Both numbers, always, whenever they differ. The bank's posted
+               balance stays the headline — it is the one that matches the
+               bank's own app and the one bills clear against — with the
+               pending holds shown underneath rather than folded in silently.
+               Quietly netting them would trade one number nobody could
+               reconcile for another. -->
+          <div class="shrink-0 text-right">
+            <p
+              class="text-sm font-semibold tabular-nums"
+              :class="account.balanceMinor < 0 ? 'text-rose-600 dark:text-rose-400' : ''"
+            >
+              {{ money(account.balanceMinor, account.currency) }}
+            </p>
+            <p v-if="account.pendingCount" class="text-xs tabular-nums text-slate-500 dark:text-slate-400">
+              {{ $t('finance.accounts.withPending', {
+                amount: money(account.balanceWithPendingMinor, account.currency),
+                holds: $t('finance.accounts.pendingHolds', account.pendingCount),
+              }) }}
+            </p>
+          </div>
         </NuxtLink>
         <!-- Manual: owner-only hard delete. Bank: anyone with money access can
              hide it (the PATCH route is requireFinanceAccess). -->

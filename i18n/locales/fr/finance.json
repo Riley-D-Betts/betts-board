@@ -99,6 +99,8 @@
     "fromBank": "Depuis votre banque",
     "manual": "Tenu à la main",
     "balanceIsBank": "Ce solde vient de votre banque et ne peut pas être modifié ici.",
+    "pendingHolds": "{n} en attente | {n} en attente",
+    "withPending": "{amount} avec {holds}",
     "types": {
       "checking": "Compte courant",
       "savings": "Épargne",

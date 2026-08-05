@@ -99,6 +99,8 @@
     "fromBank": "From your bank",
     "manual": "Kept by hand",
     "balanceIsBank": "This balance comes from your bank and can't be edited here.",
+    "pendingHolds": "{n} pending | {n} pending",
+    "withPending": "{amount} with {holds}",
     "types": {
       "checking": "Checking",
       "savings": "Savings",

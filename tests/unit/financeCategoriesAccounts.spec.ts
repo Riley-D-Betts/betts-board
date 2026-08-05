@@ -147,3 +147,71 @@ describe('removing an account', () => {
     expect(() => deleteAccount(db, householdId, account.id)).toThrow()
   })
 })
+
+// ── Pending holds against the reported balance ──────────────────────────────
+// The bug this pins: the bank's `balance` is POSTED only, so a card swiped this
+// morning sat in the transaction list while the balance above it ignored it.
+
+describe('pending holds in the reported balance', () => {
+  function bankAccount(balanceMinor: number) {
+    const connectionId = db.insert(financeConnections).values({
+      householdId, provider: 'simplefin', accessUrlEnc: 'x',
+    }).returning().get().id
+    return db.insert(financeAccounts).values({
+      householdId, connectionId, name: 'Bank checking', type: 'checking',
+      currency: 'USD', currencyExponent: 2, balanceSource: 'bank', balanceMinor,
+    }).returning().get()
+  }
+
+  function hold(accountId: string, amountMinor: number, pending: boolean) {
+    db.insert(financeTransactions).values({
+      householdId, accountId, amountMinor, currency: 'USD', currencyExponent: 2,
+      description: 'Coffee', postedAt: new Date(), postedDate: '2026-08-04',
+      pending, source: 'sync', externalId: `x${amountMinor}${pending}`,
+    }).run()
+  }
+
+  it('reports the posted balance and the pending delta separately', () => {
+    const account = bankAccount(124018)
+    hold(account.id, -4275, true)
+    hold(account.id, -1000, true)
+
+    const [row] = listAccounts(db, householdId)
+    // The bank's own number is untouched — it is still what the bank said.
+    expect(row!.balanceMinor).toBe(124018)
+    expect(row!.pendingMinor).toBe(-5275)
+    expect(row!.pendingCount).toBe(2)
+    expect(row!.balanceWithPendingMinor).toBe(118743)
+  })
+
+  it('leaves posted rows out of the pending delta', () => {
+    const account = bankAccount(124018)
+    hold(account.id, -4275, false)
+
+    const [row] = listAccounts(db, householdId)
+    expect(row!.pendingMinor).toBe(0)
+    expect(row!.pendingCount).toBe(0)
+    // No holds ⇒ the two balances agree, so the UI has nothing extra to say.
+    expect(row!.balanceWithPendingMinor).toBe(row!.balanceMinor)
+  })
+
+  it('applies holds to a manual account too, without double-counting them', () => {
+    const account = createAccount(db, householdId, { name: 'Wallet', currency: 'USD', openingBalanceMinor: 10000 })
+    hold(account.id, -2500, false) // posted: already inside the ledger balance
+    hold(account.id, -1500, true) // pending: excluded from it, added on top
+
+    const [row] = listAccounts(db, householdId)
+    expect(row!.balanceMinor).toBe(7500)
+    expect(row!.balanceWithPendingMinor).toBe(6000)
+  })
+
+  it('scopes holds to their own account', () => {
+    const a = bankAccount(100000)
+    const b = createAccount(db, householdId, { name: 'Other', currency: 'USD', openingBalanceMinor: 5000 })
+    hold(a.id, -2000, true)
+
+    const rows = listAccounts(db, householdId)
+    expect(rows.find(r => r.id === a.id)!.pendingMinor).toBe(-2000)
+    expect(rows.find(r => r.id === b.id)!.pendingMinor).toBe(0)
+  })
+})
