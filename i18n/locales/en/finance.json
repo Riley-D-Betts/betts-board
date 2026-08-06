@@ -389,7 +389,12 @@
     "days": "{n} day | {n} days",
     "explain": "Today's spendable balance, plus your bills and income, minus what you usually spend day to day.",
     "basedOn": "Everyday spending is averaged from the last 90 days.",
-    "notCounted": "Not counted here: {accounts} ({amount}). Set the account type to Checking, Savings or Cash to include it."
+    "notCounted": "Not counted here: {accounts} ({amount}). Set the account type to Checking, Savings or Cash to include it.",
+    "breakdown": "Show the math",
+    "openingBalance": "Opening balance",
+    "everydaySpending": "Everyday spending",
+    "goalTransfer": "Goal transfer",
+    "lowestTag": "Lowest point"
   },
   "members": {
     "title": "Who can see money",

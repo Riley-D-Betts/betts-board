@@ -389,7 +389,12 @@
     "days": "{n} día | {n} días",
     "explain": "El saldo disponible de hoy, más tus facturas e ingresos, menos lo que sueles gastar en el día a día.",
     "basedOn": "El gasto diario es la media de los últimos 90 días.",
-    "notCounted": "Aquí no se cuenta: {accounts} ({amount}). Cambia el tipo de cuenta a Cuenta corriente, Ahorro o Efectivo para incluirla."
+    "notCounted": "Aquí no se cuenta: {accounts} ({amount}). Cambia el tipo de cuenta a Cuenta corriente, Ahorro o Efectivo para incluirla.",
+    "breakdown": "Mostrar el desglose",
+    "openingBalance": "Saldo inicial",
+    "everydaySpending": "Gasto del día a día",
+    "goalTransfer": "Aportación a la meta",
+    "lowestTag": "Punto más bajo"
   },
   "members": {
     "title": "Quién puede ver el dinero",

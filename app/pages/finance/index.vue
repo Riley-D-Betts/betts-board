@@ -25,6 +25,15 @@ interface Overview {
     lowest: { date: string, balanceMinor: number }
     shortfall: { date: string, balanceMinor: number } | null
     openingBalanceMinor: number
+    // Every projected movement with the balance after it — the chart's walk,
+    // retraceable. Rendered by the chart's "show the math" drop-down.
+    ledger: {
+      date: string
+      name: string | null
+      kind: 'income' | 'bill' | 'goal' | 'spending'
+      amountMinor: number
+      balanceMinor: number
+    }[]
     // Which accounts the opening balance was built from, and which were left
     // out because nobody has said what they are. The chart names the second
     // list — real money silently missing from the projection is what made this

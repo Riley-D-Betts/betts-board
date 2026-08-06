@@ -38,11 +38,29 @@ export interface ForecastDay {
   discretionaryMinor: number
 }
 
+/**
+ * One movement of the projection, in the order it was applied. The ledger is
+ * the same walk as `days` shown one step at a time — the debugging view for
+ * "why is my lowest balance THAT?", where a headline nobody can retrace is a
+ * headline nobody trusts.
+ */
+export interface ForecastLedgerItem {
+  date: string
+  /** The bill or income name; null for the synthetic spending and goal rows. */
+  name: string | null
+  kind: 'income' | 'bill' | 'goal' | 'spending'
+  /** Signed: income positive, money out negative. */
+  amountMinor: number
+  /** Running balance after this movement. */
+  balanceMinor: number
+}
+
 export interface ForecastResult {
   currency: string
   currencyExponent: number
   openingBalanceMinor: number
   days: ForecastDay[]
+  ledger: ForecastLedgerItem[]
   /** The one number a family acts on. */
   lowest: { date: string, balanceMinor: number }
   endingBalanceMinor: number
@@ -53,7 +71,7 @@ export interface ForecastResult {
 }
 
 export function projectCashFlow(snapshot: ForecastSnapshot): ForecastResult {
-  const byDate = new Map<string, { bills: number, income: number }>()
+  const byDate = new Map<string, { name: string, kind: 'income' | 'bill', amountMinor: number }[]>()
 
   for (const occurrence of snapshot.occurrences) {
     // A bill somebody already paid or skipped has had its effect (or won't
@@ -61,10 +79,13 @@ export function projectCashFlow(snapshot: ForecastSnapshot): ForecastResult {
     if (occurrence.status !== 'due') continue
     if (occurrence.currency !== snapshot.currency) continue // never sum across currencies
 
-    const entry = byDate.get(occurrence.dueDate) ?? { bills: 0, income: 0 }
-    if (occurrence.kind === 'income') entry.income += Math.abs(occurrence.amountMinor)
-    else entry.bills += Math.abs(occurrence.amountMinor)
-    byDate.set(occurrence.dueDate, entry)
+    const list = byDate.get(occurrence.dueDate) ?? []
+    list.push({
+      name: occurrence.name,
+      kind: occurrence.kind === 'income' ? 'income' : 'bill',
+      amountMinor: Math.abs(occurrence.amountMinor),
+    })
+    byDate.set(occurrence.dueDate, list)
   }
 
   const contributions = new Map<string, number>()
@@ -73,25 +94,51 @@ export function projectCashFlow(snapshot: ForecastSnapshot): ForecastResult {
   }
 
   const days: ForecastDay[] = []
+  const ledger: ForecastLedgerItem[] = []
   let balance = snapshot.openingBalanceMinor
   let totalBills = 0
   let totalIncome = 0
 
   for (let i = 0; i < snapshot.days; i++) {
     const date = addDaysToDateString(snapshot.today, i)
-    const entry = byDate.get(date) ?? { bills: 0, income: 0 }
-    const discretionary = snapshot.dailyDiscretionaryMinor + (contributions.get(date) ?? 0)
+    // Income first, then bills, alphabetical within each. The order inside a
+    // day is a convention (the chart only sees day ends), but this one is the
+    // only one that keeps the ledger honest: once the day's money has landed,
+    // the running balance only descends, so the lowest row in the ledger IS
+    // the lowest day the headline reports. Bills-before-income would show an
+    // intra-day dip below a floor the headline never mentions.
+    const movements = (byDate.get(date) ?? []).sort((a, b) =>
+      a.kind === b.kind ? a.name.localeCompare(b.name) : a.kind === 'income' ? -1 : 1)
 
-    balance += entry.income - entry.bills - discretionary
-    totalBills += entry.bills
-    totalIncome += entry.income
+    let dayBills = 0
+    let dayIncome = 0
+    for (const movement of movements) {
+      const signed = movement.kind === 'income' ? movement.amountMinor : -movement.amountMinor
+      balance += signed
+      if (movement.kind === 'income') dayIncome += movement.amountMinor
+      else dayBills += movement.amountMinor
+      ledger.push({ date, name: movement.name, kind: movement.kind, amountMinor: signed, balanceMinor: balance })
+    }
+
+    const goal = contributions.get(date) ?? 0
+    if (goal) {
+      balance -= goal
+      ledger.push({ date, name: null, kind: 'goal', amountMinor: -goal, balanceMinor: balance })
+    }
+    if (snapshot.dailyDiscretionaryMinor) {
+      balance -= snapshot.dailyDiscretionaryMinor
+      ledger.push({ date, name: null, kind: 'spending', amountMinor: -snapshot.dailyDiscretionaryMinor, balanceMinor: balance })
+    }
+
+    totalBills += dayBills
+    totalIncome += dayIncome
 
     days.push({
       date,
       balanceMinor: balance,
-      billsMinor: entry.bills,
-      incomeMinor: entry.income,
-      discretionaryMinor: discretionary,
+      billsMinor: dayBills,
+      incomeMinor: dayIncome,
+      discretionaryMinor: snapshot.dailyDiscretionaryMinor + goal,
     })
   }
 
@@ -119,6 +166,7 @@ export function projectCashFlow(snapshot: ForecastSnapshot): ForecastResult {
     currencyExponent: snapshot.currencyExponent,
     openingBalanceMinor: snapshot.openingBalanceMinor,
     days,
+    ledger,
     lowest,
     endingBalanceMinor: balance,
     totalBillsMinor: totalBills,

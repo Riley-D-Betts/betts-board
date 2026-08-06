@@ -7,6 +7,13 @@ const props = defineProps<{
     lowest: { date: string, balanceMinor: number }
     shortfall: { date: string, balanceMinor: number } | null
     openingBalanceMinor: number
+    ledger?: {
+      date: string
+      name: string | null
+      kind: 'income' | 'bill' | 'goal' | 'spending'
+      amountMinor: number
+      balanceMinor: number
+    }[]
     accounts?: {
       counted: { id: string, name: string, balanceMinor: number }[]
       unclassified: { id: string, name: string, balanceMinor: number }[]
@@ -15,8 +22,9 @@ const props = defineProps<{
   currency: string
 }>()
 
-const { moneyShort } = useMoney()
+const { money, moneyShort, moneySigned } = useMoney()
 const { formatDayMonth } = useDateFormat()
+const { t } = useI18n()
 
 const W = 600
 const H = 160
@@ -28,6 +36,79 @@ const unclassified = computed(() =>
   (props.forecast.accounts?.unclassified ?? []).filter(a => a.balanceMinor !== 0))
 const unclassifiedTotal = computed(() =>
   unclassified.value.reduce((acc, a) => acc + a.balanceMinor, 0))
+
+// ── The math, one movement at a time ──────────────────────────────────────
+// The ledger answers "why is my lowest balance THAT?" by retracing the walk
+// the chart drew. Bills and income keep their own rows; consecutive days of
+// nothing but the everyday-spend average collapse into one row (the average
+// is synthetic — thirty identical rows of it would bury the bills the reader
+// came to check), which is safe to do because a spending-only stretch never
+// climbs, so the collapsed row's closing balance is the stretch's floor.
+const showMath = ref(false)
+
+interface LedgerRow {
+  key: string
+  label: string
+  dateLabel: string
+  /** The last date the row covers — what the lowest marker is matched on. */
+  endDate: string
+  amountMinor: number
+  balanceMinor: number
+  kind: 'income' | 'bill' | 'goal' | 'spending'
+}
+
+const ledgerRows = computed<LedgerRow[]>(() => {
+  const rows: LedgerRow[] = []
+  let run: { start: string, end: string, amountMinor: number, balanceMinor: number } | null = null
+
+  const flush = () => {
+    if (!run) return
+    rows.push({
+      key: `spending:${run.start}`,
+      label: t('finance.forecast.everydaySpending'),
+      dateLabel: run.start === run.end
+        ? formatDayMonth(run.start)
+        : `${formatDayMonth(run.start)} – ${formatDayMonth(run.end)}`,
+      endDate: run.end,
+      amountMinor: run.amountMinor,
+      balanceMinor: run.balanceMinor,
+      kind: 'spending',
+    })
+    run = null
+  }
+
+  for (const item of props.forecast.ledger ?? []) {
+    if (item.kind === 'spending') {
+      if (run) {
+        run.end = item.date
+        run.amountMinor += item.amountMinor
+        run.balanceMinor = item.balanceMinor
+      }
+      else {
+        run = { start: item.date, end: item.date, amountMinor: item.amountMinor, balanceMinor: item.balanceMinor }
+      }
+      continue
+    }
+    flush()
+    rows.push({
+      // rows.length disambiguates two same-named bills on the same day.
+      key: `${item.kind}:${item.date}:${item.name ?? ''}:${rows.length}`,
+      label: item.name ?? t('finance.forecast.goalTransfer'),
+      dateLabel: formatDayMonth(item.date),
+      endDate: item.date,
+      amountMinor: item.amountMinor,
+      balanceMinor: item.balanceMinor,
+      kind: item.kind,
+    })
+  }
+  flush()
+  return rows
+})
+
+function isLowestRow(row: LedgerRow) {
+  return row.endDate === props.forecast.lowest.date
+    && row.balanceMinor === props.forecast.lowest.balanceMinor
+}
 
 const geometry = computed(() => {
   const points = props.forecast.days
@@ -153,6 +234,60 @@ const geometry = computed(() => {
           amount: moneyShort(unclassifiedTotal, currency),
         }) }}
       </p>
+
+      <!-- The walk behind the line, one movement at a time. -->
+      <div v-if="ledgerRows.length">
+        <UButton
+          size="sm"
+          color="neutral"
+          variant="link"
+          class="px-0"
+          :icon="showMath ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
+          @click="showMath = !showMath"
+        >
+          {{ $t('finance.forecast.breakdown') }}
+        </UButton>
+
+        <div
+          v-if="showMath"
+          class="mt-1 max-h-80 overflow-y-auto rounded-lg bg-slate-50 px-3 dark:bg-slate-900/50"
+        >
+          <div class="divide-y divide-slate-200 dark:divide-slate-800">
+            <div class="flex items-baseline gap-2 py-1.5 text-xs">
+              <span class="w-24 shrink-0 text-slate-500 dark:text-slate-400">{{ $t('common.actions.today') }}</span>
+              <span class="min-w-0 flex-1 truncate font-medium">{{ $t('finance.forecast.openingBalance') }}</span>
+              <span class="shrink-0 tabular-nums font-semibold">{{ money(forecast.openingBalanceMinor, currency) }}</span>
+            </div>
+
+            <div
+              v-for="row in ledgerRows"
+              :key="row.key"
+              class="flex items-baseline gap-2 py-1.5 text-xs"
+            >
+              <span class="w-24 shrink-0 text-slate-500 dark:text-slate-400">{{ row.dateLabel }}</span>
+              <span class="min-w-0 flex-1 truncate" :class="row.kind === 'spending' || row.kind === 'goal' ? 'text-slate-500 dark:text-slate-400' : 'font-medium'">
+                {{ row.label }}
+                <UBadge v-if="isLowestRow(row)" size="sm" variant="subtle" color="primary" class="ml-1">
+                  {{ $t('finance.forecast.lowestTag') }}
+                </UBadge>
+              </span>
+              <span
+                class="shrink-0 tabular-nums"
+                :class="row.amountMinor > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'"
+              >
+                {{ moneySigned(row.amountMinor, currency) }}
+              </span>
+              <!-- Balance after the movement: the column the whole view is for. -->
+              <span
+                class="w-20 shrink-0 text-right tabular-nums font-semibold"
+                :class="row.balanceMinor < 0 ? 'text-rose-600 dark:text-rose-400' : ''"
+              >
+                {{ money(row.balanceMinor, currency) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </UCard>
 </template>

@@ -449,6 +449,62 @@ describe('projectCashFlow', () => {
     expect(result.lowest).toEqual({ date: '2026-07-01', balanceMinor: 200000 })
   })
 
+  // The ledger is the projection shown one movement at a time — the debugging
+  // view for "why is my lowest balance THAT?". Same walk, same numbers.
+  it('emits a ledger of every movement with the balance after it', () => {
+    const result = projectCashFlow({
+      ...base,
+      dailyDiscretionaryMinor: 1000,
+      occurrences: [
+        occurrence({ dueDate: '2026-07-03', amountMinor: 180000 }),
+        occurrence({ billId: 'b2', name: 'Pay', kind: 'income', amountMinor: 300000, dueDate: '2026-07-03' }),
+      ],
+    })
+
+    // Quiet days carry only the everyday-spend drain.
+    expect(result.ledger[0]).toEqual({
+      date: '2026-07-01', name: null, kind: 'spending', amountMinor: -1000, balanceMinor: 199000,
+    })
+
+    // On the 3rd: income lands first, then the bill, then the day's spending.
+    const day3 = result.ledger.filter(i => i.date === '2026-07-03')
+    expect(day3.map(i => i.kind)).toEqual(['income', 'bill', 'spending'])
+    expect(day3[0]).toEqual({ date: '2026-07-03', name: 'Pay', kind: 'income', amountMinor: 300000, balanceMinor: 498000 })
+    expect(day3[1]).toEqual({ date: '2026-07-03', name: 'Rent', kind: 'bill', amountMinor: -180000, balanceMinor: 318000 })
+    expect(day3[2]!.balanceMinor).toBe(317000)
+
+    // The ledger closes each day exactly where the chart does.
+    expect(result.days.find(d => d.date === '2026-07-03')!.balanceMinor).toBe(317000)
+    expect(result.ledger.at(-1)!.balanceMinor).toBe(result.endingBalanceMinor)
+  })
+
+  it('the ledger floor is the headline lowest — income lands before money goes out', () => {
+    const result = projectCashFlow({
+      ...base,
+      dailyDiscretionaryMinor: 500,
+      occurrences: [
+        occurrence({ dueDate: '2026-07-03', amountMinor: 180000 }),
+        occurrence({ billId: 'b2', kind: 'income', amountMinor: 300000, dueDate: '2026-07-08' }),
+      ],
+    })
+    const floor = Math.min(...result.ledger.map(i => i.balanceMinor))
+    expect(floor).toBe(result.lowest.balanceMinor)
+  })
+
+  it('goal contributions get their own ledger row', () => {
+    const result = projectCashFlow({
+      ...base,
+      goalContributions: [{ date: '2026-07-02', amountMinor: 5000 }],
+    })
+    expect(result.ledger).toEqual([
+      { date: '2026-07-02', name: null, kind: 'goal', amountMinor: -5000, balanceMinor: 195000 },
+    ])
+  })
+
+  it('a projection with nothing moving has an empty ledger', () => {
+    expect(projectCashFlow(base).ledger).toEqual([])
+  })
+
   it('flags the first day the projection goes negative', () => {
     const result = projectCashFlow({
       ...base,
