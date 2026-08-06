@@ -394,7 +394,8 @@
     "openingBalance": "Solde initial",
     "everydaySpending": "Dépenses du quotidien",
     "goalTransfer": "Virement vers l’objectif",
-    "lowestTag": "Point le plus bas"
+    "lowestTag": "Point le plus bas",
+    "explainBillsOnly": "Votre solde disponible aujourd’hui, plus vos factures et vos revenus. Les dépenses du quotidien ne sont pas projetées — activable dans les réglages Argent."
   },
   "members": {
     "title": "Qui peut voir la section Argent",
@@ -436,7 +437,9 @@
     "forecastDays": "Durée des prévisions",
     "forecastOption": "{n} jour | {n} jours",
     "notOnDashboard": "La section Argent n'apparaît jamais sur le tableau de bord, l'écran mural ni le calendrier partagé.",
-    "adminOnly": "Seul un administrateur du foyer peut modifier ces réglages."
+    "adminOnly": "Seul un administrateur du foyer peut modifier ces réglages.",
+    "everydaySpend": "Projeter les dépenses du quotidien",
+    "everydaySpendHelp": "Retire chaque jour de la prévision la moyenne de vos 90 derniers jours de dépenses hors factures. Désactivez-la pour ne projeter que factures et revenus — un nouveau départ, sans que le mois dernier donne le ton."
   },
   "toast": {
     "saved": "Enregistré",

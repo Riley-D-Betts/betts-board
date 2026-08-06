@@ -45,6 +45,7 @@ async function changePin() {
 // ── Currency and forecast length ─────────────────────────────────────────
 const currency = ref(state.value?.settings?.finance?.currency ?? 'USD')
 const forecastDays = ref(state.value?.settings?.finance?.forecastDays ?? 90)
+const everydaySpend = ref(state.value?.settings?.finance?.forecastEverydaySpend ?? true)
 
 const CURRENCIES = ['USD', 'CAD', 'GBP', 'EUR', 'AUD', 'NZD', 'JPY', 'CHF', 'SEK', 'NOK', 'DKK', 'MXN', 'INR', 'ZAR']
 const currencyItems = CURRENCIES.map(value => ({ value, label: value }))
@@ -56,7 +57,11 @@ async function saveSettings() {
   try {
     await $fetch('/api/household', {
       method: 'PATCH',
-      body: { settings: { finance: { currency: currency.value, forecastDays: forecastDays.value } } },
+      body: { settings: { finance: {
+        currency: currency.value,
+        forecastDays: forecastDays.value,
+        forecastEverydaySpend: everydaySpend.value,
+      } } },
     })
     await refreshBoard()
     toast.add({ title: t('finance.toast.saved'), color: 'success' })
@@ -73,6 +78,7 @@ async function saveSettings() {
     await refreshBoard()
     currency.value = state.value?.settings?.finance?.currency ?? 'USD'
     forecastDays.value = state.value?.settings?.finance?.forecastDays ?? 90
+    everydaySpend.value = state.value?.settings?.finance?.forecastEverydaySpend ?? true
   }
 }
 </script>
@@ -120,6 +126,17 @@ async function saveSettings() {
               :disabled="!isAdmin"
               class="w-full sm:w-48"
               @change="saveSettings"
+            />
+          </UFormField>
+
+          <UFormField
+            :label="$t('finance.settings.everydaySpend')"
+            :help="$t('finance.settings.everydaySpendHelp')"
+          >
+            <USwitch
+              v-model="everydaySpend"
+              :disabled="!isAdmin"
+              @update:model-value="saveSettings"
             />
           </UFormField>
 

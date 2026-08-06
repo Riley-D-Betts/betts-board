@@ -394,7 +394,8 @@
     "openingBalance": "Saldo inicial",
     "everydaySpending": "Gasto del día a día",
     "goalTransfer": "Aportación a la meta",
-    "lowestTag": "Punto más bajo"
+    "lowestTag": "Punto más bajo",
+    "explainBillsOnly": "El saldo disponible de hoy, más tus facturas e ingresos. El gasto diario no se proyecta; puedes activarlo en los ajustes de Dinero."
   },
   "members": {
     "title": "Quién puede ver el dinero",
@@ -436,7 +437,9 @@
     "forecastDays": "Duración de la previsión",
     "forecastOption": "{n} día | {n} días",
     "notOnDashboard": "El dinero nunca aparece en el panel de inicio, en la pantalla de pared ni en el calendario compartido.",
-    "adminOnly": "Solo un administrador del hogar puede cambiar esto."
+    "adminOnly": "Solo un administrador del hogar puede cambiar esto.",
+    "everydaySpend": "Proyectar el gasto diario",
+    "everydaySpendHelp": "Resta cada día de la previsión el promedio de tus últimos 90 días de gasto sin factura. Desactívalo para proyectar solo facturas e ingresos: un comienzo limpio, sin que el mes pasado marque el ritmo."
   },
   "toast": {
     "saved": "Guardado",

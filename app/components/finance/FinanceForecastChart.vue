@@ -14,6 +14,8 @@ const props = defineProps<{
       amountMinor: number
       balanceMinor: number
     }[]
+    /** False when the household switched the everyday-spend drain off. */
+    includesEverydaySpend?: boolean
     accounts?: {
       counted: { id: string, name: string, balanceMinor: number }[]
       unclassified: { id: string, name: string, balanceMinor: number }[]
@@ -213,8 +215,16 @@ const geometry = computed(() => {
         <span>{{ formatDayMonth(geometry.last.date) }} · {{ moneyShort(geometry.last.balanceMinor, currency) }}</span>
       </div>
 
+      <!-- The caption must describe the projection actually running: with the
+           everyday-spend drain switched off, "minus what you usually spend"
+           would be a claim about math that isn't happening. -->
       <p class="text-xs text-slate-500 dark:text-slate-400">
-        {{ $t('finance.forecast.explain') }} {{ $t('finance.forecast.basedOn') }}
+        <template v-if="forecast.includesEverydaySpend !== false">
+          {{ $t('finance.forecast.explain') }} {{ $t('finance.forecast.basedOn') }}
+        </template>
+        <template v-else>
+          {{ $t('finance.forecast.explainBillsOnly') }}
+        </template>
       </p>
 
       <!-- Whose money this line is made of, named, whenever an account was left

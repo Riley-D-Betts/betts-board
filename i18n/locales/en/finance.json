@@ -394,7 +394,8 @@
     "openingBalance": "Opening balance",
     "everydaySpending": "Everyday spending",
     "goalTransfer": "Goal transfer",
-    "lowestTag": "Lowest point"
+    "lowestTag": "Lowest point",
+    "explainBillsOnly": "Today’s spendable balance, plus your bills and income. Everyday spending is not projected — you can turn it on in Money settings."
   },
   "members": {
     "title": "Who can see money",
@@ -436,7 +437,9 @@
     "forecastDays": "Forecast length",
     "forecastOption": "{n} day | {n} days",
     "notOnDashboard": "Money never appears on the dashboard, the wall display, or the shared calendar.",
-    "adminOnly": "Only a household admin can change these."
+    "adminOnly": "Only a household admin can change these.",
+    "everydaySpend": "Project everyday spending",
+    "everydaySpendHelp": "Drains your last 90 days’ average of non-bill spending from the forecast daily. Turn it off to project bills and income only — a fresh start, without last month setting the pace."
   },
   "toast": {
     "saved": "Saved",

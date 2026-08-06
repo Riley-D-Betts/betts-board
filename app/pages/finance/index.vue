@@ -34,6 +34,7 @@ interface Overview {
       amountMinor: number
       balanceMinor: number
     }[]
+    includesEverydaySpend: boolean
     // Which accounts the opening balance was built from, and which were left
     // out because nobody has said what they are. The chart names the second
     // list — real money silently missing from the projection is what made this

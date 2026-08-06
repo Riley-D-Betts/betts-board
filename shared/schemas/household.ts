@@ -39,6 +39,13 @@ export const financeSettingsSchema = z.object({
   currency: z.string().trim().min(1).max(120),
   /** Days of cash-flow projection on the finance overview. */
   forecastDays: z.number().int().min(7).max(365),
+  /**
+   * Whether the forecast drains the trailing everyday-spend average daily.
+   * Off means bills and income only — for a household that started the board
+   * BECAUSE last month was out of control, and doesn't want that month
+   * projected forward as destiny.
+   */
+  forecastEverydaySpend: z.boolean().default(true),
 })
 
 /**
