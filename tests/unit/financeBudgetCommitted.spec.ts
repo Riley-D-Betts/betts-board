@@ -126,6 +126,40 @@ describe('unpaid bills reserve a budget', () => {
     expect(l.spentMinor).toBe(120000)
   })
 
+  it('paying one bill does not shrink what the others still reserve', () => {
+    // Budget $100, two bills: $30 and $40. Paying the $30 bill must leave the
+    // $40 fully reserved — its money is still going out. The old netting let
+    // the paid bill's spend absorb the OTHER bills' reservation too, so the
+    // bar under-reported what was spoken for by exactly what was already paid.
+    budget(housing, 10000)
+    const a = bill({ name: 'Water', kind: 'expense', amountMinor: 3000, categoryId: housing })
+    bill({ name: 'Power', kind: 'expense', amountMinor: 4000, categoryId: housing })
+    const t = spend(housing, -3000)
+    markBillOccurrence(db, householdId, a.id, { dueDate: DUE, status: 'paid', transactionId: t.id })
+
+    const l = lineFor(housing)
+    expect(l.spentMinor).toBe(3000)
+    expect(l.committedMinor).toBe(4000)
+    expect(l.remainingMinor).toBe(3000) // 10000 − 3000 spent − 4000 reserved
+  })
+
+  it('a paid bill absorbs only its own money, not one-off spend too', () => {
+    // Paid bill $30 (transaction posted) plus a $20 one-off in the same
+    // category. The one-off may still be an unmarked bill payment, so it keeps
+    // absorbing the $40 due — but the paid bill's $30 must not double-dip.
+    budget(housing, 10000)
+    const a = bill({ name: 'Water', kind: 'expense', amountMinor: 3000, categoryId: housing })
+    bill({ name: 'Power', kind: 'expense', amountMinor: 4000, categoryId: housing })
+    const t = spend(housing, -3000)
+    spend(housing, -2000)
+    markBillOccurrence(db, householdId, a.id, { dueDate: DUE, status: 'paid', transactionId: t.id })
+
+    const l = lineFor(housing)
+    expect(l.spentMinor).toBe(5000)
+    expect(l.committedMinor).toBe(2000) // 4000 due − 2000 unattributed spend
+    expect(l.remainingMinor).toBe(3000)
+  })
+
   it('a skipped bill reserves nothing', () => {
     budget(housing, 200000)
     const b = bill({ name: 'Rent', kind: 'expense', amountMinor: 120000, categoryId: housing })
