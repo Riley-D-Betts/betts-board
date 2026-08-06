@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   await requireFinanceAccess(event)
   const household = requireHousehold()
   const query = await getValidatedQuery(event, financeForecastQuerySchema.partial().parse)
-  const { currency, currencyExponent, forecastDays } = financeCurrency(household)
+  const { currency, currencyExponent, forecastDays, forecastEverydaySpend } = financeCurrency(household)
 
   // Idempotent: gives a brand-new household a usable category list without a
   // separate "set up finance" step.
@@ -20,5 +20,6 @@ export default defineEventHandler(async (event) => {
     currency,
     currencyExponent,
     forecastDays: query.days ?? forecastDays,
+    includeEverydaySpend: forecastEverydaySpend,
   })
 })

@@ -163,6 +163,40 @@ describe('the forecast', () => {
     expect(withCash.endingBalanceMinor).toBeLessThan(500000)
   })
 
+  it('the everyday-spend average can be switched off — bills and income only', () => {
+    // A household that started the board BECAUSE last month was out of control
+    // doesn't want that month projected forward as destiny. With the switch
+    // off, the forecast is bills and income only.
+    const checking = createAccount(db, householdId, { name: 'Checking', type: 'checking', openingBalanceMinor: 500000 }).id
+    const today = new Date()
+    const day = (offset: number) => {
+      const d = new Date(today)
+      d.setDate(d.getDate() - offset)
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    }
+    for (let i = 1; i <= 20; i++) {
+      createTransaction(db, {
+        householdId,
+        profileId: dad,
+        input: { accountId: checking, postedDate: day(i), amountMinor: -8000, description: 'takeout' },
+      })
+    }
+
+    // A manual account's balance IS its ledger, so the takeout rows above have
+    // already lowered the opening balance — compare each run against its own
+    // opening, not the account's original figure.
+    const on = buildForecast(db, householdId, { currency: 'USD', currencyExponent: 2, days: 30 })
+    expect(on.endingBalanceMinor).toBeLessThan(on.openingBalanceMinor)
+    expect(on.includesEverydaySpend).toBe(true)
+
+    const off = buildForecast(db, householdId, {
+      currency: 'USD', currencyExponent: 2, days: 30, includeEverydaySpend: false,
+    })
+    expect(off.endingBalanceMinor).toBe(off.openingBalanceMinor)
+    expect(off.includesEverydaySpend).toBe(false)
+    expect(off.ledger.filter(i => i.kind === 'spending')).toHaveLength(0)
+  })
+
   it('counts only spendable accounts in the opening balance', () => {
     createAccount(db, householdId, { name: 'Checking', type: 'checking', openingBalanceMinor: 100000 })
     createAccount(db, householdId, { name: 'Savings', type: 'savings', openingBalanceMinor: 250000 })

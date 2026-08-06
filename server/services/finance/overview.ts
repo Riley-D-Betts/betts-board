@@ -35,13 +35,47 @@ export function buildForecast(db: Db, householdId: string, args: {
   currency: string
   currencyExponent: number
   days: number
-}): ForecastResult & { accounts: ForecastAccounts } {
+  /**
+   * Off = bills and income only: no trailing average is computed at all, so
+   * last month's spending has no vote in the projection.
+   */
+  includeEverydaySpend?: boolean
+}): ForecastResult & { accounts: ForecastAccounts, includesEverydaySpend: boolean } {
   const today = todayString()
+  const includeEverydaySpend = args.includeEverydaySpend ?? true
   const accounts = listAccounts(db, householdId)
 
   const visible = accounts.filter(a => !a.isHidden && a.currency === args.currency)
   const counted = visible.filter(a => CASH_TYPES.has(a.type))
   const openingBalanceMinor = counted.reduce((acc, a) => acc + a.balanceMinor, 0)
+
+  const occurrences = expandBills(db, householdId, today, addDaysToDateString(today, args.days))
+
+  const summarize = (a: { id: string, name: string, balanceMinor: number }) =>
+    ({ id: a.id, name: a.name, balanceMinor: a.balanceMinor })
+
+  // Bills and income only: no trailing average is computed, so last month's
+  // spending has no vote. For a household that started tracking BECAUSE last
+  // month went badly, projecting that month forward as destiny is exactly the
+  // discouragement they turned the switch off to avoid.
+  if (!includeEverydaySpend) {
+    return {
+      ...projectCashFlow({
+        today,
+        days: args.days,
+        currency: args.currency,
+        currencyExponent: args.currencyExponent,
+        openingBalanceMinor,
+        occurrences,
+        dailyDiscretionaryMinor: 0,
+      }),
+      accounts: {
+        counted: counted.map(summarize),
+        unclassified: visible.filter(a => a.type === 'other').map(summarize),
+      },
+      includesEverydaySpend: false,
+    }
+  }
 
   const trailingStart = addDaysToDateString(today, -TRAILING_DAYS)
   // Only spend that actually leaves the cash accounts we projected from.
@@ -98,8 +132,6 @@ export function buildForecast(db: Db, householdId: string, args: {
     ? trailing.filter(t => !t.categoryId || !billCategoryIds.has(t.categoryId))
     : trailing
 
-  const occurrences = expandBills(db, householdId, today, addDaysToDateString(today, args.days))
-
   // Divide by the history we ACTUALLY have, not a flat 90 days. A household
   // five days into using the board has five days of spend; dividing it by 90
   // reports a daily average eighteen times too low and produces a comfortable
@@ -123,9 +155,6 @@ export function buildForecast(db: Db, householdId: string, args: {
     : TRAILING_DAYS
   const historyDays = Math.min(TRAILING_DAYS, Math.max(14, observedDays))
 
-  const summarize = (a: { id: string, name: string, balanceMinor: number }) =>
-    ({ id: a.id, name: a.name, balanceMinor: a.balanceMinor })
-
   return {
     ...projectCashFlow({
       today,
@@ -144,6 +173,7 @@ export function buildForecast(db: Db, householdId: string, args: {
       counted: counted.map(summarize),
       unclassified: visible.filter(a => a.type === 'other').map(summarize),
     },
+    includesEverydaySpend: true,
   }
 }
 
@@ -152,6 +182,7 @@ export function financeOverview(db: Db, householdId: string, args: {
   currency: string
   currencyExponent: number
   forecastDays: number
+  includeEverydaySpend?: boolean
 }) {
   const today = todayString()
   const period = currentMonth(today)
@@ -184,6 +215,7 @@ export function financeOverview(db: Db, householdId: string, args: {
       currency: args.currency,
       currencyExponent: args.currencyExponent,
       days: args.forecastDays,
+      includeEverydaySpend: args.includeEverydaySpend,
     }),
   }
 }

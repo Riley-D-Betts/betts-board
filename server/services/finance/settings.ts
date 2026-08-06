@@ -16,5 +16,6 @@ export function financeCurrency(household: typeof households.$inferSelect) {
     currency,
     currencyExponent: currencyExponent(currency),
     forecastDays: household.settings?.finance?.forecastDays ?? 90,
+    forecastEverydaySpend: household.settings?.finance?.forecastEverydaySpend ?? true,
   }
 }

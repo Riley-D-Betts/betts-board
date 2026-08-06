@@ -9,6 +9,6 @@ export default defineEventHandler(async (event) => {
   await requireFinanceAccess(event)
   const household = requireHousehold()
   const { days } = await getValidatedQuery(event, financeForecastQuerySchema.parse)
-  const { currency, currencyExponent } = financeCurrency(household)
-  return buildForecast(useDb(), household.id, { currency, currencyExponent, days })
+  const { currency, currencyExponent, forecastEverydaySpend } = financeCurrency(household)
+  return buildForecast(useDb(), household.id, { currency, currencyExponent, days, includeEverydaySpend: forecastEverydaySpend })
 })
