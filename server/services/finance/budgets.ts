@@ -68,15 +68,20 @@ export function budgetForMonth(db: Db, householdId: string, period: string, curr
     spend.set(row.categoryId, entry)
   }
 
-  // Unpaid bills reserve their category's budget. Sum only status 'due'
-  // occurrences (paid/skipped already happened or were dismissed).
+  // Unpaid bills reserve their category's budget; paid bills tell us how much
+  // of the category's spend is already spoken for (see the absorption below).
   const billsDue = new Map<string, number>()
+  const billsPaid = new Map<string, number>()
   for (const o of expandBills(db, householdId, start, end)) {
-    if (o.status !== 'due') continue
     if (o.kind !== 'expense') continue // income bills never reserve an expense budget
     if (o.currency !== currency) continue // never sum across currencies (mirrors spend)
     if (!o.categoryId) continue // uncategorized bills have no bar to reserve
-    billsDue.set(o.categoryId, (billsDue.get(o.categoryId) ?? 0) + o.amountMinor)
+    if (o.status === 'due') {
+      billsDue.set(o.categoryId, (billsDue.get(o.categoryId) ?? 0) + o.amountMinor)
+    }
+    else if (o.status === 'paid') {
+      billsPaid.set(o.categoryId, (billsPaid.get(o.categoryId) ?? 0) + (o.paidAmountMinor ?? o.amountMinor))
+    }
   }
 
   const categories = db.select().from(financeCategories)
@@ -97,7 +102,15 @@ export function budgetForMonth(db: Db, householdId: string, period: string, curr
       // its real (synced/imported) transaction from subtracting twice: once the
       // transaction posts, spent absorbs the bill and the reservation drops to 0
       // — without needing the occurrence to be hand-marked paid.
-      const reserved = Math.max(0, (billsDue.get(c.id) ?? 0) - spent)
+      //
+      // But only UNATTRIBUTED spend absorbs. Money that belongs to a bill
+      // already marked paid is accounted for: it left the budget as `spent`,
+      // and its bill left `billsDue` when it was marked. Letting it absorb
+      // again counted it twice in the household's favour — pay a $30 bill and
+      // the $40 still due would show as $10 reserved, the bar under-reporting
+      // what is spoken for by exactly the amount already paid.
+      const unattributed = Math.max(0, spent - (billsPaid.get(c.id) ?? 0))
+      const reserved = Math.max(0, (billsDue.get(c.id) ?? 0) - unattributed)
       const amountMinor = budget?.amountMinor ?? 0
       return {
         categoryId: c.id,
