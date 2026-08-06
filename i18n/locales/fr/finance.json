@@ -389,7 +389,12 @@
     "days": "{n} jour | {n} jours",
     "explain": "Votre solde disponible aujourd'hui, plus vos factures et vos revenus, moins ce que vous dépensez habituellement au quotidien.",
     "basedOn": "Les dépenses courantes sont moyennées sur les 90 derniers jours.",
-    "notCounted": "Non compté ici : {accounts} ({amount}). Choisissez le type Compte courant, Épargne ou Espèces pour l’inclure."
+    "notCounted": "Non compté ici : {accounts} ({amount}). Choisissez le type Compte courant, Épargne ou Espèces pour l’inclure.",
+    "breakdown": "Voir le détail du calcul",
+    "openingBalance": "Solde initial",
+    "everydaySpending": "Dépenses du quotidien",
+    "goalTransfer": "Virement vers l’objectif",
+    "lowestTag": "Point le plus bas"
   },
   "members": {
     "title": "Qui peut voir la section Argent",
