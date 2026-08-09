@@ -58,6 +58,14 @@ const budgetProgress = computed(() => {
   if (!b?.totalBudgetedMinor) return null
   return b.totalSpentMinor / b.totalBudgetedMinor
 })
+
+// Manual debts live on the Debts tab, not in this card — a medical payment
+// plan next to the checking account reads as clutter, and its balance never
+// needs reconciling against a bank app. Synced credit cards STAY: this card
+// is the "matches my bank" view, and they come from a bank. Net worth is
+// unaffected either way — the server sums it before this filter exists.
+const listedAccounts = computed(() =>
+  (data.value?.accounts ?? []).filter(a => a.connectionId || !['loan', 'credit'].includes(a.type)))
 </script>
 
 <template>
@@ -124,7 +132,7 @@ const budgetProgress = computed(() => {
       </p>
 
       <div class="grid gap-4 lg:grid-cols-2">
-        <FinanceAccountList :accounts="data.accounts" @changed="refresh" />
+        <FinanceAccountList :accounts="listedAccounts" @changed="refresh" />
 
         <UCard>
           <template #header>

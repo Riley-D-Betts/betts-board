@@ -17,7 +17,8 @@
     "budgets": "Budgets",
     "bills": "Factures",
     "goals": "Objectifs",
-    "settings": "Réglages Argent"
+    "settings": "Réglages Argent",
+    "debts": "Dettes"
   },
   "lock": {
     "title": "Argent verrouillé",
@@ -466,5 +467,29 @@
     "edit": "Répartir",
     "splitLocked": "Réparti entre plusieurs catégories — ouvrez l'éditeur de répartition pour le modifier.",
     "saved": "Répartition enregistrée"
+  },
+  "debts": {
+    "title": "Dettes",
+    "add": "Ajouter une dette",
+    "name": "À qui vous devez",
+    "amountOwed": "Montant dû",
+    "kind": "Type",
+    "addHelp": "Crée un compte manuel qui compte dans votre patrimoine. Enregistrez vos paiements ici au fur et à mesure et regardez la barre avancer.",
+    "total": "Total dû :",
+    "fromBank": "De votre banque",
+    "paidOff": "Remboursée",
+    "paidDown": "{paid} remboursé sur {original}",
+    "paidThisMonth": "{amount} payé ce mois-ci",
+    "nothingThisMonth": "Aucun paiement ce mois-ci pour l’instant",
+    "recordPayment": "Enregistrer un paiement",
+    "paymentTitle": "Paiement — {name}",
+    "paymentAmount": "Montant",
+    "paymentDate": "Date",
+    "paymentNote": "Note",
+    "bankNoManual": "Les paiements arrivent d’eux-mêmes avec la synchronisation bancaire.",
+    "empty": "Rien de suivi pour l’instant. Ajoutez ce que vous devez et regardez-le fondre.",
+    "remove": "Supprimer la dette",
+    "removeConfirm": "Supprimer « {name} » ? Elle sera définitivement effacée avec son historique de paiements.",
+    "removed": "Dette supprimée"
   }
 }

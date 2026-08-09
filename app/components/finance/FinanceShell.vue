@@ -17,6 +17,7 @@ const tabs = computed(() => [
   { to: '/finance/budgets', label: t('finance.nav.budgets'), icon: 'i-lucide-chart-pie' },
   { to: '/finance/bills', label: t('finance.nav.bills'), icon: 'i-lucide-calendar-clock' },
   { to: '/finance/goals', label: t('finance.nav.goals'), icon: 'i-lucide-target' },
+  { to: '/finance/debts', label: t('finance.nav.debts'), icon: 'i-lucide-trending-down' },
   { to: '/finance/settings', label: t('finance.nav.settings'), icon: 'i-lucide-settings' },
 ])
 

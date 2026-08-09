@@ -17,7 +17,8 @@
     "budgets": "Presupuestos",
     "bills": "Facturas",
     "goals": "Objetivos",
-    "settings": "Ajustes de dinero"
+    "settings": "Ajustes de dinero",
+    "debts": "Deudas"
   },
   "lock": {
     "title": "El dinero está bloqueado",
@@ -466,5 +467,29 @@
     "edit": "Dividir",
     "splitLocked": "Dividido entre categorías: abre el editor para cambiarlo.",
     "saved": "División guardada"
+  },
+  "debts": {
+    "title": "Deudas",
+    "add": "Añadir una deuda",
+    "name": "A quién debes",
+    "amountOwed": "Cantidad adeudada",
+    "kind": "Tipo",
+    "addHelp": "Esto crea una cuenta manual que resta de tu patrimonio. Registra aquí los pagos según los hagas y mira cómo avanza la barra.",
+    "total": "Total adeudado:",
+    "fromBank": "De tu banco",
+    "paidOff": "Saldada",
+    "paidDown": "{paid} pagado de {original}",
+    "paidThisMonth": "{amount} pagado este mes",
+    "nothingThisMonth": "Aún sin pagos este mes",
+    "recordPayment": "Registrar un pago",
+    "paymentTitle": "Pago de {name}",
+    "paymentAmount": "Cantidad",
+    "paymentDate": "Fecha",
+    "paymentNote": "Nota",
+    "bankNoManual": "Los pagos llegan solos con la sincronización del banco.",
+    "empty": "Nada registrado todavía. Añade lo que debes y mira cómo se reduce.",
+    "remove": "Eliminar deuda",
+    "removeConfirm": "¿Eliminar «{name}»? Esto la borra permanentemente junto con su historial de pagos.",
+    "removed": "Deuda eliminada"
   }
 }

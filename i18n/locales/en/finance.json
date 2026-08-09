@@ -17,7 +17,8 @@
     "budgets": "Budgets",
     "bills": "Bills",
     "goals": "Goals",
-    "settings": "Money settings"
+    "settings": "Money settings",
+    "debts": "Debts"
   },
   "lock": {
     "title": "Money is locked",
@@ -466,5 +467,29 @@
     "edit": "Split",
     "splitLocked": "Split across categories — open the split editor to change it.",
     "saved": "Split saved"
+  },
+  "debts": {
+    "title": "Debts",
+    "add": "Add a debt",
+    "name": "Who you owe",
+    "amountOwed": "Amount owed",
+    "kind": "Kind",
+    "addHelp": "This creates a manual account that counts against your net worth. Record payments here as you make them and watch the bar move.",
+    "total": "Total owed:",
+    "fromBank": "From your bank",
+    "paidOff": "Paid off",
+    "paidDown": "{paid} paid off of {original}",
+    "paidThisMonth": "{amount} paid this month",
+    "nothingThisMonth": "No payments yet this month",
+    "recordPayment": "Record a payment",
+    "paymentTitle": "Payment on {name}",
+    "paymentAmount": "Amount",
+    "paymentDate": "Date",
+    "paymentNote": "Note",
+    "bankNoManual": "Payments arrive on their own with the bank sync.",
+    "empty": "Nothing tracked yet. Add what you owe, and watch it shrink.",
+    "remove": "Remove debt",
+    "removeConfirm": "Remove “{name}”? This permanently deletes it and its payment history.",
+    "removed": "Debt removed"
   }
 }
