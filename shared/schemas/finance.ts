@@ -267,6 +267,25 @@ export const financeGoalContributeSchema = z.object({
   note: z.string().trim().max(200).nullish(),
 })
 
+// ── Debts ─────────────────────────────────────────────────────────────────
+// A debt IS an account of type loan or credit — no table of its own. The
+// Debts tab is the payoff-first view of those accounts: a manual debt's
+// opening balance is the original principal, and payments are ordinary
+// positive transactions, so net worth and the ledger stay consistent for free.
+
+export const financeDebtCreateSchema = z.object({
+  name: z.string().trim().min(1).max(80),
+  /** What is owed right now — stored as a negative opening balance. */
+  owedMinor: zAmountMinor.min(1),
+  type: z.enum(['loan', 'credit']).default('loan'),
+})
+
+export const financeDebtPaymentSchema = z.object({
+  amountMinor: zAmountMinor.min(1),
+  paidOn: zDateString,
+  note: z.string().trim().max(200).nullish(),
+})
+
 // ── Forecast ──────────────────────────────────────────────────────────────
 
 export const financeForecastQuerySchema = z.object({
